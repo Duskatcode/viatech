@@ -1,6 +1,7 @@
 import {
   Activity,
   BarChart3,
+  ShieldCheck,
   Building2,
   ClipboardList,
   LayoutDashboard,
@@ -36,7 +37,12 @@ const navItems = [
     label: 'Reportes',
     href: '/reports',
     icon: BarChart3,
-  }
+  },
+  {
+    label: 'Auditoría',
+    href: '/audit-logs',
+    icon: ShieldCheck,
+  },
 ];
 
 export function AppLayout() {

@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppLayout } from './layout/AppLayout';
+import { AuditLogsPage } from './pages/AuditLogsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { EquipmentPage } from './pages/EquipmentPage';
 import { EquipmentProfilePage } from './pages/EquipmentProfilePage';
@@ -28,6 +29,7 @@ export default function App() {
           />
           <Route path="/organization" element={<OrganizationPage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/audit-logs" element={<AuditLogsPage />} />
         </Route>
       </Route>
     </Routes>
