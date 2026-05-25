@@ -235,3 +235,29 @@ export interface QueryMaintenanceOrdersParams {
   status?: MaintenanceStatus;
   search?: string;
 }
+
+export interface UpdateCompanyPayload {
+  name?: string;
+  nit?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
+
+export interface CreateSitePayload {
+  companyId?: string;
+  name: string;
+  city?: string;
+  address?: string;
+}
+
+export interface UpdateSitePayload extends Partial<CreateSitePayload> {}
+
+export interface CreateAreaPayload {
+  siteId: string;
+  name: string;
+  floor?: string;
+  description?: string;
+}
+
+export interface UpdateAreaPayload extends Partial<CreateAreaPayload> {}
