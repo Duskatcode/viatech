@@ -1,0 +1,12 @@
+export const AUDIT_ACTIONS = {
+  ATTACHMENT_UPLOADED: 'ATTACHMENT_UPLOADED',
+  ATTACHMENT_DELETED: 'ATTACHMENT_DELETED',
+  REPORT_PDF_EXPORTED: 'REPORT_PDF_EXPORTED',
+} as const;
+
+export const AUDIT_ENTITIES = {
+  ATTACHMENT: 'Attachment',
+  MAINTENANCE_ORDER: 'MaintenanceOrder',
+  EQUIPMENT: 'Equipment',
+  REPORT: 'Report',
+} as const;

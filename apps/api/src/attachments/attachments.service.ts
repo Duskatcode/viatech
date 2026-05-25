@@ -9,6 +9,8 @@ import { createReadStream } from 'node:fs';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join, normalize } from 'node:path';
 
+import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import { AttachmentType, UserRole } from '../generated/prisma/client';
@@ -26,7 +28,10 @@ interface CreateAttachmentInput {
 
 @Injectable()
 export class AttachmentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   async listByEquipment(user: AuthUser, equipmentId: string) {
     await this.ensureEquipmentAccess(user, equipmentId);
@@ -62,7 +67,7 @@ export class AttachmentsService {
 
     const storedFile = await this.storeFile(input.file);
 
-    return this.prisma.attachment.create({
+    const attachment = await this.prisma.attachment.create({
       data: {
         type: this.resolveAttachmentType(input.type),
         filename: storedFile.filename,
@@ -73,6 +78,22 @@ export class AttachmentsService {
         equipmentId,
       },
     });
+
+    await this.auditLogsService.create({
+      userId: input.user.id,
+      action: AUDIT_ACTIONS.ATTACHMENT_UPLOADED,
+      entity: AUDIT_ENTITIES.ATTACHMENT,
+      entityId: attachment.id,
+      newValue: {
+        ownerType: 'equipment',
+        ownerId: equipmentId,
+        originalName: attachment.originalName,
+        mimeType: attachment.mimeType,
+        size: attachment.size,
+      },
+    });
+
+    return attachment;
   }
 
   async uploadForMaintenanceOrder(
@@ -83,7 +104,7 @@ export class AttachmentsService {
 
     const storedFile = await this.storeFile(input.file);
 
-    return this.prisma.attachment.create({
+    const attachment = await this.prisma.attachment.create({
       data: {
         type: this.resolveAttachmentType(input.type),
         filename: storedFile.filename,
@@ -94,6 +115,22 @@ export class AttachmentsService {
         orderId,
       },
     });
+
+    await this.auditLogsService.create({
+      userId: input.user.id,
+      action: AUDIT_ACTIONS.ATTACHMENT_UPLOADED,
+      entity: AUDIT_ENTITIES.ATTACHMENT,
+      entityId: attachment.id,
+      newValue: {
+        ownerType: 'maintenance-order',
+        ownerId: orderId,
+        originalName: attachment.originalName,
+        mimeType: attachment.mimeType,
+        size: attachment.size,
+      },
+    });
+
+    return attachment;
   }
 
   async getDownloadStream(user: AuthUser, attachmentId: string) {
@@ -113,6 +150,20 @@ export class AttachmentsService {
     await this.prisma.attachment.delete({
       where: {
         id: attachment.id,
+      },
+    });
+
+    await this.auditLogsService.create({
+      userId: user.id,
+      action: AUDIT_ACTIONS.ATTACHMENT_DELETED,
+      entity: AUDIT_ENTITIES.ATTACHMENT,
+      entityId: attachment.id,
+      oldValue: {
+        originalName: attachment.originalName,
+        mimeType: attachment.mimeType,
+        size: attachment.size,
+        equipmentId: attachment.equipmentId,
+        orderId: attachment.orderId,
       },
     });
 

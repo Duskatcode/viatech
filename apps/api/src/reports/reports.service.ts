@@ -1,5 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
+
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import {
@@ -16,7 +19,10 @@ import { buildMaintenanceOrderPdf } from './reports-pdf.util';
 
 @Injectable()
 export class ReportsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   async summary(user: AuthUser) {
     const equipmentWhere = this.buildEquipmentCompanyScope(user);
@@ -477,7 +483,20 @@ export class ReportsService {
       throw new NotFoundException('Maintenance order not found');
     }
 
-    return buildMaintenanceOrderPdf({ order });
+    const pdf = await buildMaintenanceOrderPdf({ order });
+
+    await this.auditLogsService.create({
+      userId: user.id,
+      action: AUDIT_ACTIONS.REPORT_PDF_EXPORTED,
+      entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
+      entityId: order.id,
+      newValue: {
+        report: 'maintenance-order-pdf',
+        code: order.code,
+      },
+    });
+
+    return pdf;
   }
 
   private buildEquipmentCompanyScope(
