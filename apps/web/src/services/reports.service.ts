@@ -97,6 +97,15 @@ export const reportsService = {
     downloadBlob('equipment-report.csv', response.data);
   },
 
+  async downloadEquipmentXlsx(params?: EquipmentReportParams) {
+    const response = await api.get<Blob>('/reports/equipment.xlsx', {
+      params: params ? removeEmptyParams(params) : undefined,
+      responseType: 'blob',
+    });
+
+    downloadBlob('equipment-report.xlsx', response.data);
+  },
+
   async downloadMaintenanceOrdersCsv(params?: MaintenanceOrdersReportParams) {
     const response = await api.get<Blob>('/reports/maintenance-orders.csv', {
       params: params ? removeEmptyParams(params) : undefined,
@@ -104,5 +113,14 @@ export const reportsService = {
     });
 
     downloadBlob('maintenance-orders-report.csv', response.data);
+  },
+
+  async downloadMaintenanceOrdersXlsx(params?: MaintenanceOrdersReportParams) {
+    const response = await api.get<Blob>('/reports/maintenance-orders.xlsx', {
+      params: params ? removeEmptyParams(params) : undefined,
+      responseType: 'blob',
+    });
+
+    downloadBlob('maintenance-orders-report.xlsx', response.data);
   },
 };

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, Download, FileText, MonitorCog } from 'lucide-react';
+import { ClipboardList, Download, FileSpreadsheet, FileText, MonitorCog } from 'lucide-react';
 
 import { getErrorMessage } from '../lib/error-message';
 import { ReportMetricCard } from '../reports/ReportMetricCard';
@@ -49,8 +49,11 @@ export function ReportsPage() {
   const [orderType, setOrderType] = useState<MaintenanceType | ''>('');
   const [orderCreatedFrom, setOrderCreatedFrom] = useState('');
   const [orderCreatedTo, setOrderCreatedTo] = useState('');
-  const [isDownloadingEquipment, setIsDownloadingEquipment] = useState(false);
-  const [isDownloadingOrders, setIsDownloadingOrders] = useState(false);
+
+  const [isDownloadingEquipmentCsv, setIsDownloadingEquipmentCsv] = useState(false);
+  const [isDownloadingEquipmentXlsx, setIsDownloadingEquipmentXlsx] = useState(false);
+  const [isDownloadingOrdersCsv, setIsDownloadingOrdersCsv] = useState(false);
+  const [isDownloadingOrdersXlsx, setIsDownloadingOrdersXlsx] = useState(false);
 
   const equipmentParams = useMemo(
     () => ({
@@ -105,7 +108,7 @@ export function ReportsPage() {
     summaryQuery.isError || equipmentQuery.isError || ordersQuery.isError;
 
   async function handleDownloadEquipmentCsv() {
-    setIsDownloadingEquipment(true);
+    setIsDownloadingEquipmentCsv(true);
 
     try {
       await reportsService.downloadEquipmentCsv(equipmentParams);
@@ -122,12 +125,34 @@ export function ReportsPage() {
         description: getErrorMessage(error),
       });
     } finally {
-      setIsDownloadingEquipment(false);
+      setIsDownloadingEquipmentCsv(false);
+    }
+  }
+
+  async function handleDownloadEquipmentXlsx() {
+    setIsDownloadingEquipmentXlsx(true);
+
+    try {
+      await reportsService.downloadEquipmentXlsx(equipmentParams);
+
+      addToast({
+        type: 'success',
+        title: 'Excel generado',
+        description: 'El reporte de equipos XLSX fue descargado desde el backend.',
+      });
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'No se pudo descargar el Excel',
+        description: getErrorMessage(error),
+      });
+    } finally {
+      setIsDownloadingEquipmentXlsx(false);
     }
   }
 
   async function handleDownloadOrdersCsv() {
-    setIsDownloadingOrders(true);
+    setIsDownloadingOrdersCsv(true);
 
     try {
       await reportsService.downloadMaintenanceOrdersCsv(orderParams);
@@ -144,7 +169,29 @@ export function ReportsPage() {
         description: getErrorMessage(error),
       });
     } finally {
-      setIsDownloadingOrders(false);
+      setIsDownloadingOrdersCsv(false);
+    }
+  }
+
+  async function handleDownloadOrdersXlsx() {
+    setIsDownloadingOrdersXlsx(true);
+
+    try {
+      await reportsService.downloadMaintenanceOrdersXlsx(orderParams);
+
+      addToast({
+        type: 'success',
+        title: 'Excel generado',
+        description: 'El reporte de mantenimientos XLSX fue descargado desde el backend.',
+      });
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'No se pudo descargar el Excel',
+        description: getErrorMessage(error),
+      });
+    } finally {
+      setIsDownloadingOrdersXlsx(false);
     }
   }
 
@@ -175,7 +222,7 @@ export function ReportsPage() {
           </p>
           <h1 className="mt-2 text-3xl font-semibold text-white">Reportes</h1>
           <p className="mt-2 text-sm text-slate-400">
-            Reportes operativos generados desde el backend con scoping y filtros.
+            Reportes operativos generados desde el backend con scoping, filtros, CSV y Excel.
           </p>
         </div>
 
@@ -210,7 +257,7 @@ export function ReportsPage() {
           title="Órdenes filtradas"
           value={orders.length}
           description={`Abiertas en filtro: ${openOrders}`}
-          icon={FileText}
+          icon={FileSpreadsheet}
         />
       </div>
 
@@ -219,19 +266,31 @@ export function ReportsPage() {
           <div>
             <h2 className="text-lg font-semibold text-white">Reporte de equipos</h2>
             <p className="mt-1 text-sm text-slate-400">
-              Datos y CSV generados desde `/reports/equipment`.
+              Datos, CSV y Excel generados desde `/reports/equipment`.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => void handleDownloadEquipmentCsv()}
-            disabled={isDownloadingEquipment}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Download size={18} />
-            {isDownloadingEquipment ? 'Descargando...' : 'Descargar equipos CSV'}
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => void handleDownloadEquipmentCsv()}
+              disabled={isDownloadingEquipmentCsv}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Download size={18} />
+              {isDownloadingEquipmentCsv ? 'Descargando...' : 'CSV'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void handleDownloadEquipmentXlsx()}
+              disabled={isDownloadingEquipmentXlsx}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <FileSpreadsheet size={18} />
+              {isDownloadingEquipmentXlsx ? 'Descargando...' : 'Excel'}
+            </button>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4">
@@ -321,8 +380,8 @@ export function ReportsPage() {
 
         {equipment.length > 10 ? (
           <p className="mt-3 text-sm text-slate-500">
-            Vista previa limitada a 10 registros. El CSV backend descarga todos los
-            registros filtrados.
+            Vista previa limitada a 10 registros. Los archivos backend descargan
+            todos los registros filtrados.
           </p>
         ) : null}
       </article>
@@ -334,19 +393,31 @@ export function ReportsPage() {
               Reporte de mantenimientos
             </h2>
             <p className="mt-1 text-sm text-slate-400">
-              Datos y CSV generados desde `/reports/maintenance-orders`.
+              Datos, CSV y Excel generados desde `/reports/maintenance-orders`.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => void handleDownloadOrdersCsv()}
-            disabled={isDownloadingOrders}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Download size={18} />
-            {isDownloadingOrders ? 'Descargando...' : 'Descargar órdenes CSV'}
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => void handleDownloadOrdersCsv()}
+              disabled={isDownloadingOrdersCsv}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Download size={18} />
+              {isDownloadingOrdersCsv ? 'Descargando...' : 'CSV'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void handleDownloadOrdersXlsx()}
+              disabled={isDownloadingOrdersXlsx}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <FileSpreadsheet size={18} />
+              {isDownloadingOrdersXlsx ? 'Descargando...' : 'Excel'}
+            </button>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-5">
@@ -446,8 +517,8 @@ export function ReportsPage() {
 
         {orders.length > 10 ? (
           <p className="mt-3 text-sm text-slate-500">
-            Vista previa limitada a 10 registros. El CSV backend descarga todos los
-            registros filtrados.
+            Vista previa limitada a 10 registros. Los archivos backend descargan
+            todos los registros filtrados.
           </p>
         ) : null}
       </article>
