@@ -29,3 +29,68 @@ textarea,
 select {
   font: inherit;
 }
+
+/* Phase 30 — responsive and UX polish */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(51 65 85) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.safe-layout-width {
+  width: min(100%, 100vw);
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+th,
+td {
+  vertical-align: top;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 0.8125rem;
+  }
+
+  th,
+  td {
+    white-space: nowrap;
+  }
+}
