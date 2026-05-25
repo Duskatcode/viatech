@@ -21,6 +21,7 @@ import type {
 } from '../services/alerts.service';
 import { auditLogsService } from '../services/audit-logs.service';
 import { reportsService } from '../services/reports.service';
+import { PageHeader } from '../ui/PageHeader';
 import { ErrorState, LoadingState } from '../ui/StateMessage';
 
 function formatDate(value?: string | null) {
@@ -286,24 +287,19 @@ export function DashboardPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
-            Panel operativo
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Dashboard</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Resumen de equipos, órdenes, alertas, exportaciones y eventos auditados.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
-          Alertas actualizadas:{' '}
-          <span className="font-medium text-white">
-            {alerts?.generatedAt ? formatDate(alerts.generatedAt) : '-'}
-          </span>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Panel operativo"
+        title="Dashboard"
+        description="Resumen de equipos, órdenes, alertas, exportaciones y eventos auditados."
+        actions={
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
+            Alertas actualizadas:{' '}
+            <span className="font-medium text-white">
+              {alerts?.generatedAt ? formatDate(alerts.generatedAt) : '-'}
+            </span>
+          </div>
+        }
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <DashboardCard

@@ -5,6 +5,8 @@ import { Eye, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
 import type { AuditLog } from '../services/audit-logs.service';
 import { auditLogsService } from '../services/audit-logs.service';
+import { PageHeader } from '../ui/PageHeader';
+import { SectionCard } from '../ui/SectionCard';
 import { EmptyState, ErrorState, LoadingState } from '../ui/StateMessage';
 
 function formatDate(value: string) {
@@ -82,25 +84,18 @@ export function AuditLogsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
-            Trazabilidad
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">
-            Auditoría
-          </h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Consulta eventos críticos: adjuntos, reportes y acciones auditables.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Trazabilidad"
+        title="Auditoría"
+        description="Consulta eventos críticos: adjuntos, reportes y acciones auditables."
+        actions={
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
+            Eventos encontrados: <span className="font-semibold text-white">{logs.length}</span>
+          </div>
+        }
+      />
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
-          Eventos encontrados: <span className="font-semibold text-white">{logs.length}</span>
-        </div>
-      </div>
-
-      <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+      <SectionCard>
         <div className="mb-5 flex items-center gap-3">
           <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
             <ShieldCheck size={22} />
@@ -178,7 +173,7 @@ export function AuditLogsPage() {
         >
           Limpiar filtros
         </button>
-      </article>
+      </SectionCard>
 
       {logs.length === 0 ? (
         <EmptyState
