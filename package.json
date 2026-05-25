@@ -21,7 +21,8 @@
     "check:phase5": "bash scripts/check-phase-5.sh",
     "check:phase6": "bash scripts/check-phase-6.sh",
     "check:phase7": "bash scripts/check-phase-7.sh",
-    "check:phase8": "bash scripts/check-phase-8.sh"
+    "check:phase8": "bash scripts/check-phase-8.sh",
+    "check:phase9": "bash scripts/check-phase-9.sh"
   },
   "keywords": [
     "biomedical",

@@ -4,6 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppLayout } from './layout/AppLayout';
 import { DashboardPage } from './pages/DashboardPage';
 import { EquipmentPage } from './pages/EquipmentPage';
+import { EquipmentProfilePage } from './pages/EquipmentProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { MaintenanceOrdersPage } from './pages/MaintenanceOrdersPage';
 import { OrganizationPage } from './pages/OrganizationPage';
@@ -17,6 +18,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="/equipment" element={<EquipmentPage />} />
+          <Route path="/equipment/:id" element={<EquipmentProfilePage />} />
           <Route path="/maintenance-orders" element={<MaintenanceOrdersPage />} />
           <Route path="/organization" element={<OrganizationPage />} />
         </Route>
