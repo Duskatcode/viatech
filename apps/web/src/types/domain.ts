@@ -1,3 +1,5 @@
+import type { UserRole } from './auth';
+
 export type EquipmentStatus =
   | 'ACTIVE'
   | 'IN_MAINTENANCE'
@@ -49,6 +51,15 @@ export interface Area extends AreaRef {
   isActive?: boolean;
 }
 
+export interface UserSummary {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  companyId: string | null;
+  isActive?: boolean;
+}
+
 export interface Equipment {
   id: string;
   internalCode: string;
@@ -95,6 +106,22 @@ export interface Attachment {
   createdAt: string;
 }
 
+export interface MaintenanceOrderEquipment {
+  id: string;
+  internalCode: string;
+  name: string;
+  status: EquipmentStatus;
+  companyId: string;
+  site?: {
+    id: string;
+    name: string;
+  };
+  area?: {
+    id: string;
+    name: string;
+  };
+}
+
 export interface MaintenanceOrder {
   id: string;
   code: string;
@@ -113,13 +140,9 @@ export interface MaintenanceOrder {
   createdById?: string | null;
   createdAt: string;
   updatedAt: string;
-  equipment?: {
-    id: string;
-    internalCode: string;
-    name: string;
-    status: EquipmentStatus;
-    companyId: string;
-  };
+  equipment?: MaintenanceOrderEquipment;
+  assignedTo?: UserSummary | null;
+  createdBy?: UserSummary | null;
   tasks?: MaintenanceTask[];
   attachments?: Attachment[];
 }
@@ -161,4 +184,54 @@ export interface QueryEquipmentParams {
 export interface UpdateEquipmentStatusPayload {
   status: EquipmentStatus;
   notes?: string;
+}
+
+export interface CreateMaintenanceTaskPayload {
+  title: string;
+  description?: string;
+}
+
+export interface UpdateMaintenanceTaskPayload {
+  title?: string;
+  description?: string;
+  isCompleted?: boolean;
+}
+
+export interface CreateMaintenanceOrderPayload {
+  equipmentId: string;
+  type: MaintenanceType;
+  assignedToId?: string;
+  scheduledDate?: string;
+  description?: string;
+  tasks?: CreateMaintenanceTaskPayload[];
+}
+
+export interface UpdateMaintenanceOrderPayload {
+  equipmentId?: string;
+  assignedToId?: string;
+  scheduledDate?: string;
+  description?: string;
+}
+
+export interface AssignMaintenanceOrderPayload {
+  assignedToId: string;
+}
+
+export interface CompleteMaintenanceOrderPayload {
+  diagnosis?: string;
+  actionsPerformed?: string;
+  recommendations?: string;
+  finalEquipmentStatus?: EquipmentStatus;
+}
+
+export interface CancelMaintenanceOrderPayload {
+  reason?: string;
+}
+
+export interface QueryMaintenanceOrdersParams {
+  equipmentId?: string;
+  assignedToId?: string;
+  type?: MaintenanceType;
+  status?: MaintenanceStatus;
+  search?: string;
 }
