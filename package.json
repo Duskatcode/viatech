@@ -62,7 +62,9 @@
     "check:phase40": "bash scripts/check-phase-40.sh",
     "check:phase41": "bash scripts/check-phase-41.sh",
     "check:phase42": "bash scripts/check-phase-42.sh",
-    "check:phase43": "bash scripts/check-phase-43.sh"
+    "check:phase43": "bash scripts/check-phase-43.sh",
+    "security:audit": "node scripts/security-hardening-audit.mjs",
+    "check:phase44": "bash scripts/check-phase-44.sh"
   },
   "keywords": [
     "biomedical",
