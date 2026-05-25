@@ -31,3 +31,28 @@ curl http://localhost:8080
 Decisión
 
 El frontend se sirve con Nginx y proxy /api/v1 hacia la API. PostgreSQL usa volumen persistente.
+
+## Setup automatizado
+
+```bash
+cp .env.docker.example .env.docker
+pnpm docker:setup
+
+Este comando:
+
+1. Construye y levanta servicios Docker.
+2. Ejecuta Prisma migrate deploy.
+3. Ejecuta seed.
+4. Valida health.
+5. Valida database health.
+Logs
+pnpm docker:logs
+pnpm docker:logs api
+pnpm docker:logs web
+pnpm docker:logs db
+Apagar servicios
+pnpm docker:down
+Reset local completo
+pnpm docker:reset
+
+Este comando elimina volúmenes. Úsalo solo para reiniciar la base de datos local Docker desde cero.

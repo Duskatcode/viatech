@@ -51,7 +51,12 @@
     "test:backend:critical": "node scripts/backend-critical-checks.mjs",
     "check:phase35": "bash scripts/check-phase-35.sh",
     "test:api:smoke": "node scripts/api-smoke-tests.mjs",
-    "check:phase36": "bash scripts/check-phase-36.sh"
+    "check:phase36": "bash scripts/check-phase-36.sh",
+    "docker:setup": "bash scripts/docker-setup.sh",
+    "docker:down": "bash scripts/docker-down.sh",
+    "docker:logs": "bash scripts/docker-logs.sh",
+    "docker:reset": "bash scripts/docker-reset.sh",
+    "check:phase37": "bash scripts/check-phase-37.sh"
   },
   "keywords": [
     "biomedical",
