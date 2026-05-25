@@ -4,7 +4,17 @@
   "private": true,
   "description": "Plataforma web para gestión de equipos biomédicos, mantenimientos, hojas de vida y reportes.",
   "scripts": {
-    "check:phase0": "bash scripts/check-phase-0.sh"
+    "dev:api": "pnpm --filter @biomed/api start:dev",
+    "dev:web": "pnpm --filter @biomed/web dev",
+    "build:api": "pnpm --filter @biomed/api build",
+    "build:web": "pnpm --filter @biomed/web build",
+    "build:shared": "pnpm --filter @biomed/shared build",
+    "build": "pnpm build:shared && pnpm build:api && pnpm build:web",
+    "check:phase0": "bash scripts/check-phase-0.sh",
+    "check:phase1": "bash scripts/check-phase-1.sh",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres"
   },
   "keywords": [
     "biomedical",
@@ -15,5 +25,9 @@
     "prisma"
   ],
   "author": "",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  },
+  "packageManager": "pnpm@10.33.0"
 }
