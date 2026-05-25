@@ -58,7 +58,8 @@
     "docker:reset": "bash scripts/docker-reset.sh",
     "check:phase37": "bash scripts/check-phase-37.sh",
     "check:phase38": "bash scripts/check-phase-38.sh",
-    "check:phase39": "bash scripts/check-phase-39.sh"
+    "check:phase39": "bash scripts/check-phase-39.sh",
+    "check:phase40": "bash scripts/check-phase-40.sh"
   },
   "keywords": [
     "biomedical",

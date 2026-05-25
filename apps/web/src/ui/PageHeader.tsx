@@ -1,39 +1,50 @@
 import type { ReactNode } from 'react';
 
 interface PageHeaderProps {
-  eyebrow?: string;
   title: string;
   description?: string;
+  subtitle?: string;
+  eyebrow?: string;
   actions?: ReactNode;
+  children?: ReactNode;
+  className?: string;
 }
 
 export function PageHeader({
-  eyebrow,
   title,
   description,
+  subtitle,
+  eyebrow,
   actions,
+  children,
+  className = '',
 }: PageHeaderProps) {
+  const resolvedDescription = description ?? subtitle;
+
   return (
-    <header className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-      <div>
+    <header
+      className={[
+        'mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
-            {eyebrow}
-          </p>
+          <p className="stitch-label mb-2">{eyebrow}</p>
         ) : null}
 
-        <h1 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-          {title}
-        </h1>
+        <h1 className="stitch-page-title">{title}</h1>
 
-        {description ? (
-          <p className="mt-2 max-w-3xl text-sm text-slate-400">
-            {description}
-          </p>
+        {resolvedDescription ? (
+          <p className="stitch-page-description mt-1">{resolvedDescription}</p>
         ) : null}
+
+        {children}
       </div>
 
-      {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-3">{actions}</div> : null}
     </header>
   );
 }

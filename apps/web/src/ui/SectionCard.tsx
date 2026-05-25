@@ -1,37 +1,53 @@
 import type { ReactNode } from 'react';
 
 interface SectionCardProps {
+  children: ReactNode;
   title?: string;
   description?: string;
-  children: ReactNode;
+  icon?: ReactNode;
   actions?: ReactNode;
+  className?: string;
+  bodyClassName?: string;
 }
 
 export function SectionCard({
+  children,
   title,
   description,
-  children,
+  icon,
   actions,
+  className = '',
+  bodyClassName = '',
 }: SectionCardProps) {
+  const hasHeader = title || description || icon || actions;
+
   return (
-    <section className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-sm sm:p-5">
-      {(title || description || actions) ? (
-        <div className="mb-5 flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-          <div>
-            {title ? (
-              <h2 className="text-lg font-semibold text-white">{title}</h2>
+    <section className={['stitch-card overflow-hidden', className].filter(Boolean).join(' ')}>
+      {hasHeader ? (
+        <div className="stitch-card-header flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            {icon ? (
+              <div className="mt-0.5 text-[var(--stitch-primary)]">{icon}</div>
             ) : null}
 
-            {description ? (
-              <p className="mt-1 text-sm text-slate-400">{description}</p>
-            ) : null}
+            <div className="min-w-0">
+              {title ? (
+                <h2 className="text-lg font-semibold text-[var(--stitch-on-surface)]">{title}</h2>
+              ) : null}
+
+              {description ? (
+                <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+                  {description}
+                </p>
+              ) : null}
+            </div>
           </div>
 
-          {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+          {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
         </div>
       ) : null}
 
-      {children}
+      <div className={['p-5', bodyClassName].filter(Boolean).join(' ')}>{children}</div>
     </section>
   );
 }

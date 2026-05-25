@@ -2,18 +2,27 @@ import type { ReactNode } from 'react';
 
 interface ResponsiveTableProps {
   children: ReactNode;
-  minWidth?: string;
+  className?: string;
+  wrapperClassName?: string;
 }
 
 export function ResponsiveTable({
   children,
-  minWidth = '900px',
+  className = '',
+  wrapperClassName = '',
 }: ResponsiveTableProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-800">
-      <div className="overflow-x-auto">
-        <div style={{ minWidth }}>{children}</div>
-      </div>
+    <div
+      className={[
+        'overflow-x-auto rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)]',
+        wrapperClassName,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <table className={['stitch-table', className].filter(Boolean).join(' ')}>
+        {children}
+      </table>
     </div>
   );
 }
