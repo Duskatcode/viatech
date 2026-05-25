@@ -112,3 +112,38 @@ td {
     display: none;
   }
 }
+
+/* Phase 33 — forms and validation polish */
+.form-input-base {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgb(51 65 85);
+  background: rgb(15 23 42);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: white;
+  outline: none;
+}
+
+.form-input-base:focus {
+  border-color: rgb(34 211 238);
+}
+
+.form-input-base[aria-invalid='true'] {
+  border-color: rgb(248 113 113);
+  background: rgba(127, 29, 29, 0.12);
+}
+
+.form-label-base {
+  display: inline-flex;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: rgb(148 163 184);
+}
+
+.form-actions-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

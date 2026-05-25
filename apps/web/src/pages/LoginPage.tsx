@@ -69,7 +69,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form noValidate className="space-y-5" onSubmit={handleSubmit}>
           <label className="block">
             <span className="text-sm font-medium text-slate-300">Email</span>
             <input
@@ -78,6 +78,7 @@ export function LoginPage() {
               onChange={(event) => setEmail(event.target.value)}
               type="email"
               autoComplete="email"
+              required
             />
           </label>
 
@@ -89,6 +90,8 @@ export function LoginPage() {
               onChange={(event) => setPassword(event.target.value)}
               type="password"
               autoComplete="current-password"
+              required
+              minLength={8}
             />
           </label>
 

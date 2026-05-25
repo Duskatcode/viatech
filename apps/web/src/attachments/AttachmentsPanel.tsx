@@ -4,9 +4,12 @@ import { Download, FileText, Paperclip, Trash2, Upload } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getErrorMessage } from '../lib/error-message';
+import { validateFileSize } from '../lib/form-validation';
 import { attachmentsService } from '../services/attachments.service';
 import type { Attachment } from '../types/domain';
 import { ConfirmModal } from '../ui/ConfirmModal';
+import { FieldError, FieldHint } from '../ui/FieldFeedback';
+import { SubmitButton } from '../ui/SubmitButton';
 import { EmptyState, ErrorState, LoadingState } from '../ui/StateMessage';
 import { useToast } from '../ui/ToastProvider';
 
@@ -46,6 +49,7 @@ export function AttachmentsPanel({
 
   const [type, setType] = useState('OTHER');
   const [file, setFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
   const [attachmentToDelete, setAttachmentToDelete] = useState<Attachment | null>(
     null,
   );
@@ -70,6 +74,10 @@ export function AttachmentsPanel({
         throw new Error('Selecciona un archivo antes de subirlo.');
       }
 
+      if (!validateFileSize(file, 10)) {
+        throw new Error('El archivo no puede superar 10 MB.');
+      }
+
       if (ownerType === 'equipment') {
         return attachmentsService.uploadEquipmentAttachment(ownerId, {
           file,
@@ -84,6 +92,7 @@ export function AttachmentsPanel({
     },
     onSuccess: async () => {
       setFile(null);
+      setFileError('');
       setType('OTHER');
 
       await queryClient.invalidateQueries({ queryKey });
@@ -148,6 +157,17 @@ export function AttachmentsPanel({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (!file) {
+      setFileError('Selecciona un archivo antes de subirlo.');
+      return;
+    }
+
+    if (!validateFileSize(file, 10)) {
+      setFileError('El archivo no puede superar 10 MB.');
+      return;
+    }
+
+    setFileError('');
     await uploadMutation.mutateAsync();
   }
 
@@ -183,18 +203,27 @@ export function AttachmentsPanel({
             <input
               className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white file:mr-3 file:rounded-xl file:border-0 file:bg-cyan-400 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-950"
               type="file"
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              onChange={(event) => {
+                setFile(event.target.files?.[0] ?? null);
+                setFileError('');
+              }}
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={uploadMutation.isPending || !file}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+          <div>
+            <FieldHint message="Formatos permitidos según backend. Tamaño recomendado: máximo 10 MB." />
+            <FieldError message={fileError} />
+          </div>
+
+          <SubmitButton
+            isLoading={uploadMutation.isPending}
+            loadingLabel="Subiendo..."
+            disabled={!file}
+            className="px-4"
           >
             <Upload size={18} />
-            {uploadMutation.isPending ? 'Subiendo...' : 'Subir adjunto'}
-          </button>
+            Subir adjunto
+          </SubmitButton>
         </form>
       </div>
 
