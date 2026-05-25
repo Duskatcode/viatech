@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, CalendarClock, ClipboardList, MonitorCog } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
+import { AttachmentsPanel } from '../attachments/AttachmentsPanel';
 import { EquipmentStatusBadge } from '../equipment/EquipmentStatusBadge';
 import { equipmentService } from '../services/equipment.service';
 
@@ -86,6 +87,13 @@ export function EquipmentProfilePage() {
           icon={MonitorCog}
         />
       </div>
+
+      <AttachmentsPanel
+        ownerType="equipment"
+        ownerId={equipment.id}
+        title="Adjuntos del equipo"
+        description="Sube hojas de vida, certificados, fotos o documentos asociados al equipo."
+      />
 
       <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
         <h2 className="text-lg font-semibold text-white">

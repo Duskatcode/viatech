@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, CheckSquare, ClipboardList, Plus } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
+import { AttachmentsPanel } from '../attachments/AttachmentsPanel';
 import { MaintenanceStatusBadge } from '../maintenance-orders/MaintenanceStatusBadge';
 import { maintenanceOrdersService } from '../services/maintenance-orders.service';
 
@@ -120,6 +121,13 @@ export function MaintenanceOrderDetailPage() {
           value={order.recommendations ?? 'Pendiente'}
         />
       </div>
+
+      <AttachmentsPanel
+        ownerType="maintenance-order"
+        ownerId={order.id}
+        title="Adjuntos de la orden"
+        description="Sube evidencias, fotos, certificados o documentos del mantenimiento."
+      />
 
       <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">

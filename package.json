@@ -32,7 +32,8 @@
     "check:phase16": "bash scripts/check-phase-16.sh",
     "check:phase17": "bash scripts/check-phase-17.sh",
     "check:phase18": "bash scripts/check-phase-18.sh",
-    "check:phase19": "bash scripts/check-phase-19.sh"
+    "check:phase19": "bash scripts/check-phase-19.sh",
+    "check:phase20": "bash scripts/check-phase-20.sh"
   },
   "keywords": [
     "biomedical",
