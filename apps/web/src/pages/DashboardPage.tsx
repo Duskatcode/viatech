@@ -1,111 +1,195 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, MonitorCog, Wrench } from 'lucide-react';
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle2,
+  ClipboardList,
+  MonitorCog,
+  TrendingUp,
+} from 'lucide-react';
 
-import { api } from '../lib/api';
-import type { Equipment, MaintenanceOrder } from '../types/domain';
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-}: {
-  title: string;
-  value: number;
-  icon: typeof MonitorCog;
-}) {
-  return (
-    <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-slate-400">{title}</p>
-          <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
-        </div>
-
-        <div className="rounded-2xl bg-cyan-400/15 p-3 text-cyan-300">
-          <Icon size={24} />
-        </div>
-      </div>
-    </article>
-  );
-}
+import {
+  countEquipmentByStatus,
+  countOrdersByStatus,
+  equipmentStatusLabels,
+  getActiveOrdersCount,
+  getCompletedThisMonthCount,
+  getCompletionRate,
+  getEquipmentAlerts,
+  getOverdueOrdersCount,
+  getRecentOrders,
+  maintenanceStatusLabels,
+} from '../dashboard/dashboard-utils';
+import { EquipmentAlerts } from '../dashboard/EquipmentAlerts';
+import { MetricCard } from '../dashboard/MetricCard';
+import { RecentMaintenanceOrders } from '../dashboard/RecentMaintenanceOrders';
+import { StatusDistribution } from '../dashboard/StatusDistribution';
+import { equipmentService } from '../services/equipment.service';
+import { maintenanceOrdersService } from '../services/maintenance-orders.service';
 
 export function DashboardPage() {
   const equipmentQuery = useQuery({
     queryKey: ['equipment'],
-    queryFn: async () => {
-      const response = await api.get<Equipment[]>('/equipment');
-      return response.data;
-    },
+    queryFn: () => equipmentService.findAll(),
   });
 
   const ordersQuery = useQuery({
     queryKey: ['maintenance-orders'],
-    queryFn: async () => {
-      const response = await api.get<MaintenanceOrder[]>('/maintenance-orders');
-      return response.data;
-    },
+    queryFn: () => maintenanceOrdersService.findAll(),
   });
 
   const equipment = equipmentQuery.data ?? [];
   const orders = ordersQuery.data ?? [];
 
-  const inMaintenance = equipment.filter(
-    (item) => item.status === 'IN_MAINTENANCE',
-  ).length;
+  const equipmentStatus = useMemo(
+    () => countEquipmentByStatus(equipment),
+    [equipment],
+  );
 
-  const activeOrders = orders.filter(
-    (order) => order.status === 'PENDING' || order.status === 'IN_PROGRESS',
-  ).length;
+  const orderStatus = useMemo(() => countOrdersByStatus(orders), [orders]);
+
+  const activeOrders = getActiveOrdersCount(orders);
+  const overdueOrders = getOverdueOrdersCount(orders);
+  const completedThisMonth = getCompletedThisMonthCount(orders);
+  const completionRate = getCompletionRate(orders);
+  const alerts = getEquipmentAlerts(equipment);
+  const recentOrders = getRecentOrders(orders);
+
+  const isLoading = equipmentQuery.isLoading || ordersQuery.isLoading;
+
+  if (isLoading) {
+    return <p className="text-slate-400">Cargando métricas...</p>;
+  }
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Resumen operativo de equipos y mantenimientos.
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Equipos registrados" value={equipment.length} icon={MonitorCog} />
-        <StatCard title="Equipos en mantenimiento" value={inMaintenance} icon={Wrench} />
-        <StatCard title="Órdenes activas" value={activeOrders} icon={ClipboardList} />
-      </div>
-
-      <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-        <h2 className="text-lg font-semibold text-white">Órdenes recientes</h2>
-
-        <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-950 text-slate-400">
-              <tr>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Equipo</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Estado</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {orders.slice(0, 6).map((order) => (
-                <tr key={order.id} className="text-slate-300">
-                  <td className="px-4 py-3 font-medium text-white">{order.code}</td>
-                  <td className="px-4 py-3">{order.equipment?.name ?? '-'}</td>
-                  <td className="px-4 py-3">{order.type}</td>
-                  <td className="px-4 py-3">{order.status}</td>
-                </tr>
-              ))}
-
-              {orders.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-6 text-center text-slate-500" colSpan={4}>
-                    No hay órdenes registradas.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
+      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
+            Centro operativo
+          </p>
+          <h1 className="mt-2 text-3xl font-semibold text-white">Dashboard</h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Métricas reales calculadas desde equipos y órdenes de mantenimiento.
+          </p>
         </div>
-      </article>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
+          Actualizado desde API local
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          title="Equipos registrados"
+          value={equipment.length}
+          description="Total visible para el usuario actual"
+          icon={MonitorCog}
+        />
+
+        <MetricCard
+          title="Órdenes activas"
+          value={activeOrders}
+          description="Pendientes o en progreso"
+          icon={ClipboardList}
+        />
+
+        <MetricCard
+          title="Completadas este mes"
+          value={completedThisMonth}
+          description="Mantenimientos cerrados"
+          icon={CheckCircle2}
+        />
+
+        <MetricCard
+          title="Tasa de cierre"
+          value={`${completionRate}%`}
+          description="Completadas sobre total de órdenes"
+          icon={TrendingUp}
+        />
+      </div>
+
+      {overdueOrders > 0 ? (
+        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5 text-amber-100">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-1" size={22} />
+            <div>
+              <h2 className="font-semibold">Órdenes vencidas detectadas</h2>
+              <p className="mt-1 text-sm text-amber-100/80">
+                Hay {overdueOrders} orden(es) programadas con fecha anterior a hoy
+                que siguen abiertas.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <StatusDistribution
+          title="Equipos por estado"
+          items={[
+            {
+              label: equipmentStatusLabels.ACTIVE,
+              value: equipmentStatus.ACTIVE,
+            },
+            {
+              label: equipmentStatusLabels.IN_MAINTENANCE,
+              value: equipmentStatus.IN_MAINTENANCE,
+            },
+            {
+              label: equipmentStatusLabels.OUT_OF_SERVICE,
+              value: equipmentStatus.OUT_OF_SERVICE,
+            },
+            {
+              label: equipmentStatusLabels.RETIRED,
+              value: equipmentStatus.RETIRED,
+            },
+          ]}
+        />
+
+        <StatusDistribution
+          title="Órdenes por estado"
+          items={[
+            {
+              label: maintenanceStatusLabels.PENDING,
+              value: orderStatus.PENDING,
+            },
+            {
+              label: maintenanceStatusLabels.IN_PROGRESS,
+              value: orderStatus.IN_PROGRESS,
+            },
+            {
+              label: maintenanceStatusLabels.COMPLETED,
+              value: orderStatus.COMPLETED,
+            },
+            {
+              label: maintenanceStatusLabels.CANCELLED,
+              value: orderStatus.CANCELLED,
+            },
+          ]}
+        />
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
+        <EquipmentAlerts equipment={alerts} />
+        <RecentMaintenanceOrders orders={recentOrders} />
+      </div>
+
+      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
+            <Activity size={22} />
+          </div>
+          <div>
+            <h2 className="font-semibold text-white">Resumen técnico</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              {alerts.length} equipo(s) requieren seguimiento y {activeOrders}{' '}
+              orden(es) siguen abiertas.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
