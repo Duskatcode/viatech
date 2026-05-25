@@ -6,6 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import {
@@ -20,7 +22,10 @@ import { UpdateEquipmentDto } from './dto/update-equipment.dto';
 
 @Injectable()
 export class EquipmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   async create(user: AuthUser, dto: CreateEquipmentDto) {
     const companyId = this.resolveCompanyId(user, dto.companyId);

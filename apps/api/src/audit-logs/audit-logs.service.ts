@@ -42,6 +42,15 @@ export class AuditLogsService {
     });
   }
 
+
+  async safeCreate(input: CreateAuditLogInput) {
+    try {
+      return await this.create(input);
+    } catch {
+      return null;
+    }
+  }
+
   findAll(user: AuthUser, query: QueryAuditLogsDto) {
     const where: Prisma.AuditLogWhereInput = {
       ...this.buildScope(user),

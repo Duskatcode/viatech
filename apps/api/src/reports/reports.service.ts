@@ -125,7 +125,7 @@ export class ReportsService {
   async equipmentCsv(user: AuthUser, query: QueryEquipmentReportDto) {
     const equipment = await this.findEquipment(user, query);
 
-    return toCsv(
+    const csv = toCsv(
       [
         'ID',
         'Empresa',
@@ -173,13 +173,33 @@ export class ReportsService {
         formatDate(item.updatedAt),
       ]),
     );
+
+    await this.auditCsvExport(user, 'equipment-csv', equipment.length, query);
+
+    return csv;
+
   }
 
+
+
+  private async auditCsvExport(user: AuthUser, report: string, rows: number, filters: unknown) {
+    await this.auditLogsService.safeCreate({
+      userId: user.id,
+      action: AUDIT_ACTIONS.REPORT_CSV_EXPORTED,
+      entity: AUDIT_ENTITIES.REPORT,
+      entityId: report,
+      newValue: {
+        report,
+        filters,
+        rows,
+      },
+    });
+  }
 
   async equipmentXlsx(user: AuthUser, query: QueryEquipmentReportDto) {
     const equipment = await this.findEquipment(user, query);
 
-    return buildReportWorkbook({
+    const workbook = await buildReportWorkbook({
       sheetName: 'Equipos',
       title: 'Reporte de equipos biomédicos',
       subtitle: `Total de equipos: ${equipment.length} · Generado: ${new Date().toISOString()}`,
@@ -230,6 +250,20 @@ export class ReportsService {
         updatedAt: formatDate(item.updatedAt),
       })),
     });
+
+    await this.auditLogsService.safeCreate({
+      userId: user.id,
+      action: AUDIT_ACTIONS.REPORT_XLSX_EXPORTED,
+      entity: AUDIT_ENTITIES.REPORT,
+      entityId: 'equipment-xlsx',
+      newValue: {
+        report: 'equipment-xlsx',
+        filters: query,
+        rows: equipment.length,
+      },
+    });
+
+    return workbook;
   }
 
   findMaintenanceOrders(user: AuthUser, query: QueryMaintenanceReportDto) {
@@ -298,7 +332,7 @@ export class ReportsService {
   async maintenanceOrdersCsv(user: AuthUser, query: QueryMaintenanceReportDto) {
     const orders = await this.findMaintenanceOrders(user, query);
 
-    return toCsv(
+    const csv = toCsv(
       [
         'ID',
         'Codigo orden',
@@ -357,13 +391,23 @@ export class ReportsService {
         ];
       }),
     );
+
+    await this.auditCsvExport(
+      user,
+      'maintenance-orders-csv',
+      orders.length,
+      query,
+    );
+
+    return csv;
+
   }
 
 
   async maintenanceOrdersXlsx(user: AuthUser, query: QueryMaintenanceReportDto) {
     const orders = await this.findMaintenanceOrders(user, query);
 
-    return buildReportWorkbook({
+    const workbook = await buildReportWorkbook({
       sheetName: 'Mantenimientos',
       title: 'Reporte de órdenes de mantenimiento',
       subtitle: `Total de órdenes: ${orders.length} · Generado: ${new Date().toISOString()}`,
@@ -497,6 +541,21 @@ export class ReportsService {
     });
 
     return pdf;
+  }
+
+
+  private async auditXlsxExport(user: AuthUser, report: string, rows: number, filters: unknown) {
+    await this.auditLogsService.safeCreate({
+      userId: user.id,
+      action: AUDIT_ACTIONS.REPORT_XLSX_EXPORTED,
+      entity: AUDIT_ENTITIES.REPORT,
+      entityId: report,
+      newValue: {
+        report,
+        filters,
+        rows,
+      },
+    });
   }
 
   private buildEquipmentCompanyScope(

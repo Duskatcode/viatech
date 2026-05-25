@@ -6,6 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import {
@@ -25,7 +27,10 @@ import { UpdateMaintenanceTaskDto } from './dto/update-maintenance-task.dto';
 
 @Injectable()
 export class MaintenanceOrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditLogsService: AuditLogsService,
+  ) {}
 
   async create(user: AuthUser, dto: CreateMaintenanceOrderDto) {
     const equipment = await this.findEquipmentForAccess(user, dto.equipmentId);
