@@ -223,7 +223,65 @@ export function AttachmentsPanel({
         ) : null}
 
         {attachments.length > 0 ? (
-          <div className="overflow-hidden rounded-2xl border border-slate-800">
+          <div className="grid gap-3 lg:hidden">
+            <p className="sr-only">Vista móvil de adjuntos</p>
+
+            {attachments.map((attachment) => (
+              <article
+                key={attachment.id}
+                className="rounded-2xl border border-slate-800 bg-slate-950 p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl bg-cyan-400/10 p-2 text-cyan-300">
+                    <FileText size={16} />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words text-sm font-semibold text-white">
+                      {attachment.originalName}
+                    </p>
+
+                    <p className="mt-1 break-all text-xs text-slate-500">
+                      {attachment.filename}
+                    </p>
+
+                    <div className="mt-3 grid gap-1 text-xs text-slate-400">
+                      <p>Tipo: {attachment.type}</p>
+                      <p>MIME: {attachment.mimeType}</p>
+                      <p>Tamaño: {formatFileSize(attachment.size)}</p>
+                      <p>Fecha: {formatDate(attachment.createdAt)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void downloadMutation.mutateAsync(attachment)}
+                    disabled={downloadMutation.isPending}
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-slate-800 disabled:opacity-60"
+                  >
+                    <Download size={15} />
+                    Descargar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAttachmentToDelete(attachment)}
+                    disabled={deleteMutation.isPending}
+                    className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10 disabled:opacity-60"
+                  >
+                    <Trash2 size={15} />
+                    Eliminar
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
+
+        {attachments.length > 0 ? (
+          <div className="hidden overflow-hidden rounded-2xl border border-slate-800 lg:block">
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead className="bg-slate-950 text-slate-400">
                 <tr>

@@ -175,13 +175,68 @@ export function AuditLogsPage() {
         </button>
       </SectionCard>
 
+      {logs.length > 0 ? (
+        <div className="grid gap-3 lg:hidden">
+          <p className="sr-only">Vista móvil de auditoría</p>
+
+          {logs.map((log) => (
+            <article
+              key={log.id}
+              className="rounded-3xl border border-slate-800 bg-slate-900 p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">
+                    {log.action}
+                  </span>
+
+                  <p className="mt-3 text-sm font-semibold text-white">
+                    {log.entity}
+                  </p>
+
+                  <p className="mt-1 break-all font-mono text-xs text-slate-500">
+                    {log.entityId}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedLog(log)}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-slate-800"
+                >
+                  <Eye size={15} />
+                  JSON
+                </button>
+              </div>
+
+              <div className="mt-4 grid gap-2 text-xs text-slate-400">
+                <p>
+                  <span className="text-slate-500">Fecha:</span>{' '}
+                  {formatDate(log.createdAt)}
+                </p>
+
+                <p>
+                  <span className="text-slate-500">Usuario:</span>{' '}
+                  {log.user?.name ?? '-'}
+                </p>
+
+                <p className="break-all">
+                  <span className="text-slate-500">Email:</span>{' '}
+                  {log.user?.email ?? '-'}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : null}
+
       {logs.length === 0 ? (
         <EmptyState
           title="Sin eventos"
           description="No hay registros de auditoría para los filtros seleccionados."
         />
       ) : (
-        <article className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900">
+        <article className="hidden overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 lg:block">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[980px] text-left text-sm">
               <thead className="bg-slate-950 text-slate-400">
