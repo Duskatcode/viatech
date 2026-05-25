@@ -14,7 +14,8 @@
     "check:phase1": "bash scripts/check-phase-1.sh",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f postgres"
+    "db:logs": "docker compose logs -f postgres",
+    "check:phase2": "bash scripts/check-phase-2.sh"
   },
   "keywords": [
     "biomedical",
