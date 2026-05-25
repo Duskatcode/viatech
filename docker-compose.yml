@@ -1,21 +1,60 @@
 services:
-  postgres:
-    image: postgres:16
-    container_name: biomed_postgres
+  db:
+    image: postgres:17-alpine
+    container_name: biomed-db
     restart: unless-stopped
     environment:
+      POSTGRES_DB: ${POSTGRES_DB:-biomed}
       POSTGRES_USER: ${POSTGRES_USER:-biomed}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-biomed_password}
-      POSTGRES_DB: ${POSTGRES_DB:-biomed_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5434}:5432"
     volumes:
       - biomed_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-biomed} -d ${POSTGRES_DB:-biomed_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-biomed} -d ${POSTGRES_DB:-biomed}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: biomed-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: ${DATABASE_URL:-postgresql://biomed:biomed_password@db:5432/biomed?schema=public}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8081}
+    ports:
+      - "${API_PORT:-3001}:3000"
+    volumes:
+      - biomed_uploads:/app/apps/api/uploads
+      - biomed_reports:/app/apps/api/reports
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: /api/v1
+    container_name: biomed-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-8081}:80"
 
 volumes:
   biomed_postgres_data:
+  biomed_uploads:
+  biomed_reports:

@@ -50,7 +50,8 @@
     "check:phase34": "bash scripts/check-phase-34.sh",
     "test:backend:critical": "node scripts/backend-critical-checks.mjs",
     "check:phase35": "bash scripts/check-phase-35.sh",
-    "test:api:smoke": "node scripts/api-smoke-tests.mjs"
+    "test:api:smoke": "node scripts/api-smoke-tests.mjs",
+    "check:phase36": "bash scripts/check-phase-36.sh"
   },
   "keywords": [
     "biomedical",
