@@ -10,6 +10,7 @@ import { DatabaseModule } from './database/database.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { HealthModule } from './health/health.module';
 import { MaintenanceOrdersModule } from './maintenance-orders/maintenance-orders.module';
+import { ReportsModule } from './reports/reports.module';
 import { SitesModule } from './sites/sites.module';
 import { UsersModule } from './users/users.module';
 
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     AreasModule,
     EquipmentModule,
     MaintenanceOrdersModule,
+    ReportsModule,
     HealthModule,
   ],
 })
