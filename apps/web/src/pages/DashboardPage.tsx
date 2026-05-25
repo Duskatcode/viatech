@@ -27,6 +27,7 @@ import { RecentMaintenanceOrders } from '../dashboard/RecentMaintenanceOrders';
 import { StatusDistribution } from '../dashboard/StatusDistribution';
 import { equipmentService } from '../services/equipment.service';
 import { maintenanceOrdersService } from '../services/maintenance-orders.service';
+import { reportsService } from '../services/reports.service';
 
 export function DashboardPage() {
   const equipmentQuery = useQuery({
@@ -39,8 +40,14 @@ export function DashboardPage() {
     queryFn: () => maintenanceOrdersService.findAll(),
   });
 
+  const summaryQuery = useQuery({
+    queryKey: ['reports-summary'],
+    queryFn: reportsService.summary,
+  });
+
   const equipment = equipmentQuery.data ?? [];
   const orders = ordersQuery.data ?? [];
+  const summary = summaryQuery.data;
 
   const equipmentStatus = useMemo(
     () => countEquipmentByStatus(equipment),
@@ -56,7 +63,7 @@ export function DashboardPage() {
   const alerts = getEquipmentAlerts(equipment);
   const recentOrders = getRecentOrders(orders);
 
-  const isLoading = equipmentQuery.isLoading || ordersQuery.isLoading;
+  const isLoading = equipmentQuery.isLoading || ordersQuery.isLoading || summaryQuery.isLoading;
 
   if (isLoading) {
     return <p className="text-slate-400">Cargando métricas...</p>;
@@ -83,14 +90,14 @@ export function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           title="Equipos registrados"
-          value={equipment.length}
+          value={summary?.equipment.total ?? equipment.length}
           description="Total visible para el usuario actual"
           icon={MonitorCog}
         />
 
         <MetricCard
           title="Órdenes activas"
-          value={activeOrders}
+          value={summary ? summary.maintenanceOrders.pending + summary.maintenanceOrders.inProgress : activeOrders}
           description="Pendientes o en progreso"
           icon={ClipboardList}
         />
