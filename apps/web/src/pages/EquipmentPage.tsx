@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 import { EquipmentFormModal } from '../equipment/EquipmentFormModal';
 import { EquipmentStatusBadge } from '../equipment/EquipmentStatusBadge';
 import { EquipmentStatusModal } from '../equipment/EquipmentStatusModal';
+import { getErrorMessage } from '../lib/error-message';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { useToast } from '../ui/ToastProvider';
 import { equipmentService } from '../services/equipment.service';
 import { organizationService } from '../services/organization.service';
 import type {
@@ -27,6 +30,7 @@ const statusOptions: Array<EquipmentStatus | ''> = [
 
 export function EquipmentPage() {
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   const [search, setSearch] = useState('');
   const [siteId, setSiteId] = useState('');
@@ -34,6 +38,7 @@ export function EquipmentPage() {
   const [status, setStatus] = useState<EquipmentStatus | ''>('');
   const [formEquipment, setFormEquipment] = useState<Equipment | null | undefined>();
   const [statusEquipment, setStatusEquipment] = useState<Equipment | null>(null);
+  const [equipmentToRetire, setEquipmentToRetire] = useState<Equipment | null>(null);
 
   const filters = useMemo<QueryEquipmentParams>(
     () => ({
@@ -100,6 +105,19 @@ export function EquipmentPage() {
     mutationFn: (id: string) => equipmentService.retire(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
+      setEquipmentToRetire(null);
+      addToast({
+        type: 'success',
+        title: 'Equipo retirado',
+        description: 'El equipo fue marcado como RETIRED.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo retirar el equipo',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -130,12 +148,10 @@ export function EquipmentPage() {
     });
   }
 
-  async function handleRetire(equipmentId: string) {
-    const confirmed = window.confirm('¿Retirar este equipo?');
+  async function handleRetire() {
+    if (!equipmentToRetire) return;
 
-    if (!confirmed) return;
-
-    await retireMutation.mutateAsync(equipmentId);
+    await retireMutation.mutateAsync(equipmentToRetire.id);
   }
 
   return (
@@ -262,7 +278,7 @@ export function EquipmentPage() {
 
                     <button
                       type="button"
-                      onClick={() => void handleRetire(item.id)}
+                      onClick={() => setEquipmentToRetire(item)}
                       className="rounded-xl border border-red-500/30 p-2 text-red-300 transition hover:bg-red-500/10"
                       title="Retirar"
                     >
@@ -303,6 +319,18 @@ export function EquipmentPage() {
           onSubmit={handleStatusSubmit}
         />
       ) : null}
+      {equipmentToRetire ? (
+        <ConfirmModal
+          title="Retirar equipo"
+          description={`El equipo "${equipmentToRetire.name}" quedará marcado como RETIRED. Esta acción no borra el historial.`}
+          confirmLabel="Retirar equipo"
+          variant="danger"
+          isSubmitting={retireMutation.isPending}
+          onCancel={() => setEquipmentToRetire(null)}
+          onConfirm={handleRetire}
+        />
+      ) : null}
+
     </section>
   );
 }

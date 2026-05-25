@@ -4,9 +4,12 @@ import { Activity } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
+import { getErrorMessage } from '../lib/error-message';
+import { useToast } from '../ui/ToastProvider';
 
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('admin@biomed.local');
@@ -26,9 +29,27 @@ export function LoginPage() {
 
     try {
       await login({ email, password });
+
+      addToast({
+        type: 'success',
+        title: 'Sesión iniciada',
+        description: 'Bienvenido a Biomed Maintenance.',
+      });
+
       navigate('/', { replace: true });
-    } catch {
-      setError('Credenciales inválidas o API no disponible.');
+    } catch (caughtError) {
+      const message = getErrorMessage(
+        caughtError,
+        'Credenciales inválidas o API no disponible.',
+      );
+
+      setError(message);
+
+      addToast({
+        type: 'error',
+        title: 'No se pudo iniciar sesión',
+        description: message,
+      });
     } finally {
       setIsSubmitting(false);
     }
