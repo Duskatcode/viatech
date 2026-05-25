@@ -1,0 +1,19 @@
+{
+  "name": "biomed-maintenance",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Plataforma web para gestión de equipos biomédicos, mantenimientos, hojas de vida y reportes.",
+  "scripts": {
+    "check:phase0": "bash scripts/check-phase-0.sh"
+  },
+  "keywords": [
+    "biomedical",
+    "maintenance",
+    "nestjs",
+    "react",
+    "postgresql",
+    "prisma"
+  ],
+  "author": "",
+  "license": "UNLICENSED"
+}
