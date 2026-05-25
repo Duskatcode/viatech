@@ -7,6 +7,16 @@ import { AttachmentsPanel } from '../attachments/AttachmentsPanel';
 import { MaintenanceOrderPdfButton } from '../maintenance-orders/MaintenanceOrderPdfButton';
 import { MaintenanceStatusBadge } from '../maintenance-orders/MaintenanceStatusBadge';
 import { maintenanceOrdersService } from '../services/maintenance-orders.service';
+import { ActionButton } from '../ui/ActionButton';
+import { SectionCard } from '../ui/SectionCard';
+
+function formatDateTime(value?: string | null) {
+  if (!value) {
+    return '-';
+  }
+
+  return new Date(value).toLocaleString();
+}
 
 export function MaintenanceOrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -48,11 +58,19 @@ export function MaintenanceOrderDetailPage() {
   const order = query.data;
 
   if (query.isLoading) {
-    return <p className="text-slate-400">Cargando orden...</p>;
+    return (
+      <p className="text-sm text-[var(--stitch-on-surface-variant)]">
+        Cargando orden...
+      </p>
+    );
   }
 
   if (!order) {
-    return <p className="text-slate-400">Orden no encontrada.</p>;
+    return (
+      <p className="text-sm text-[var(--stitch-on-surface-variant)]">
+        Orden no encontrada.
+      </p>
+    );
   }
 
   const tasks = order.tasks ?? [];
@@ -62,54 +80,53 @@ export function MaintenanceOrderDetailPage() {
     <section className="space-y-6">
       <Link
         to="/maintenance-orders"
-        className="inline-flex items-center gap-2 text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+        className="inline-flex items-center gap-2 text-sm font-bold text-[var(--stitch-primary)] transition hover:text-[var(--stitch-primary-container)]"
       >
         <ArrowLeft size={16} />
         Volver a mantenimientos
       </Link>
 
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-          <div>
-            <div className="mb-4 inline-flex rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
-              <ClipboardList size={28} />
+      <section className="stitch-card overflow-hidden">
+        <div className="stitch-card-header px-6 py-5">
+          <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+            <div className="min-w-0">
+              <div className="mb-4 inline-flex rounded-lg bg-[rgb(0_63_135_/_0.08)] p-3 text-[var(--stitch-primary)]">
+                <ClipboardList size={28} />
+              </div>
+
+              <p className="stitch-label">{order.type}</p>
+
+              <h1 className="mt-1 text-3xl font-bold tracking-[-0.03em] text-[var(--stitch-on-surface)]">
+                {order.code}
+              </h1>
+
+              <div className="mt-4">
+                <MaintenanceStatusBadge status={order.status} />
+              </div>
             </div>
 
-            <p className="text-sm text-slate-400">{order.type}</p>
-            <h1 className="mt-1 text-3xl font-semibold text-white">{order.code}</h1>
-
-            <div className="mt-4">
-              <MaintenanceStatusBadge status={order.status} />
+            <div className="grid gap-3 text-sm sm:grid-cols-2 lg:min-w-[440px]">
+              <Info label="Equipo" value={order.equipment?.name ?? '-'} />
+              <Info label="Código equipo" value={order.equipment?.internalCode ?? '-'} />
+              <Info label="Técnico" value={order.assignedTo?.name ?? 'Sin asignar'} />
+              <Info label="Creada por" value={order.createdBy?.name ?? '-'} />
+              <Info label="Inicio" value={formatDateTime(order.startedAt)} />
+              <Info label="Finalización" value={formatDateTime(order.completedAt)} />
             </div>
-          </div>
-
-          <div className="grid gap-3 text-sm text-slate-300 sm:grid-cols-2 lg:min-w-[420px]">
-            <Info label="Equipo" value={order.equipment?.name ?? '-'} />
-            <Info label="Código equipo" value={order.equipment?.internalCode ?? '-'} />
-            <Info label="Técnico" value={order.assignedTo?.name ?? 'Sin asignar'} />
-            <Info label="Creada por" value={order.createdBy?.name ?? '-'} />
-            <Info
-              label="Inicio"
-              value={order.startedAt ? new Date(order.startedAt).toLocaleString() : '-'}
-            />
-            <Info
-              label="Finalización"
-              value={
-                order.completedAt
-                  ? new Date(order.completedAt).toLocaleString()
-                  : '-'
-              }
-            />
           </div>
         </div>
 
         {order.description ? (
-          <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-4">
-            <p className="text-sm font-medium text-slate-300">Descripción</p>
-            <p className="mt-2 text-sm text-slate-400">{order.description}</p>
+          <div className="p-6">
+            <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4">
+              <p className="stitch-label">Descripción</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--stitch-on-surface-variant)]">
+                {order.description}
+              </p>
+            </div>
           </div>
         ) : null}
-      </div>
+      </section>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <InfoCard label="Diagnóstico" value={order.diagnosis ?? 'Pendiente'} />
@@ -134,18 +151,14 @@ export function MaintenanceOrderDetailPage() {
         description="Sube evidencias, fotos, certificados o documentos del mantenimiento."
       />
 
-      <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Checklist</h2>
-            <p className="mt-1 text-sm text-slate-400">
-              Tareas técnicas asociadas a esta orden.
-            </p>
-          </div>
-
-          {canEditTasks ? (
+      <SectionCard
+        title="Checklist"
+        description="Tareas técnicas asociadas a esta orden."
+        icon={<CheckSquare size={21} />}
+        actions={
+          canEditTasks ? (
             <form
-              className="flex gap-2"
+              className="flex flex-col gap-2 sm:flex-row"
               onSubmit={(event) => {
                 event.preventDefault();
 
@@ -155,32 +168,32 @@ export function MaintenanceOrderDetailPage() {
               }}
             >
               <input
-                className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+                className="stitch-input min-w-[240px] px-4 py-2.5"
                 placeholder="Nueva tarea"
                 value={taskTitle}
                 onChange={(event) => setTaskTitle(event.target.value)}
               />
 
-              <button
+              <ActionButton
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                icon={<Plus size={16} />}
+                disabled={addTaskMutation.isPending}
               >
-                <Plus size={16} />
                 Agregar
-              </button>
+              </ActionButton>
             </form>
-          ) : null}
-        </div>
-
-        <div className="mt-5 space-y-3">
+          ) : null
+        }
+      >
+        <div className="space-y-3">
           {tasks.map((task) => (
             <label
               key={task.id}
-              className="flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-950 p-4"
+              className="flex items-start gap-3 rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4 transition-colors hover:bg-[var(--stitch-surface-container)]"
             >
               <input
                 type="checkbox"
-                className="mt-1 h-4 w-4"
+                className="mt-1 h-4 w-4 accent-[var(--stitch-primary)]"
                 checked={task.isCompleted}
                 disabled={!canEditTasks || updateTaskMutation.isPending}
                 onChange={(event) =>
@@ -192,13 +205,19 @@ export function MaintenanceOrderDetailPage() {
               />
 
               <div>
-                <p className="font-medium text-white">{task.title}</p>
+                <p className="font-semibold text-[var(--stitch-on-surface)]">
+                  {task.title}
+                </p>
+
                 {task.description ? (
-                  <p className="mt-1 text-sm text-slate-400">{task.description}</p>
+                  <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+                    {task.description}
+                  </p>
                 ) : null}
+
                 {task.completedAt ? (
-                  <p className="mt-2 text-xs text-emerald-300">
-                    Completada: {new Date(task.completedAt).toLocaleString()}
+                  <p className="mt-2 text-xs font-medium text-[var(--stitch-success-text)]">
+                    Completada: {formatDateTime(task.completedAt)}
                   </p>
                 ) : null}
               </div>
@@ -206,31 +225,33 @@ export function MaintenanceOrderDetailPage() {
           ))}
 
           {tasks.length === 0 ? (
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-6 text-center text-slate-500">
-              <CheckSquare className="mx-auto mb-2" size={24} />
+            <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-6 text-center text-[var(--stitch-on-surface-variant)]">
+              <CheckSquare className="mx-auto mb-2 text-[var(--stitch-outline)]" size={24} />
               Esta orden no tiene tareas.
             </div>
           ) : null}
         </div>
-      </article>
+      </SectionCard>
     </section>
   );
 }
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-      <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 font-medium text-white">{value}</p>
+    <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4">
+      <p className="stitch-label">{label}</p>
+      <p className="mt-1 font-semibold text-[var(--stitch-on-surface)]">{value}</p>
     </div>
   );
 }
 
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="mt-3 text-sm leading-6 text-white">{value}</p>
-    </div>
+    <article className="stitch-card p-5">
+      <p className="stitch-label">{label}</p>
+      <p className="mt-3 text-sm leading-6 text-[var(--stitch-on-surface)]">
+        {value}
+      </p>
+    </article>
   );
 }

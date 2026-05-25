@@ -9,8 +9,10 @@ import { attachmentsService } from '../services/attachments.service';
 import type { Attachment } from '../types/domain';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { FieldError, FieldHint } from '../ui/FieldFeedback';
+import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { SubmitButton } from '../ui/SubmitButton';
 import { EmptyState, ErrorState, LoadingState } from '../ui/StateMessage';
+import { StatusPill } from '../ui/StatusPill';
 import { useToast } from '../ui/ToastProvider';
 
 type AttachmentOwnerType = 'equipment' | 'maintenance-order';
@@ -174,40 +176,52 @@ export function AttachmentsPanel({
   const attachments = attachmentsQuery.data ?? [];
 
   return (
-    <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-start">
-        <div>
-          <div className="mb-3 inline-flex rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
+    <article className="stitch-card overflow-hidden">
+      <div className="stitch-card-header flex flex-col justify-between gap-4 px-5 py-4 xl:flex-row xl:items-start">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className="rounded-lg bg-[rgb(0_63_135_/_0.08)] p-3 text-[var(--stitch-primary)]">
             <Paperclip size={22} />
           </div>
 
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold text-[var(--stitch-on-surface)]">
+              {title}
+            </h2>
 
-          {description ? (
-            <p className="mt-1 text-sm text-slate-400">{description}</p>
-          ) : null}
+            {description ? (
+              <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+                {description}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <form
-          className="grid gap-3 rounded-2xl border border-slate-800 bg-slate-950 p-4 md:min-w-[420px]"
+          className="grid gap-3 rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 md:min-w-[460px]"
           onSubmit={handleSubmit}
         >
-          <div className="grid gap-3 md:grid-cols-[1fr_1.4fr]">
-            <input
-              className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-              placeholder="Tipo: OTHER, MANUAL, EVIDENCE..."
-              value={type}
-              onChange={(event) => setType(event.target.value)}
-            />
+          <div className="grid gap-3 md:grid-cols-[0.8fr_1.4fr]">
+            <label className="block">
+              <span className="stitch-label">Tipo</span>
+              <input
+                className="stitch-input mt-2 px-4 py-3"
+                placeholder="OTHER, MANUAL, EVIDENCE..."
+                value={type}
+                onChange={(event) => setType(event.target.value)}
+              />
+            </label>
 
-            <input
-              className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white file:mr-3 file:rounded-xl file:border-0 file:bg-cyan-400 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-950"
-              type="file"
-              onChange={(event) => {
-                setFile(event.target.files?.[0] ?? null);
-                setFileError('');
-              }}
-            />
+            <label className="block">
+              <span className="stitch-label">Archivo</span>
+              <input
+                className="stitch-input mt-2 px-4 py-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--stitch-primary)] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
+                type="file"
+                onChange={(event) => {
+                  setFile(event.target.files?.[0] ?? null);
+                  setFileError('');
+                }}
+              />
+            </label>
           </div>
 
           <div>
@@ -227,7 +241,7 @@ export function AttachmentsPanel({
         </form>
       </div>
 
-      <div className="mt-5">
+      <div className="p-5">
         {attachmentsQuery.isLoading ? (
           <LoadingState
             title="Cargando adjuntos..."
@@ -258,23 +272,23 @@ export function AttachmentsPanel({
             {attachments.map((attachment) => (
               <article
                 key={attachment.id}
-                className="rounded-2xl border border-slate-800 bg-slate-950 p-4"
+                className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4"
               >
                 <div className="flex items-start gap-3">
-                  <div className="rounded-xl bg-cyan-400/10 p-2 text-cyan-300">
+                  <div className="rounded-lg bg-[rgb(0_63_135_/_0.08)] p-2 text-[var(--stitch-primary)]">
                     <FileText size={16} />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="break-words text-sm font-semibold text-white">
+                    <p className="break-words text-sm font-semibold text-[var(--stitch-on-surface)]">
                       {attachment.originalName}
                     </p>
 
-                    <p className="mt-1 break-all text-xs text-slate-500">
+                    <p className="stitch-code mt-1 break-all text-xs text-[var(--stitch-outline)]">
                       {attachment.filename}
                     </p>
 
-                    <div className="mt-3 grid gap-1 text-xs text-slate-400">
+                    <div className="mt-3 grid gap-1 text-xs text-[var(--stitch-on-surface-variant)]">
                       <p>Tipo: {attachment.type}</p>
                       <p>MIME: {attachment.mimeType}</p>
                       <p>Tamaño: {formatFileSize(attachment.size)}</p>
@@ -288,7 +302,7 @@ export function AttachmentsPanel({
                     type="button"
                     onClick={() => void downloadMutation.mutateAsync(attachment)}
                     disabled={downloadMutation.isPending}
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-xs font-medium text-slate-200 transition hover:bg-slate-800 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[var(--stitch-outline-variant)] px-3 py-2 text-xs font-bold text-[var(--stitch-primary)] transition hover:bg-[rgb(0_63_135_/_0.06)] disabled:opacity-60"
                   >
                     <Download size={15} />
                     Descargar
@@ -298,7 +312,7 @@ export function AttachmentsPanel({
                     type="button"
                     onClick={() => setAttachmentToDelete(attachment)}
                     disabled={deleteMutation.isPending}
-                    className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-3 py-2 text-xs font-medium text-red-300 transition hover:bg-red-500/10 disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[var(--stitch-danger-border)] px-3 py-2 text-xs font-bold text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:opacity-60"
                   >
                     <Trash2 size={15} />
                     Eliminar
@@ -310,49 +324,56 @@ export function AttachmentsPanel({
         ) : null}
 
         {attachments.length > 0 ? (
-          <div className="hidden overflow-hidden rounded-2xl border border-slate-800 lg:block">
-            <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="bg-slate-950 text-slate-400">
+          <div className="hidden lg:block">
+            <ResponsiveTable wrapperClassName="rounded-lg">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3">Archivo</th>
-                  <th className="px-4 py-3">Tipo</th>
-                  <th className="px-4 py-3">MIME</th>
-                  <th className="px-4 py-3">Tamaño</th>
-                  <th className="px-4 py-3">Fecha</th>
-                  <th className="px-4 py-3 text-right">Acciones</th>
+                  <th>Archivo</th>
+                  <th>Tipo</th>
+                  <th>MIME</th>
+                  <th>Tamaño</th>
+                  <th>Fecha</th>
+                  <th className="text-right">Acciones</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-800">
+              <tbody>
                 {attachments.map((attachment) => (
-                  <tr key={attachment.id} className="text-slate-300">
-                    <td className="px-4 py-3">
+                  <tr key={attachment.id}>
+                    <td>
                       <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-cyan-400/10 p-2 text-cyan-300">
+                        <div className="rounded-lg bg-[rgb(0_63_135_/_0.08)] p-2 text-[var(--stitch-primary)]">
                           <FileText size={16} />
                         </div>
 
                         <div>
-                          <p className="font-medium text-white">
+                          <p className="font-semibold text-[var(--stitch-on-surface)]">
                             {attachment.originalName}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="stitch-code text-xs text-[var(--stitch-outline)]">
                             {attachment.filename}
                           </p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="px-4 py-3">{attachment.type}</td>
-                    <td className="px-4 py-3">{attachment.mimeType}</td>
-                    <td className="px-4 py-3">
+                    <td>
+                      <StatusPill tone="info">{attachment.type}</StatusPill>
+                    </td>
+
+                    <td className="text-[var(--stitch-on-surface-variant)]">
+                      {attachment.mimeType}
+                    </td>
+
+                    <td className="text-[var(--stitch-on-surface-variant)]">
                       {formatFileSize(attachment.size)}
                     </td>
-                    <td className="px-4 py-3">
+
+                    <td className="text-[var(--stitch-on-surface-variant)]">
                       {formatDate(attachment.createdAt)}
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td>
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
@@ -360,7 +381,7 @@ export function AttachmentsPanel({
                             void downloadMutation.mutateAsync(attachment)
                           }
                           disabled={downloadMutation.isPending}
-                          className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:opacity-60"
+                          className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-primary)] transition hover:bg-[rgb(0_63_135_/_0.06)] disabled:opacity-60"
                           title="Descargar"
                         >
                           <Download size={16} />
@@ -370,7 +391,7 @@ export function AttachmentsPanel({
                           type="button"
                           onClick={() => setAttachmentToDelete(attachment)}
                           disabled={deleteMutation.isPending}
-                          className="rounded-xl border border-red-500/30 p-2 text-red-300 transition hover:bg-red-500/10 disabled:opacity-60"
+                          className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:opacity-60"
                           title="Eliminar"
                         >
                           <Trash2 size={16} />
@@ -380,7 +401,7 @@ export function AttachmentsPanel({
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </ResponsiveTable>
           </div>
         ) : null}
       </div>

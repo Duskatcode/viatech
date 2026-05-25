@@ -7,8 +7,6 @@ import { EquipmentFormModal } from '../equipment/EquipmentFormModal';
 import { EquipmentStatusBadge } from '../equipment/EquipmentStatusBadge';
 import { EquipmentStatusModal } from '../equipment/EquipmentStatusModal';
 import { getErrorMessage } from '../lib/error-message';
-import { ConfirmModal } from '../ui/ConfirmModal';
-import { useToast } from '../ui/ToastProvider';
 import { equipmentService } from '../services/equipment.service';
 import { organizationService } from '../services/organization.service';
 import type {
@@ -19,6 +17,12 @@ import type {
   UpdateEquipmentPayload,
   UpdateEquipmentStatusPayload,
 } from '../types/domain';
+import { ActionButton } from '../ui/ActionButton';
+import { ConfirmModal } from '../ui/ConfirmModal';
+import { FilterBar } from '../ui/FilterBar';
+import { PageHeader } from '../ui/PageHeader';
+import { ResponsiveTable } from '../ui/ResponsiveTable';
+import { useToast } from '../ui/ToastProvider';
 
 const statusOptions: Array<EquipmentStatus | ''> = [
   '',
@@ -156,149 +160,177 @@ export function EquipmentPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Equipos</h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Inventario biomédico con creación, edición, filtros y hoja de vida.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Inventario biomédico"
+        title="Equipos"
+        description="Inventario clínico con creación, edición, filtros, estado técnico y hoja de vida."
+        actions={
+          <ActionButton
+            type="button"
+            icon={<Plus size={18} />}
+            onClick={() => setFormEquipment(null)}
+          >
+            Nuevo equipo
+          </ActionButton>
+        }
+      />
 
-        <button
-          type="button"
-          onClick={() => setFormEquipment(null)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-        >
-          <Plus size={18} />
-          Nuevo equipo
-        </button>
-      </div>
+      <FilterBar className="grid md:grid-cols-2 xl:grid-cols-4">
+        <label className="block">
+          <span className="stitch-label">Búsqueda</span>
+          <input
+            className="stitch-input mt-2 px-4 py-3"
+            placeholder="Buscar por código, nombre, marca..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
 
-      <div className="grid gap-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 md:grid-cols-4">
-        <input
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          placeholder="Buscar por código, nombre, marca..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-
-        <select
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          value={siteId}
-          onChange={(event) => setSiteId(event.target.value)}
-        >
-          <option value="">Todas las sedes</option>
-          {sites.map((site) => (
-            <option key={site.id} value={site.id}>
-              {site.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          value={areaId}
-          onChange={(event) => setAreaId(event.target.value)}
-        >
-          <option value="">Todas las áreas</option>
-          {areas.map((area) => (
-            <option key={area.id} value={area.id}>
-              {area.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          value={status}
-          onChange={(event) => setStatus(event.target.value as EquipmentStatus | '')}
-        >
-          {statusOptions.map((option) => (
-            <option key={option || 'all'} value={option}>
-              {option || 'Todos los estados'}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead className="bg-slate-950 text-slate-400">
-            <tr>
-              <th className="px-4 py-3">Código</th>
-              <th className="px-4 py-3">Nombre</th>
-              <th className="px-4 py-3">Marca / Modelo</th>
-              <th className="px-4 py-3">Sede</th>
-              <th className="px-4 py-3">Área</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-slate-800">
-            {equipment.map((item) => (
-              <tr key={item.id} className="text-slate-300">
-                <td className="px-4 py-3 font-medium text-white">{item.internalCode}</td>
-                <td className="px-4 py-3">{item.name}</td>
-                <td className="px-4 py-3">
-                  {[item.brand, item.model].filter(Boolean).join(' / ') || '-'}
-                </td>
-                <td className="px-4 py-3">{item.site?.name ?? '-'}</td>
-                <td className="px-4 py-3">{item.area?.name ?? '-'}</td>
-                <td className="px-4 py-3">
-                  <EquipmentStatusBadge status={item.status} />
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-2">
-                    <Link
-                      to={`/equipment/${item.id}`}
-                      className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                      title="Ver hoja de vida"
-                    >
-                      <Eye size={16} />
-                    </Link>
-
-                    <button
-                      type="button"
-                      onClick={() => setFormEquipment(item)}
-                      className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                      title="Editar"
-                    >
-                      <Pencil size={16} />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setStatusEquipment(item)}
-                      className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                      title="Cambiar estado"
-                    >
-                      <RotateCcw size={16} />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setEquipmentToRetire(item)}
-                      className="rounded-xl border border-red-500/30 p-2 text-red-300 transition hover:bg-red-500/10"
-                      title="Retirar"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+        <label className="block">
+          <span className="stitch-label">Sede</span>
+          <select
+            className="stitch-input mt-2 px-4 py-3"
+            value={siteId}
+            onChange={(event) => setSiteId(event.target.value)}
+          >
+            <option value="">Todas las sedes</option>
+            {sites.map((site) => (
+              <option key={site.id} value={site.id}>
+                {site.name}
+              </option>
             ))}
+          </select>
+        </label>
 
-            {equipment.length === 0 ? (
-              <tr>
-                <td className="px-4 py-6 text-center text-slate-500" colSpan={7}>
-                  No hay equipos para los filtros seleccionados.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+        <label className="block">
+          <span className="stitch-label">Área</span>
+          <select
+            className="stitch-input mt-2 px-4 py-3"
+            value={areaId}
+            onChange={(event) => setAreaId(event.target.value)}
+          >
+            <option value="">Todas las áreas</option>
+            {areas.map((area) => (
+              <option key={area.id} value={area.id}>
+                {area.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="stitch-label">Estado</span>
+          <select
+            className="stitch-input mt-2 px-4 py-3"
+            value={status}
+            onChange={(event) => setStatus(event.target.value as EquipmentStatus | '')}
+          >
+            {statusOptions.map((option) => (
+              <option key={option || 'all'} value={option}>
+                {option || 'Todos los estados'}
+              </option>
+            ))}
+          </select>
+        </label>
+      </FilterBar>
+
+      <ResponsiveTable wrapperClassName="shadow-xl">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Marca / Modelo</th>
+            <th>Sede</th>
+            <th>Área</th>
+            <th>Estado</th>
+            <th className="text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {equipment.map((item) => (
+            <tr key={item.id}>
+              <td>
+                <span className="stitch-code font-semibold text-[var(--stitch-primary)]">
+                  {item.internalCode}
+                </span>
+              </td>
+
+              <td>
+                <p className="font-semibold text-[var(--stitch-on-surface)]">
+                  {item.name}
+                </p>
+                <p className="mt-1 text-xs text-[var(--stitch-outline)]">
+                  {item.equipmentType ?? 'Tipo no definido'}
+                </p>
+              </td>
+
+              <td className="text-[var(--stitch-on-surface-variant)]">
+                {[item.brand, item.model].filter(Boolean).join(' / ') || '-'}
+              </td>
+
+              <td className="text-[var(--stitch-on-surface-variant)]">
+                {item.site?.name ?? '-'}
+              </td>
+
+              <td className="text-[var(--stitch-on-surface-variant)]">
+                {item.area?.name ?? '-'}
+              </td>
+
+              <td>
+                <EquipmentStatusBadge status={item.status} />
+              </td>
+
+              <td>
+                <div className="flex justify-end gap-2">
+                  <Link
+                    to={`/equipment/${item.id}`}
+                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
+                    title="Ver hoja de vida"
+                  >
+                    <Eye size={16} />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setFormEquipment(item)}
+                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
+                    title="Editar"
+                  >
+                    <Pencil size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStatusEquipment(item)}
+                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
+                    title="Cambiar estado"
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEquipmentToRetire(item)}
+                    className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)]"
+                    title="Retirar"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+
+          {equipment.length === 0 ? (
+            <tr>
+              <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={7}>
+                No hay equipos para los filtros seleccionados.
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </ResponsiveTable>
 
       {formEquipment !== undefined ? (
         <EquipmentFormModal
@@ -319,6 +351,7 @@ export function EquipmentPage() {
           onSubmit={handleStatusSubmit}
         />
       ) : null}
+
       {equipmentToRetire ? (
         <ConfirmModal
           title="Retirar equipo"
@@ -330,7 +363,6 @@ export function EquipmentPage() {
           onConfirm={handleRetire}
         />
       ) : null}
-
     </section>
   );
 }

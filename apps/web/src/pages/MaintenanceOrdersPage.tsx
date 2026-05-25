@@ -17,6 +17,11 @@ import type {
   MaintenanceType,
   QueryMaintenanceOrdersParams,
 } from '../types/domain';
+import { ActionButton } from '../ui/ActionButton';
+import { FilterBar } from '../ui/FilterBar';
+import { PageHeader } from '../ui/PageHeader';
+import { ResponsiveTable } from '../ui/ResponsiveTable';
+import { StatusPill } from '../ui/StatusPill';
 
 const statusOptions: Array<MaintenanceStatus | ''> = [
   '',
@@ -35,9 +40,7 @@ export function MaintenanceOrdersPage() {
   const [status, setStatus] = useState<MaintenanceStatus | ''>('');
   const [type, setType] = useState<MaintenanceType | ''>('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [completeOrder, setCompleteOrder] = useState<MaintenanceOrder | null>(
-    null,
-  );
+  const [completeOrder, setCompleteOrder] = useState<MaintenanceOrder | null>(null);
 
   const filters = useMemo<QueryMaintenanceOrdersParams>(
     () => ({
@@ -130,148 +133,165 @@ export function MaintenanceOrdersPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Mantenimientos</h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Flujo técnico de órdenes, estados y checklist.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Cronograma técnico"
+        title="Mantenimientos"
+        description="Flujo técnico de órdenes, estados, responsables y checklist operativo."
+        actions={
+          <ActionButton
+            type="button"
+            icon={<Plus size={18} />}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            Nueva orden
+          </ActionButton>
+        }
+      />
 
-        <button
-          type="button"
-          onClick={() => setIsCreateOpen(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-        >
-          <Plus size={18} />
-          Nueva orden
-        </button>
-      </div>
+      <FilterBar className="grid md:grid-cols-3">
+        <label className="block">
+          <span className="stitch-label">Búsqueda</span>
+          <input
+            className="stitch-input mt-2 px-4 py-3"
+            placeholder="Buscar por código o equipo..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
 
-      <div className="grid gap-3 rounded-3xl border border-slate-800 bg-slate-900 p-4 md:grid-cols-3">
-        <input
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          placeholder="Buscar por código o equipo..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-
-        <select
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          value={status}
-          onChange={(event) => setStatus(event.target.value as MaintenanceStatus | '')}
-        >
-          {statusOptions.map((option) => (
-            <option key={option || 'all'} value={option}>
-              {option || 'Todos los estados'}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-          value={type}
-          onChange={(event) => setType(event.target.value as MaintenanceType | '')}
-        >
-          {typeOptions.map((option) => (
-            <option key={option || 'all'} value={option}>
-              {option || 'Todos los tipos'}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead className="bg-slate-950 text-slate-400">
-            <tr>
-              <th className="px-4 py-3">Código</th>
-              <th className="px-4 py-3">Equipo</th>
-              <th className="px-4 py-3">Tipo</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3">Técnico</th>
-              <th className="px-4 py-3">Fecha</th>
-              <th className="px-4 py-3 text-right">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-slate-800">
-            {orders.map((order) => (
-              <tr key={order.id} className="text-slate-300">
-                <td className="px-4 py-3 font-medium text-white">{order.code}</td>
-                <td className="px-4 py-3">
-                  <div>
-                    <p>{order.equipment?.name ?? '-'}</p>
-                    <p className="text-xs text-slate-500">
-                      {order.equipment?.internalCode ?? '-'}
-                    </p>
-                  </div>
-                </td>
-                <td className="px-4 py-3">{order.type}</td>
-                <td className="px-4 py-3">
-                  <MaintenanceStatusBadge status={order.status} />
-                </td>
-                <td className="px-4 py-3">{order.assignedTo?.name ?? '-'}</td>
-                <td className="px-4 py-3">
-                  {new Date(order.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-2">
-                    <Link
-                      to={`/maintenance-orders/${order.id}`}
-                      className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                      title="Ver detalle"
-                    >
-                      <Eye size={16} />
-                    </Link>
-
-                    <button
-                      type="button"
-                      disabled={order.status !== 'PENDING'}
-                      onClick={() => void startMutation.mutateAsync(order.id)}
-                      className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                      title="Iniciar"
-                    >
-                      <Play size={16} />
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={order.status !== 'IN_PROGRESS'}
-                      onClick={() => setCompleteOrder(order)}
-                      className="rounded-xl border border-emerald-500/30 p-2 text-emerald-300 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-30"
-                      title="Completar"
-                    >
-                      <CheckCircle2 size={16} />
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={
-                        order.status === 'COMPLETED' ||
-                        order.status === 'CANCELLED'
-                      }
-                      onClick={() => void handleCancel(order)}
-                      className="rounded-xl border border-red-500/30 p-2 text-red-300 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-30"
-                      title="Cancelar"
-                    >
-                      <XCircle size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+        <label className="block">
+          <span className="stitch-label">Estado</span>
+          <select
+            className="stitch-input mt-2 px-4 py-3"
+            value={status}
+            onChange={(event) => setStatus(event.target.value as MaintenanceStatus | '')}
+          >
+            {statusOptions.map((option) => (
+              <option key={option || 'all'} value={option}>
+                {option || 'Todos los estados'}
+              </option>
             ))}
+          </select>
+        </label>
 
-            {orders.length === 0 ? (
-              <tr>
-                <td className="px-4 py-6 text-center text-slate-500" colSpan={7}>
-                  No hay órdenes para los filtros seleccionados.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+        <label className="block">
+          <span className="stitch-label">Tipo</span>
+          <select
+            className="stitch-input mt-2 px-4 py-3"
+            value={type}
+            onChange={(event) => setType(event.target.value as MaintenanceType | '')}
+          >
+            {typeOptions.map((option) => (
+              <option key={option || 'all'} value={option}>
+                {option || 'Todos los tipos'}
+              </option>
+            ))}
+          </select>
+        </label>
+      </FilterBar>
+
+      <ResponsiveTable wrapperClassName="shadow-xl">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Equipo</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Técnico</th>
+            <th>Fecha</th>
+            <th className="text-right">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {orders.map((order) => (
+            <tr key={order.id}>
+              <td>
+                <span className="stitch-code font-semibold text-[var(--stitch-primary)]">
+                  {order.code}
+                </span>
+              </td>
+
+              <td>
+                <div>
+                  <p className="font-medium text-[var(--stitch-on-surface)]">
+                    {order.equipment?.name ?? '-'}
+                  </p>
+                  <p className="stitch-code mt-1 text-xs text-[var(--stitch-outline)]">
+                    {order.equipment?.internalCode ?? '-'}
+                  </p>
+                </div>
+              </td>
+
+              <td>
+                <StatusPill tone="info">{order.type}</StatusPill>
+              </td>
+
+              <td>
+                <MaintenanceStatusBadge status={order.status} />
+              </td>
+
+              <td className="text-[var(--stitch-on-surface-variant)]">
+                {order.assignedTo?.name ?? '-'}
+              </td>
+
+              <td className="text-[var(--stitch-on-surface-variant)]">
+                {new Date(order.createdAt).toLocaleDateString()}
+              </td>
+
+              <td>
+                <div className="flex justify-end gap-2">
+                  <Link
+                    to={`/maintenance-orders/${order.id}`}
+                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
+                    title="Ver detalle"
+                  >
+                    <Eye size={16} />
+                  </Link>
+
+                  <button
+                    type="button"
+                    disabled={order.status !== 'PENDING'}
+                    onClick={() => void startMutation.mutateAsync(order.id)}
+                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)] disabled:cursor-not-allowed disabled:opacity-30"
+                    title="Iniciar"
+                  >
+                    <Play size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={order.status !== 'IN_PROGRESS'}
+                    onClick={() => setCompleteOrder(order)}
+                    className="rounded-lg border border-[rgb(21_87_36_/_0.25)] p-2 text-[var(--stitch-success-text)] transition hover:bg-[var(--stitch-success-bg)] disabled:cursor-not-allowed disabled:opacity-30"
+                    title="Completar"
+                  >
+                    <CheckCircle2 size={16} />
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={order.status === 'COMPLETED' || order.status === 'CANCELLED'}
+                    onClick={() => void handleCancel(order)}
+                    className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:cursor-not-allowed disabled:opacity-30"
+                    title="Cancelar"
+                  >
+                    <XCircle size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+
+          {orders.length === 0 ? (
+            <tr>
+              <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={7}>
+                No hay órdenes para los filtros seleccionados.
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </ResponsiveTable>
 
       {isCreateOpen ? (
         <MaintenanceOrderFormModal
