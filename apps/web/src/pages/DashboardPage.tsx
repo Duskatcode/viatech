@@ -9,10 +9,11 @@ import {
   FileDown,
   MonitorCog,
   Paperclip,
-  ShieldCheck,
   ShieldAlert,
+  ShieldCheck,
   Wrench,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { alertsService } from '../services/alerts.service';
 import type {
@@ -22,7 +23,9 @@ import type {
 import { auditLogsService } from '../services/audit-logs.service';
 import { reportsService } from '../services/reports.service';
 import { PageHeader } from '../ui/PageHeader';
+import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { ErrorState, LoadingState } from '../ui/StateMessage';
+import { StatusPill } from '../ui/StatusPill';
 
 function formatDate(value?: string | null) {
   if (!value) {
@@ -32,20 +35,24 @@ function formatDate(value?: string | null) {
   return new Date(value).toLocaleString();
 }
 
-function getAuditTone(action: string) {
+function getAuditTone(action: string): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
   if (action.includes('DELETED') || action.includes('CANCELLED') || action.includes('RETIRED')) {
-    return 'border-red-500/30 bg-red-500/10 text-red-300';
+    return 'danger';
   }
 
   if (action.includes('EXPORTED')) {
-    return 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300';
+    return 'info';
   }
 
   if (action.includes('COMPLETED') || action.includes('CREATED')) {
-    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300';
+    return 'success';
   }
 
-  return 'border-slate-700 bg-slate-800 text-slate-300';
+  if (action.includes('STATUS')) {
+    return 'warning';
+  }
+
+  return 'neutral';
 }
 
 function getActionLabel(action: string) {
@@ -76,21 +83,12 @@ interface DashboardCardProps {
   tone?: 'default' | 'warning' | 'danger' | 'success';
 }
 
-function getCardTone(tone: DashboardCardProps['tone']) {
-  if (tone === 'danger') {
-    return 'bg-red-500/10 text-red-300';
-  }
-
-  if (tone === 'warning') {
-    return 'bg-amber-500/10 text-amber-300';
-  }
-
-  if (tone === 'success') {
-    return 'bg-emerald-500/10 text-emerald-300';
-  }
-
-  return 'bg-cyan-400/10 text-cyan-300';
-}
+const cardToneClassName: Record<NonNullable<DashboardCardProps['tone']>, string> = {
+  default: 'bg-[rgb(0_63_135_/_0.08)] text-[var(--stitch-primary)]',
+  warning: 'bg-[var(--stitch-warning-bg)] text-[var(--stitch-warning-text)]',
+  danger: 'bg-[var(--stitch-danger-bg)] text-[var(--stitch-danger-text)]',
+  success: 'bg-[var(--stitch-success-bg)] text-[var(--stitch-success-text)]',
+};
 
 function DashboardCard({
   title,
@@ -100,19 +98,35 @@ function DashboardCard({
   tone = 'default',
 }: DashboardCardProps) {
   return (
-    <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-      <div className="flex items-start justify-between gap-4">
+    <article className="stitch-card group relative overflow-hidden p-5 transition-all hover:border-[var(--stitch-primary)]">
+      <div className="absolute -bottom-8 -right-8 opacity-[0.04] transition-opacity group-hover:opacity-[0.08]">
+        <Icon size={112} />
+      </div>
+
+      <div className="relative flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-slate-400">{title}</p>
-          <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
-          <p className="mt-2 text-sm text-slate-500">{description}</p>
+          <p className="stitch-label">{title}</p>
+          <p className="mt-3 text-3xl font-bold tracking-[-0.03em] text-[var(--stitch-on-surface)]">
+            {value}
+          </p>
+          <p className="mt-2 text-sm text-[var(--stitch-on-surface-variant)]">
+            {description}
+          </p>
         </div>
 
-        <div className={`rounded-2xl p-3 ${getCardTone(tone)}`}>
-          <Icon size={22} />
+        <div className={`rounded-lg p-3 ${cardToneClassName[tone]}`}>
+          <Icon size={23} />
         </div>
       </div>
     </article>
+  );
+}
+
+function EmptyPanel({ children }: { children: string }) {
+  return (
+    <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-5 text-sm text-[var(--stitch-on-surface-variant)]">
+      {children}
+    </div>
   );
 }
 
@@ -123,31 +137,27 @@ function MaintenanceAlertItem({
   order: AlertMaintenanceOrder;
   tone: 'danger' | 'warning';
 }) {
-  const toneClass =
-    tone === 'danger'
-      ? 'border-red-500/30 bg-red-500/10 text-red-300'
-      : 'border-amber-500/30 bg-amber-500/10 text-amber-300';
-
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+    <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 transition-colors hover:bg-[var(--stitch-surface-low)]">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
         <div>
-          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${toneClass}`}>
-            {tone === 'danger' ? 'Vencida' : 'Próxima'}
-          </span>
+          <StatusPill tone={tone}>{tone === 'danger' ? 'Vencida' : 'Próxima'}</StatusPill>
 
-          <p className="mt-3 text-sm font-semibold text-white">{order.code}</p>
+          <p className="mt-3 text-sm font-bold text-[var(--stitch-on-surface)]">{order.code}</p>
 
-          <p className="mt-1 text-sm text-slate-400">
-            {order.equipment?.internalCode ?? '-'} · {order.equipment?.name ?? '-'}
+          <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+            <span className="stitch-code text-xs">
+              {order.equipment?.internalCode ?? '-'}
+            </span>{' '}
+            · {order.equipment?.name ?? '-'}
           </p>
 
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-[var(--stitch-outline)]">
             Técnico: {order.assignedTo?.name ?? 'Sin asignar'}
           </p>
         </div>
 
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[var(--stitch-outline)]">
           Programada: {formatDate(order.scheduledDate)}
         </p>
       </div>
@@ -169,31 +179,32 @@ function EquipmentAlertItem({
         ? 'En mantenimiento'
         : 'Garantía próxima';
 
-  const toneClass =
+  const tone =
     type === 'out-of-service'
-      ? 'border-red-500/30 bg-red-500/10 text-red-300'
+      ? 'danger'
       : type === 'maintenance'
-        ? 'border-amber-500/30 bg-amber-500/10 text-amber-300'
-        : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300';
+        ? 'warning'
+        : 'info';
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+    <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 transition-colors hover:bg-[var(--stitch-surface-low)]">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
         <div>
-          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${toneClass}`}>
-            {label}
-          </span>
+          <StatusPill tone={tone}>{label}</StatusPill>
 
-          <p className="mt-3 text-sm font-semibold text-white">
-            {equipment.internalCode} · {equipment.name}
+          <p className="mt-3 text-sm font-bold text-[var(--stitch-on-surface)]">
+            <span className="stitch-code text-xs text-[var(--stitch-primary)]">
+              {equipment.internalCode}
+            </span>{' '}
+            · {equipment.name}
           </p>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
             {equipment.site?.name ?? '-'} · {equipment.area?.name ?? '-'}
           </p>
         </div>
 
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[var(--stitch-outline)]">
           {type === 'warranty'
             ? `Garantía: ${formatDate(equipment.warrantyUntil)}`
             : `Actualizado: ${formatDate(equipment.updatedAt)}`}
@@ -261,6 +272,19 @@ export function DashboardPage() {
   const criticalAlerts =
     alertCounts.overdueOrders + alertCounts.outOfServiceEquipment;
 
+  const totalEquipment = summary?.equipment.total ?? 0;
+  const activeEquipment = summary?.equipment.active ?? 0;
+
+  const availabilityPercent = totalEquipment
+    ? Math.round((activeEquipment / totalEquipment) * 100)
+    : 0;
+
+  const overdueOrders = alerts?.overdueOrders ?? [];
+  const upcomingOrders = alerts?.upcomingOrders ?? [];
+  const outOfServiceEquipment = alerts?.outOfServiceEquipment ?? [];
+  const inMaintenanceEquipment = alerts?.inMaintenanceEquipment ?? [];
+  const warrantyExpiringEquipment = alerts?.warrantyExpiringEquipment ?? [];
+
   const isLoading =
     summaryQuery.isLoading || auditLogsQuery.isLoading || alertsQuery.isLoading;
 
@@ -286,15 +310,15 @@ export function DashboardPage() {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-8">
       <PageHeader
         eyebrow="Panel operativo"
-        title="Dashboard"
-        description="Resumen de equipos, órdenes, alertas, exportaciones y eventos auditados."
+        title="Gestión institucional"
+        description="Resumen operativo del ecosistema BioMed Control: equipos, órdenes, alertas, reportes y auditoría."
         actions={
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
+          <div className="stitch-card px-4 py-3 text-sm text-[var(--stitch-on-surface-variant)]">
             Alertas actualizadas:{' '}
-            <span className="font-medium text-white">
+            <span className="font-bold text-[var(--stitch-on-surface)]">
               {alerts?.generatedAt ? formatDate(alerts.generatedAt) : '-'}
             </span>
           </div>
@@ -338,8 +362,8 @@ export function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <DashboardCard
           title="Equipos totales"
-          value={summary?.equipment.total ?? 0}
-          description={`${summary?.equipment.active ?? 0} activos`}
+          value={totalEquipment}
+          description={`${activeEquipment} activos`}
           icon={MonitorCog}
         />
 
@@ -398,23 +422,33 @@ export function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-2">
-        <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <h2 className="text-lg font-semibold text-white">Alertas operativas</h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Órdenes vencidas, próximas y equipos críticos desde `/alerts/summary`.
-          </p>
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <article className="stitch-card overflow-hidden">
+          <div className="stitch-card-header flex items-center justify-between gap-4 px-5 py-4">
+            <div>
+              <h2 className="text-lg font-semibold text-[var(--stitch-on-surface)]">
+                Alertas operativas
+              </h2>
+              <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+                Órdenes vencidas, próximas y equipos críticos desde /alerts/summary.
+              </p>
+            </div>
 
-          <div className="mt-5 space-y-3">
-            {alerts?.overdueOrders.slice(0, 4).map((order) => (
+            <StatusPill tone={alertCounts.total > 0 ? 'warning' : 'success'}>
+              {alertCounts.total} alertas
+            </StatusPill>
+          </div>
+
+          <div className="space-y-3 p-5">
+            {overdueOrders.slice(0, 4).map((order) => (
               <MaintenanceAlertItem key={order.id} order={order} tone="danger" />
             ))}
 
-            {alerts?.upcomingOrders.slice(0, 4).map((order) => (
+            {upcomingOrders.slice(0, 4).map((order) => (
               <MaintenanceAlertItem key={order.id} order={order} tone="warning" />
             ))}
 
-            {alerts?.outOfServiceEquipment.slice(0, 4).map((equipment) => (
+            {outOfServiceEquipment.slice(0, 4).map((equipment) => (
               <EquipmentAlertItem
                 key={equipment.id}
                 equipment={equipment}
@@ -422,7 +456,7 @@ export function DashboardPage() {
               />
             ))}
 
-            {alerts?.inMaintenanceEquipment.slice(0, 4).map((equipment) => (
+            {inMaintenanceEquipment.slice(0, 4).map((equipment) => (
               <EquipmentAlertItem
                 key={equipment.id}
                 equipment={equipment}
@@ -431,21 +465,23 @@ export function DashboardPage() {
             ))}
 
             {alertCounts.total === 0 ? (
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5 text-sm text-emerald-300">
-                Sin alertas operativas para la ventana actual.
-              </div>
+              <EmptyPanel>Sin alertas operativas para la ventana actual.</EmptyPanel>
             ) : null}
           </div>
         </article>
 
-        <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <h2 className="text-lg font-semibold text-white">Garantías próximas</h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Equipos cuya garantía vence en la ventana configurada.
-          </p>
+        <article className="stitch-card overflow-hidden">
+          <div className="stitch-card-header px-5 py-4">
+            <h2 className="text-lg font-semibold text-[var(--stitch-on-surface)]">
+              Garantías próximas
+            </h2>
+            <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+              Equipos cuya garantía vence en la ventana configurada.
+            </p>
+          </div>
 
-          <div className="mt-5 space-y-3">
-            {alerts?.warrantyExpiringEquipment.slice(0, 6).map((equipment) => (
+          <div className="space-y-3 p-5">
+            {warrantyExpiringEquipment.slice(0, 6).map((equipment) => (
               <EquipmentAlertItem
                 key={equipment.id}
                 equipment={equipment}
@@ -453,129 +489,134 @@ export function DashboardPage() {
               />
             ))}
 
-            {(alerts?.warrantyExpiringEquipment.length ?? 0) === 0 ? (
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 text-sm text-slate-400">
-                No hay garantías próximas a vencer.
-              </div>
+            {warrantyExpiringEquipment.length === 0 ? (
+              <EmptyPanel>No hay garantías próximas a vencer.</EmptyPanel>
             ) : null}
           </div>
         </article>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <div className="mb-5 flex items-center justify-between gap-4">
+        <article className="stitch-card overflow-hidden">
+          <div className="stitch-card-header flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-[var(--stitch-on-surface)]">
                 Últimos eventos críticos
               </h2>
-              <p className="mt-1 text-sm text-slate-400">
-                Datos desde `/audit-logs`, ordenados por fecha descendente.
+              <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+                Datos desde /audit-logs, ordenados por fecha descendente.
               </p>
             </div>
 
-            <a
-              href="/audit-logs"
-              className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
+            <Link
+              to="/audit-logs"
+              className="inline-flex items-center justify-center rounded-lg border border-[var(--stitch-primary)] px-4 py-2 text-sm font-bold text-[var(--stitch-primary)] transition-colors hover:bg-[rgb(0_63_135_/_0.06)]"
             >
               Ver auditoría
-            </a>
+            </Link>
           </div>
 
-          <div className="space-y-3">
+          <div className="p-5">
             {latestAuditLogs.length === 0 ? (
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 text-sm text-slate-400">
-                Todavía no hay eventos auditados.
-              </div>
+              <EmptyPanel>Todavía no hay eventos auditados.</EmptyPanel>
             ) : (
-              latestAuditLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="rounded-2xl border border-slate-800 bg-slate-950 p-4"
-                >
-                  <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
-                    <div>
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getAuditTone(
-                          log.action,
-                        )}`}
-                      >
-                        {getActionLabel(log.action)}
-                      </span>
-
-                      <p className="mt-3 text-sm text-white">
-                        {log.entity} ·{' '}
-                        <span className="font-mono text-xs text-slate-400">
+              <ResponsiveTable wrapperClassName="rounded-lg">
+                <thead>
+                  <tr>
+                    <th>Evento</th>
+                    <th>Entidad</th>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {latestAuditLogs.map((log) => (
+                    <tr key={log.id}>
+                      <td>
+                        <StatusPill tone={getAuditTone(log.action)}>
+                          {getActionLabel(log.action)}
+                        </StatusPill>
+                      </td>
+                      <td>
+                        <div className="font-medium text-[var(--stitch-on-surface)]">
+                          {log.entity}
+                        </div>
+                        <div className="stitch-code mt-1 text-xs text-[var(--stitch-outline)]">
                           {log.entityId}
-                        </span>
-                      </p>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        Usuario: {log.user?.name ?? '-'} · {log.user?.email ?? '-'}
-                      </p>
-                    </div>
-
-                    <p className="text-xs text-slate-500">
-                      {formatDate(log.createdAt)}
-                    </p>
-                  </div>
-                </div>
-              ))
+                        </div>
+                      </td>
+                      <td>
+                        <div className="text-sm text-[var(--stitch-on-surface)]">
+                          {log.user?.name ?? '-'}
+                        </div>
+                        <div className="text-xs text-[var(--stitch-outline)]">
+                          {log.user?.email ?? '-'}
+                        </div>
+                      </td>
+                      <td className="text-xs text-[var(--stitch-on-surface-variant)]">
+                        {formatDate(log.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </ResponsiveTable>
             )}
           </div>
         </article>
 
-        <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-          <h2 className="text-lg font-semibold text-white">
-            Resumen operativo
-          </h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Indicadores de disponibilidad y carga operativa.
-          </p>
+        <article className="stitch-card overflow-hidden">
+          <div className="stitch-card-header px-5 py-4">
+            <h2 className="text-lg font-semibold text-[var(--stitch-on-surface)]">
+              Resumen operativo
+            </h2>
+            <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+              Indicadores de disponibilidad y carga operativa.
+            </p>
+          </div>
 
-          <div className="mt-5 space-y-4">
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-              <p className="text-sm text-slate-400">Disponibilidad de equipos</p>
-              <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-800">
+          <div className="space-y-4 p-5">
+            <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">
+                  Disponibilidad de equipos
+                </p>
+                <span className="stitch-code text-sm font-bold text-[var(--stitch-primary)]">
+                  {availabilityPercent}%
+                </span>
+              </div>
+
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-[var(--stitch-surface-highest)]">
                 <div
-                  className="h-full rounded-full bg-cyan-400"
-                  style={{
-                    width: `${
-                      summary?.equipment.total
-                        ? Math.round(
-                            ((summary.equipment.active ?? 0) /
-                              summary.equipment.total) *
-                              100,
-                          )
-                        : 0
-                    }%`,
-                  }}
+                  className="h-full rounded-full bg-[var(--stitch-primary)]"
+                  style={{ width: `${availabilityPercent}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs text-slate-500">
-                {summary?.equipment.active ?? 0} activos de{' '}
-                {summary?.equipment.total ?? 0} equipos.
+
+              <p className="mt-2 text-xs text-[var(--stitch-on-surface-variant)]">
+                {activeEquipment} activos de {totalEquipment} equipos.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-              <p className="text-sm text-slate-400">Carga de mantenimiento</p>
-              <p className="mt-3 text-2xl font-semibold text-white">
-                {openOrders}
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Órdenes pendientes o en progreso.
-              </p>
-            </div>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4">
+                <p className="stitch-label">Carga de mantenimiento</p>
+                <p className="mt-3 text-2xl font-bold text-[var(--stitch-on-surface)]">
+                  {openOrders}
+                </p>
+                <p className="mt-1 text-xs text-[var(--stitch-on-surface-variant)]">
+                  Órdenes pendientes o en progreso.
+                </p>
+              </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-              <p className="text-sm text-slate-400">Alertas críticas</p>
-              <p className="mt-3 text-2xl font-semibold text-white">
-                {criticalAlerts}
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                Órdenes vencidas + equipos fuera de servicio.
-              </p>
+              <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4">
+                <p className="stitch-label">Alertas críticas</p>
+                <p className="mt-3 text-2xl font-bold text-[var(--stitch-error)]">
+                  {criticalAlerts}
+                </p>
+                <p className="mt-1 text-xs text-[var(--stitch-on-surface-variant)]">
+                  Órdenes vencidas + equipos fuera de servicio.
+                </p>
+              </div>
             </div>
           </div>
         </article>
