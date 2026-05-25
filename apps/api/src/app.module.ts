@@ -7,6 +7,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { appConfig } from './config/app.config';
 import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
+import { EquipmentModule } from './equipment/equipment.module';
 import { HealthModule } from './health/health.module';
 import { SitesModule } from './sites/sites.module';
 import { UsersModule } from './users/users.module';
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     CompaniesModule,
     SitesModule,
     AreasModule,
+    EquipmentModule,
     HealthModule,
   ],
 })
