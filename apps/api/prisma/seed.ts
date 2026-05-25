@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import { PrismaPg } from "@prisma/adapter-pg";
+import * as bcrypt from "bcryptjs";
 import {
   EquipmentStatus,
   MaintenanceType,
@@ -22,6 +23,9 @@ const adapter = new PrismaPg(
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  const defaultPassword = "Admin12345!";
+  const passwordHash = await bcrypt.hash(defaultPassword, 12);
+
   const company = await prisma.company.upsert({
     where: { nit: "900000000-1" },
     update: {
@@ -44,6 +48,7 @@ async function main() {
     where: { email: "admin@biomed.local" },
     update: {
       name: "Admin Demo",
+      passwordHash,
       role: UserRole.ADMIN,
       companyId: company.id,
       isActive: true,
@@ -51,7 +56,7 @@ async function main() {
     create: {
       name: "Admin Demo",
       email: "admin@biomed.local",
-      passwordHash: "CHANGE_ME_IN_AUTH_PHASE",
+      passwordHash,
       role: UserRole.ADMIN,
       companyId: company.id,
     },
@@ -169,6 +174,9 @@ async function main() {
   });
 
   console.log("Seed completed successfully.");
+  console.log("Demo admin:");
+  console.log("Email: admin@biomed.local");
+  console.log(`Password: ${defaultPassword}`);
 }
 
 main()
