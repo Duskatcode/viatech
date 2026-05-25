@@ -11,6 +11,7 @@ import {
 import { QueryEquipmentReportDto } from './dto/query-equipment-report.dto';
 import { QueryMaintenanceReportDto } from './dto/query-maintenance-report.dto';
 import { formatDate, toCsv } from './reports-csv.util';
+import { buildReportWorkbook } from './reports-excel.util';
 
 @Injectable()
 export class ReportsService {
@@ -167,6 +168,63 @@ export class ReportsService {
     );
   }
 
+
+  async equipmentXlsx(user: AuthUser, query: QueryEquipmentReportDto) {
+    const equipment = await this.findEquipment(user, query);
+
+    return buildReportWorkbook({
+      sheetName: 'Equipos',
+      title: 'Reporte de equipos biomédicos',
+      subtitle: `Total de equipos: ${equipment.length} · Generado: ${new Date().toISOString()}`,
+      columns: [
+        { header: 'ID', key: 'id', width: 28 },
+        { header: 'Empresa', key: 'company', width: 28 },
+        { header: 'NIT', key: 'nit', width: 18 },
+        { header: 'Código interno', key: 'internalCode', width: 20 },
+        { header: 'Nombre', key: 'name', width: 32 },
+        { header: 'Marca', key: 'brand', width: 18 },
+        { header: 'Modelo', key: 'model', width: 18 },
+        { header: 'Serial', key: 'serialNumber', width: 22 },
+        { header: 'Tipo', key: 'equipmentType', width: 24 },
+        { header: 'Riesgo', key: 'riskLevel', width: 14 },
+        { header: 'Estado', key: 'status', width: 18 },
+        { header: 'Sede', key: 'site', width: 24 },
+        { header: 'Ciudad', key: 'city', width: 18 },
+        { header: 'Área', key: 'area', width: 24 },
+        { header: 'Piso', key: 'floor', width: 10 },
+        { header: 'Compra', key: 'purchaseDate', width: 24 },
+        { header: 'Instalación', key: 'installationDate', width: 24 },
+        { header: 'Garantía', key: 'warrantyUntil', width: 24 },
+        { header: 'Notas', key: 'notes', width: 36 },
+        { header: 'Creado', key: 'createdAt', width: 24 },
+        { header: 'Actualizado', key: 'updatedAt', width: 24 },
+      ],
+      rows: equipment.map((item) => ({
+        id: item.id,
+        company: item.company?.name,
+        nit: item.company?.nit,
+        internalCode: item.internalCode,
+        name: item.name,
+        brand: item.brand,
+        model: item.model,
+        serialNumber: item.serialNumber,
+        equipmentType: item.equipmentType,
+        riskLevel: item.riskLevel,
+        status: item.status,
+        site: item.site?.name,
+        city: item.site?.city,
+        area: item.area?.name,
+        floor: item.area?.floor,
+        purchaseDate: formatDate(item.purchaseDate),
+        installationDate: formatDate(item.installationDate),
+        warrantyUntil: formatDate(item.warrantyUntil),
+        notes: item.notes,
+        createdAt: formatDate(item.createdAt),
+        updatedAt: formatDate(item.updatedAt),
+      })),
+    });
+  }
+
   findMaintenanceOrders(user: AuthUser, query: QueryMaintenanceReportDto) {
     return this.prisma.maintenanceOrder.findMany({
       where: {
@@ -292,6 +350,74 @@ export class ReportsService {
         ];
       }),
     );
+  }
+
+
+  async maintenanceOrdersXlsx(user: AuthUser, query: QueryMaintenanceReportDto) {
+    const orders = await this.findMaintenanceOrders(user, query);
+
+    return buildReportWorkbook({
+      sheetName: 'Mantenimientos',
+      title: 'Reporte de órdenes de mantenimiento',
+      subtitle: `Total de órdenes: ${orders.length} · Generado: ${new Date().toISOString()}`,
+      columns: [
+        { header: 'ID', key: 'id', width: 28 },
+        { header: 'Código orden', key: 'code', width: 26 },
+        { header: 'Empresa', key: 'company', width: 28 },
+        { header: 'NIT', key: 'nit', width: 18 },
+        { header: 'Código equipo', key: 'equipmentCode', width: 20 },
+        { header: 'Equipo', key: 'equipmentName', width: 32 },
+        { header: 'Sede', key: 'site', width: 24 },
+        { header: 'Área', key: 'area', width: 24 },
+        { header: 'Tipo', key: 'type', width: 16 },
+        { header: 'Estado', key: 'status', width: 18 },
+        { header: 'Técnico', key: 'assignedTo', width: 24 },
+        { header: 'Email técnico', key: 'assignedToEmail', width: 28 },
+        { header: 'Creado por', key: 'createdBy', width: 24 },
+        { header: 'Programada', key: 'scheduledDate', width: 24 },
+        { header: 'Inicio', key: 'startedAt', width: 24 },
+        { header: 'Finalización', key: 'completedAt', width: 24 },
+        { header: 'Diagnóstico', key: 'diagnosis', width: 36 },
+        { header: 'Acciones', key: 'actionsPerformed', width: 42 },
+        { header: 'Recomendaciones', key: 'recommendations', width: 42 },
+        { header: 'Estado final equipo', key: 'finalEquipmentStatus', width: 20 },
+        { header: 'Tareas totales', key: 'totalTasks', width: 16 },
+        { header: 'Tareas completadas', key: 'completedTasks', width: 20 },
+        { header: 'Creado', key: 'createdAt', width: 24 },
+        { header: 'Actualizado', key: 'updatedAt', width: 24 },
+      ],
+      rows: orders.map((order) => {
+        const totalTasks = order.tasks.length;
+        const completedTasks = order.tasks.filter((task) => task.isCompleted).length;
+
+        return {
+          id: order.id,
+          code: order.code,
+          company: order.equipment?.company?.name,
+          nit: order.equipment?.company?.nit,
+          equipmentCode: order.equipment?.internalCode,
+          equipmentName: order.equipment?.name,
+          site: order.equipment?.site?.name,
+          area: order.equipment?.area?.name,
+          type: order.type,
+          status: order.status,
+          assignedTo: order.assignedTo?.name,
+          assignedToEmail: order.assignedTo?.email,
+          createdBy: order.createdBy?.name,
+          scheduledDate: formatDate(order.scheduledDate),
+          startedAt: formatDate(order.startedAt),
+          completedAt: formatDate(order.completedAt),
+          diagnosis: order.diagnosis,
+          actionsPerformed: order.actionsPerformed,
+          recommendations: order.recommendations,
+          finalEquipmentStatus: order.finalEquipmentStatus,
+          totalTasks,
+          completedTasks,
+          createdAt: formatDate(order.createdAt),
+          updatedAt: formatDate(order.updatedAt),
+        };
+      }),
+    });
   }
 
   private buildEquipmentCompanyScope(

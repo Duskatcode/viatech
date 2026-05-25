@@ -10,8 +10,15 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { UserRole } from '../generated/prisma/client';
 import { QueryEquipmentReportDto } from './dto/query-equipment-report.dto';
 import { QueryMaintenanceReportDto } from './dto/query-maintenance-report.dto';
-import { ReportsService } from './reports.service';
 import { withUtf8Bom } from './reports-csv.util';
+import { ReportsService } from './reports.service';
+
+const REPORT_ROLES = [
+  UserRole.SUPER_ADMIN,
+  UserRole.ADMIN,
+  UserRole.TECHNICIAN,
+  UserRole.VIEWER,
+];
 
 @ApiTags('reports')
 @ApiBearerAuth()
@@ -21,7 +28,7 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get('summary')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER)
+  @Roles(...REPORT_ROLES)
   @ApiOkResponse({
     description: 'Reports summary.',
   })
@@ -30,7 +37,7 @@ export class ReportsController {
   }
 
   @Get('equipment')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER)
+  @Roles(...REPORT_ROLES)
   @ApiOkResponse({
     description: 'Equipment report as JSON.',
   })
@@ -39,7 +46,7 @@ export class ReportsController {
   }
 
   @Get('equipment.csv')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER)
+  @Roles(...REPORT_ROLES)
   async equipmentCsv(
     @CurrentUser() user: AuthUser,
     @Query() query: QueryEquipmentReportDto,
@@ -56,8 +63,29 @@ export class ReportsController {
     response.send(withUtf8Bom(csv));
   }
 
+  @Get('equipment.xlsx')
+  @Roles(...REPORT_ROLES)
+  async equipmentXlsx(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryEquipmentReportDto,
+    @Res() response: Response,
+  ) {
+    const workbook = await this.reportsService.equipmentXlsx(user, query);
+
+    response.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename="equipment-report.xlsx"',
+    );
+
+    response.send(workbook);
+  }
+
   @Get('maintenance-orders')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER)
+  @Roles(...REPORT_ROLES)
   @ApiOkResponse({
     description: 'Maintenance orders report as JSON.',
   })
@@ -69,7 +97,7 @@ export class ReportsController {
   }
 
   @Get('maintenance-orders.csv')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER)
+  @Roles(...REPORT_ROLES)
   async maintenanceOrdersCsv(
     @CurrentUser() user: AuthUser,
     @Query() query: QueryMaintenanceReportDto,
@@ -84,5 +112,26 @@ export class ReportsController {
     );
 
     response.send(withUtf8Bom(csv));
+  }
+
+  @Get('maintenance-orders.xlsx')
+  @Roles(...REPORT_ROLES)
+  async maintenanceOrdersXlsx(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryMaintenanceReportDto,
+    @Res() response: Response,
+  ) {
+    const workbook = await this.reportsService.maintenanceOrdersXlsx(user, query);
+
+    response.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename="maintenance-orders-report.xlsx"',
+    );
+
+    response.send(workbook);
   }
 }
