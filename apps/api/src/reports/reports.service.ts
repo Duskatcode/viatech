@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
@@ -12,6 +12,7 @@ import { QueryEquipmentReportDto } from './dto/query-equipment-report.dto';
 import { QueryMaintenanceReportDto } from './dto/query-maintenance-report.dto';
 import { formatDate, toCsv } from './reports-csv.util';
 import { buildReportWorkbook } from './reports-excel.util';
+import { buildMaintenanceOrderPdf } from './reports-pdf.util';
 
 @Injectable()
 export class ReportsService {
@@ -418,6 +419,65 @@ export class ReportsService {
         };
       }),
     });
+  }
+
+
+  async maintenanceOrderPdf(user: AuthUser, orderId: string) {
+    const order = await this.prisma.maintenanceOrder.findFirst({
+      where: {
+        id: orderId,
+        ...this.buildMaintenanceCompanyScope(user),
+      },
+      include: {
+        equipment: {
+          include: {
+            company: {
+              select: {
+                name: true,
+                nit: true,
+              },
+            },
+            site: {
+              select: {
+                name: true,
+                city: true,
+              },
+            },
+            area: {
+              select: {
+                name: true,
+                floor: true,
+              },
+            },
+          },
+        },
+        assignedTo: {
+          select: {
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        createdBy: {
+          select: {
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        tasks: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Maintenance order not found');
+    }
+
+    return buildMaintenanceOrderPdf({ order });
   }
 
   private buildEquipmentCompanyScope(

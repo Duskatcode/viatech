@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 
@@ -82,6 +82,25 @@ export class ReportsController {
     );
 
     response.send(workbook);
+  }
+
+
+  @Get('maintenance-orders/:id.pdf')
+  @Roles(...REPORT_ROLES)
+  async maintenanceOrderPdf(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Res() response: Response,
+  ) {
+    const pdf = await this.reportsService.maintenanceOrderPdf(user, id);
+
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="maintenance-order-${id}.pdf"`,
+    );
+
+    response.send(pdf);
   }
 
   @Get('maintenance-orders')
