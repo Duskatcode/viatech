@@ -106,6 +106,18 @@ export const reportsService = {
     downloadBlob('equipment-report.xlsx', response.data);
   },
 
+
+  async downloadMaintenanceOrderPdf(orderId: string) {
+    const response = await api.get<Blob>(
+      `/reports/maintenance-orders/${orderId}.pdf`,
+      {
+        responseType: 'blob',
+      },
+    );
+
+    downloadBlob(`maintenance-order-${orderId}.pdf`, response.data);
+  },
+
   async downloadMaintenanceOrdersCsv(params?: MaintenanceOrdersReportParams) {
     const response = await api.get<Blob>('/reports/maintenance-orders.csv', {
       params: params ? removeEmptyParams(params) : undefined,

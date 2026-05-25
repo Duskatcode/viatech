@@ -4,6 +4,7 @@ import { ArrowLeft, CheckSquare, ClipboardList, Plus } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { AttachmentsPanel } from '../attachments/AttachmentsPanel';
+import { MaintenanceOrderPdfButton } from '../maintenance-orders/MaintenanceOrderPdfButton';
 import { MaintenanceStatusBadge } from '../maintenance-orders/MaintenanceStatusBadge';
 import { maintenanceOrdersService } from '../services/maintenance-orders.service';
 
@@ -120,6 +121,10 @@ export function MaintenanceOrderDetailPage() {
           label="Recomendaciones"
           value={order.recommendations ?? 'Pendiente'}
         />
+      </div>
+
+      <div className="flex justify-end">
+        <MaintenanceOrderPdfButton orderId={order.id} />
       </div>
 
       <AttachmentsPanel
