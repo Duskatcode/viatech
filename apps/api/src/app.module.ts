@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AreasModule } from './areas/areas.module';
 import { AttachmentsModule } from './attachments/attachments.module';
+import { AlertsModule } from './alerts/alerts.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
@@ -35,6 +36,7 @@ import { UsersModule } from './users/users.module';
     ReportsModule,
     AttachmentsModule,
     AuditLogsModule,
+    AlertsModule,
     HealthModule,
   ],
 })
