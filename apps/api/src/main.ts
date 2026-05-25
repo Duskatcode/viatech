@@ -53,25 +53,32 @@ async function bootstrap() {
     }),
   );
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle(appName)
-    .setDescription('API for biomedical equipment maintenance management.')
-    .setVersion(appVersion)
-    .addBearerAuth()
-    .build();
+  const enableSwagger = configService.get<string>('ENABLE_SWAGGER') === 'true';
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  if (enableSwagger) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle(appName)
+      .setDescription('API for biomedical equipment maintenance management.')
+      .setVersion(appVersion)
+      .addBearerAuth()
+      .build();
 
-  SwaggerModule.setup(swaggerPath, app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+
+    SwaggerModule.setup(swaggerPath, app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+  }
 
   await app.listen(port);
 
   console.log(`API running on http://localhost:${port}/${apiPrefix}`);
-  console.log(`Swagger running on http://localhost:${port}/${swaggerPath}`);
+
+  if (enableSwagger) {
+    console.log(`Swagger running on http://localhost:${port}/${swaggerPath}`);
+  }
 }
 
 bootstrap();
