@@ -3,70 +3,149 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Activity,
   AlertTriangle,
-  CheckCircle2,
+  ClipboardCheck,
   ClipboardList,
+  FileDown,
   MonitorCog,
-  TrendingUp,
+  Paperclip,
+  ShieldCheck,
+  Wrench,
 } from 'lucide-react';
 
-import {
-  countEquipmentByStatus,
-  countOrdersByStatus,
-  equipmentStatusLabels,
-  getActiveOrdersCount,
-  getCompletedThisMonthCount,
-  getCompletionRate,
-  getEquipmentAlerts,
-  getOverdueOrdersCount,
-  getRecentOrders,
-  maintenanceStatusLabels,
-} from '../dashboard/dashboard-utils';
-import { EquipmentAlerts } from '../dashboard/EquipmentAlerts';
-import { MetricCard } from '../dashboard/MetricCard';
-import { RecentMaintenanceOrders } from '../dashboard/RecentMaintenanceOrders';
-import { StatusDistribution } from '../dashboard/StatusDistribution';
-import { equipmentService } from '../services/equipment.service';
-import { maintenanceOrdersService } from '../services/maintenance-orders.service';
+import { auditLogsService } from '../services/audit-logs.service';
 import { reportsService } from '../services/reports.service';
+import { ErrorState, LoadingState } from '../ui/StateMessage';
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleString();
+}
+
+function getAuditTone(action: string) {
+  if (action.includes('DELETED') || action.includes('CANCELLED') || action.includes('RETIRED')) {
+    return 'border-red-500/30 bg-red-500/10 text-red-300';
+  }
+
+  if (action.includes('EXPORTED')) {
+    return 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300';
+  }
+
+  if (action.includes('COMPLETED') || action.includes('CREATED')) {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300';
+  }
+
+  return 'border-slate-700 bg-slate-800 text-slate-300';
+}
+
+function getActionLabel(action: string) {
+  const labels: Record<string, string> = {
+    ATTACHMENT_UPLOADED: 'Adjunto subido',
+    ATTACHMENT_DELETED: 'Adjunto eliminado',
+    REPORT_CSV_EXPORTED: 'CSV exportado',
+    REPORT_XLSX_EXPORTED: 'Excel exportado',
+    REPORT_PDF_EXPORTED: 'PDF exportado',
+    EQUIPMENT_CREATED: 'Equipo creado',
+    EQUIPMENT_UPDATED: 'Equipo actualizado',
+    EQUIPMENT_STATUS_CHANGED: 'Estado de equipo',
+    EQUIPMENT_RETIRED: 'Equipo retirado',
+    MAINTENANCE_ORDER_CREATED: 'Orden creada',
+    MAINTENANCE_ORDER_STARTED: 'Orden iniciada',
+    MAINTENANCE_ORDER_COMPLETED: 'Orden completada',
+    MAINTENANCE_ORDER_CANCELLED: 'Orden cancelada',
+  };
+
+  return labels[action] ?? action;
+}
+
+interface DashboardCardProps {
+  title: string;
+  value: number | string;
+  description: string;
+  icon: typeof Activity;
+}
+
+function DashboardCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+}: DashboardCardProps) {
+  return (
+    <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm text-slate-400">{title}</p>
+          <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
+          <p className="mt-2 text-sm text-slate-500">{description}</p>
+        </div>
+
+        <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
+          <Icon size={22} />
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export function DashboardPage() {
-  const equipmentQuery = useQuery({
-    queryKey: ['equipment'],
-    queryFn: () => equipmentService.findAll(),
-  });
-
-  const ordersQuery = useQuery({
-    queryKey: ['maintenance-orders'],
-    queryFn: () => maintenanceOrdersService.findAll(),
-  });
-
   const summaryQuery = useQuery({
-    queryKey: ['reports-summary'],
+    queryKey: ['dashboard-reports-summary'],
     queryFn: reportsService.summary,
   });
 
-  const equipment = equipmentQuery.data ?? [];
-  const orders = ordersQuery.data ?? [];
+  const auditLogsQuery = useQuery({
+    queryKey: ['dashboard-audit-logs'],
+    queryFn: () => auditLogsService.findAll({}),
+  });
+
   const summary = summaryQuery.data;
+  const auditLogs = auditLogsQuery.data ?? [];
 
-  const equipmentStatus = useMemo(
-    () => countEquipmentByStatus(equipment),
-    [equipment],
-  );
+  const latestAuditLogs = auditLogs.slice(0, 8);
 
-  const orderStatus = useMemo(() => countOrdersByStatus(orders), [orders]);
+  const auditMetrics = useMemo(() => {
+    const exportsCount = auditLogs.filter((log) => log.action.includes('EXPORTED')).length;
+    const attachmentEvents = auditLogs.filter((log) => log.action.includes('ATTACHMENT')).length;
+    const equipmentEvents = auditLogs.filter((log) => log.action.includes('EQUIPMENT')).length;
+    const maintenanceEvents = auditLogs.filter((log) =>
+      log.action.includes('MAINTENANCE_ORDER'),
+    ).length;
 
-  const activeOrders = getActiveOrdersCount(orders);
-  const overdueOrders = getOverdueOrdersCount(orders);
-  const completedThisMonth = getCompletedThisMonthCount(orders);
-  const completionRate = getCompletionRate(orders);
-  const alerts = getEquipmentAlerts(equipment);
-  const recentOrders = getRecentOrders(orders);
+    return {
+      exportsCount,
+      attachmentEvents,
+      equipmentEvents,
+      maintenanceEvents,
+    };
+  }, [auditLogs]);
 
-  const isLoading = equipmentQuery.isLoading || ordersQuery.isLoading || summaryQuery.isLoading;
+  const equipmentInMaintenance = summary?.equipment.inMaintenance ?? 0;
+  const outOfService = summary?.equipment.outOfService ?? 0;
+  const pendingOrders = summary?.maintenanceOrders.pending ?? 0;
+  const inProgressOrders = summary?.maintenanceOrders.inProgress ?? 0;
+  const completedOrders = summary?.maintenanceOrders.completed ?? 0;
+
+  const openOrders = pendingOrders + inProgressOrders;
+  const operationalAlerts = equipmentInMaintenance + outOfService + openOrders;
+
+  const isLoading = summaryQuery.isLoading || auditLogsQuery.isLoading;
+  const isError = summaryQuery.isError || auditLogsQuery.isError;
 
   if (isLoading) {
-    return <p className="text-slate-400">Cargando métricas...</p>;
+    return (
+      <LoadingState
+        title="Cargando dashboard..."
+        description="Consultando KPIs operativos y eventos de auditoría."
+      />
+    );
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="No se pudo cargar el dashboard"
+        description="Verifica que la API esté activa y que tu sesión tenga permisos."
+      />
+    );
   }
 
   return (
@@ -74,128 +153,208 @@ export function DashboardPage() {
       <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
-            Centro operativo
+            Panel operativo
           </p>
           <h1 className="mt-2 text-3xl font-semibold text-white">Dashboard</h1>
           <p className="mt-2 text-sm text-slate-400">
-            Métricas reales calculadas desde equipos y órdenes de mantenimiento.
+            Resumen de equipos, órdenes, exportaciones y eventos críticos auditados.
           </p>
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
-          Actualizado desde API local
+          Última actualización:{' '}
+          <span className="font-medium text-white">
+            {summary?.generatedAt ? formatDate(summary.generatedAt) : '-'}
+          </span>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          title="Equipos registrados"
-          value={summary?.equipment.total ?? equipment.length}
-          description="Total visible para el usuario actual"
+        <DashboardCard
+          title="Equipos totales"
+          value={summary?.equipment.total ?? 0}
+          description={`${summary?.equipment.active ?? 0} activos`}
           icon={MonitorCog}
         />
 
-        <MetricCard
-          title="Órdenes activas"
-          value={summary ? summary.maintenanceOrders.pending + summary.maintenanceOrders.inProgress : activeOrders}
-          description="Pendientes o en progreso"
+        <DashboardCard
+          title="Equipos en mantenimiento"
+          value={equipmentInMaintenance}
+          description={`${outOfService} fuera de servicio`}
+          icon={Wrench}
+        />
+
+        <DashboardCard
+          title="Órdenes abiertas"
+          value={openOrders}
+          description={`${pendingOrders} pendientes · ${inProgressOrders} en progreso`}
           icon={ClipboardList}
         />
 
-        <MetricCard
-          title="Completadas este mes"
-          value={completedThisMonth}
-          description="Mantenimientos cerrados"
-          icon={CheckCircle2}
-        />
-
-        <MetricCard
-          title="Tasa de cierre"
-          value={`${completionRate}%`}
-          description="Completadas sobre total de órdenes"
-          icon={TrendingUp}
+        <DashboardCard
+          title="Órdenes completadas"
+          value={completedOrders}
+          description="Total histórico registrado"
+          icon={ClipboardCheck}
         />
       </div>
 
-      {overdueOrders > 0 ? (
-        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5 text-amber-100">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-1" size={22} />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <DashboardCard
+          title="Eventos auditados"
+          value={auditLogs.length}
+          description="Últimos 100 eventos consultados"
+          icon={ShieldCheck}
+        />
+
+        <DashboardCard
+          title="Exportaciones"
+          value={auditMetrics.exportsCount}
+          description="CSV, Excel y PDF"
+          icon={FileDown}
+        />
+
+        <DashboardCard
+          title="Adjuntos auditados"
+          value={auditMetrics.attachmentEvents}
+          description="Subidas y eliminaciones"
+          icon={Paperclip}
+        />
+
+        <DashboardCard
+          title="Alertas operativas"
+          value={operationalAlerts}
+          description="Equipos no disponibles + órdenes abiertas"
+          icon={AlertTriangle}
+        />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+          <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="font-semibold">Órdenes vencidas detectadas</h2>
-              <p className="mt-1 text-sm text-amber-100/80">
-                Hay {overdueOrders} orden(es) programadas con fecha anterior a hoy
-                que siguen abiertas.
+              <h2 className="text-lg font-semibold text-white">
+                Últimos eventos críticos
+              </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Datos desde `/audit-logs`, ordenados por fecha descendente.
               </p>
             </div>
+
+            <a
+              href="/audit-logs"
+              className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
+            >
+              Ver auditoría
+            </a>
           </div>
-        </div>
-      ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <StatusDistribution
-          title="Equipos por estado"
-          items={[
-            {
-              label: equipmentStatusLabels.ACTIVE,
-              value: equipmentStatus.ACTIVE,
-            },
-            {
-              label: equipmentStatusLabels.IN_MAINTENANCE,
-              value: equipmentStatus.IN_MAINTENANCE,
-            },
-            {
-              label: equipmentStatusLabels.OUT_OF_SERVICE,
-              value: equipmentStatus.OUT_OF_SERVICE,
-            },
-            {
-              label: equipmentStatusLabels.RETIRED,
-              value: equipmentStatus.RETIRED,
-            },
-          ]}
-        />
+          <div className="space-y-3">
+            {latestAuditLogs.length === 0 ? (
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 text-sm text-slate-400">
+                Todavía no hay eventos auditados.
+              </div>
+            ) : (
+              latestAuditLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="rounded-2xl border border-slate-800 bg-slate-950 p-4"
+                >
+                  <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+                    <div>
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getAuditTone(
+                          log.action,
+                        )}`}
+                      >
+                        {getActionLabel(log.action)}
+                      </span>
 
-        <StatusDistribution
-          title="Órdenes por estado"
-          items={[
-            {
-              label: maintenanceStatusLabels.PENDING,
-              value: orderStatus.PENDING,
-            },
-            {
-              label: maintenanceStatusLabels.IN_PROGRESS,
-              value: orderStatus.IN_PROGRESS,
-            },
-            {
-              label: maintenanceStatusLabels.COMPLETED,
-              value: orderStatus.COMPLETED,
-            },
-            {
-              label: maintenanceStatusLabels.CANCELLED,
-              value: orderStatus.CANCELLED,
-            },
-          ]}
-        />
-      </div>
+                      <p className="mt-3 text-sm text-white">
+                        {log.entity} ·{' '}
+                        <span className="font-mono text-xs text-slate-400">
+                          {log.entityId}
+                        </span>
+                      </p>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
-        <EquipmentAlerts equipment={alerts} />
-        <RecentMaintenanceOrders orders={recentOrders} />
-      </div>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Usuario: {log.user?.name ?? '-'} · {log.user?.email ?? '-'}
+                      </p>
+                    </div>
 
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
-            <Activity size={22} />
+                    <p className="text-xs text-slate-500">
+                      {formatDate(log.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-          <div>
-            <h2 className="font-semibold text-white">Resumen técnico</h2>
-            <p className="mt-1 text-sm text-slate-400">
-              {alerts.length} equipo(s) requieren seguimiento y {activeOrders}{' '}
-              orden(es) siguen abiertas.
-            </p>
+        </article>
+
+        <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+          <h2 className="text-lg font-semibold text-white">
+            Resumen operativo
+          </h2>
+          <p className="mt-1 text-sm text-slate-400">
+            Indicadores de disponibilidad y carga operativa.
+          </p>
+
+          <div className="mt-5 space-y-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-400">Disponibilidad de equipos</p>
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-cyan-400"
+                  style={{
+                    width: `${
+                      summary?.equipment.total
+                        ? Math.round(
+                            ((summary.equipment.active ?? 0) /
+                              summary.equipment.total) *
+                              100,
+                          )
+                        : 0
+                    }%`,
+                  }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                {summary?.equipment.active ?? 0} activos de{' '}
+                {summary?.equipment.total ?? 0} equipos.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-400">Carga de mantenimiento</p>
+              <p className="mt-3 text-2xl font-semibold text-white">
+                {openOrders}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Órdenes pendientes o en progreso.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <p className="text-sm text-slate-400">Actividad auditada</p>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xl font-semibold text-white">
+                    {auditMetrics.equipmentEvents}
+                  </p>
+                  <p className="text-xs text-slate-500">Equipos</p>
+                </div>
+
+                <div>
+                  <p className="text-xl font-semibold text-white">
+                    {auditMetrics.maintenanceEvents}
+                  </p>
+                  <p className="text-xs text-slate-500">Órdenes</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </article>
       </div>
     </section>
   );
