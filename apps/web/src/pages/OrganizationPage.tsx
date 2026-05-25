@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { LucideIcon } from 'lucide-react';
 import { Building2, Layers3, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 
 import { AreaFormModal } from '../organization/AreaFormModal';
@@ -16,6 +17,9 @@ import type {
   UpdateCompanyPayload,
   UpdateSitePayload,
 } from '../types/domain';
+import { ActionButton } from '../ui/ActionButton';
+import { PageHeader } from '../ui/PageHeader';
+import { SectionCard } from '../ui/SectionCard';
 
 export function OrganizationPage() {
   const queryClient = useQueryClient();
@@ -168,39 +172,40 @@ export function OrganizationPage() {
     companiesQuery.isLoading || sitesQuery.isLoading || areasQuery.isLoading;
 
   if (isLoading) {
-    return <p className="text-slate-400">Cargando organización...</p>;
+    return (
+      <p className="text-sm text-[var(--stitch-on-surface-variant)]">
+        Cargando organización...
+      </p>
+    );
   }
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Organización</h1>
-          <p className="mt-1 text-sm text-slate-400">
-            Administra empresas, sedes y áreas para ubicar equipos biomédicos.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Estructura institucional"
+        title="Organización"
+        description="Administra empresas, sedes y áreas para ubicar equipos biomédicos y segmentar operaciones."
+        actions={
+          <>
+            <ActionButton
+              type="button"
+              icon={<Plus size={18} />}
+              onClick={() => setSiteForm(null)}
+            >
+              Nueva sede
+            </ActionButton>
 
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => setSiteForm(null)}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-          >
-            <Plus size={18} />
-            Nueva sede
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setAreaForm(null)}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800"
-          >
-            <Plus size={18} />
-            Nueva área
-          </button>
-        </div>
-      </div>
+            <ActionButton
+              type="button"
+              variant="secondary"
+              icon={<Plus size={18} />}
+              onClick={() => setAreaForm(null)}
+            >
+              Nueva área
+            </ActionButton>
+          </>
+        }
+      />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Metric icon={Building2} label="Empresas" value={companies.length} />
@@ -213,53 +218,44 @@ export function OrganizationPage() {
           const companySites = sites.filter((site) => site.companyId === company.id);
 
           return (
-            <article
+            <SectionCard
               key={company.id}
-              className="rounded-3xl border border-slate-800 bg-slate-900 p-5"
-            >
-              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-cyan-300">
-                    Empresa
-                  </p>
-                  <h2 className="mt-2 text-xl font-semibold text-white">
-                    {company.name}
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-400">
-                    {company.nit ?? 'Sin NIT'} · {company.email ?? 'Sin email'}
-                  </p>
-                </div>
-
-                <button
+              title={company.name}
+              description={`${company.nit ?? 'Sin NIT'} · ${company.email ?? 'Sin email'}`}
+              icon={<Building2 size={22} />}
+              actions={
+                <ActionButton
                   type="button"
+                  variant="secondary"
+                  icon={<Pencil size={16} />}
                   onClick={() => setCompanyToEdit(company)}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
                 >
-                  <Pencil size={16} />
                   Editar empresa
-                </button>
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                </ActionButton>
+              }
+            >
+              <div className="grid gap-4 lg:grid-cols-2">
                 {companySites.map((site) => (
-                  <div
+                  <article
                     key={site.id}
-                    className="rounded-3xl border border-slate-800 bg-slate-950 p-4"
+                    className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-semibold text-white">{site.name}</h3>
-                        <p className="mt-1 text-sm text-slate-500">
-                          {site.city ?? 'Sin ciudad'} ·{' '}
-                          {site.address ?? 'Sin dirección'}
+                      <div className="min-w-0">
+                        <p className="stitch-label">Sede</p>
+                        <h3 className="mt-1 font-semibold text-[var(--stitch-on-surface)]">
+                          {site.name}
+                        </h3>
+                        <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
+                          {site.city ?? 'Sin ciudad'} · {site.address ?? 'Sin dirección'}
                         </p>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex shrink-0 gap-2">
                         <button
                           type="button"
                           onClick={() => setSiteForm(site)}
-                          className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800"
+                          className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
                           title="Editar sede"
                         >
                           <Pencil size={15} />
@@ -268,7 +264,7 @@ export function OrganizationPage() {
                         <button
                           type="button"
                           onClick={() => void handleRemoveSite(site)}
-                          className="rounded-xl border border-red-500/30 p-2 text-red-300 transition hover:bg-red-500/10"
+                          className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)]"
                           title="Eliminar sede"
                         >
                           <Trash2 size={15} />
@@ -280,20 +276,22 @@ export function OrganizationPage() {
                       {(areasBySiteId[site.id] ?? []).map((area) => (
                         <div
                           key={area.id}
-                          className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3"
+                          className="flex items-center justify-between gap-3 rounded-lg border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] px-4 py-3"
                         >
-                          <div>
-                            <p className="font-medium text-white">{area.name}</p>
-                            <p className="text-xs text-slate-500">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[var(--stitch-on-surface)]">
+                              {area.name}
+                            </p>
+                            <p className="text-xs text-[var(--stitch-on-surface-variant)]">
                               Piso {area.floor ?? '-'}
                             </p>
                           </div>
 
-                          <div className="flex gap-2">
+                          <div className="flex shrink-0 gap-2">
                             <button
                               type="button"
                               onClick={() => setAreaForm(area)}
-                              className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800"
+                              className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
                               title="Editar área"
                             >
                               <Pencil size={15} />
@@ -302,7 +300,7 @@ export function OrganizationPage() {
                             <button
                               type="button"
                               onClick={() => void handleRemoveArea(area)}
-                              className="rounded-xl border border-red-500/30 p-2 text-red-300 transition hover:bg-red-500/10"
+                              className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)]"
                               title="Eliminar área"
                             >
                               <Trash2 size={15} />
@@ -312,21 +310,21 @@ export function OrganizationPage() {
                       ))}
 
                       {(areasBySiteId[site.id] ?? []).length === 0 ? (
-                        <p className="rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-500">
+                        <p className="rounded-lg border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 text-sm text-[var(--stitch-on-surface-variant)]">
                           Esta sede aún no tiene áreas.
                         </p>
                       ) : null}
                     </div>
-                  </div>
+                  </article>
                 ))}
 
                 {companySites.length === 0 ? (
-                  <p className="rounded-2xl border border-slate-800 bg-slate-950 p-5 text-sm text-slate-500">
+                  <p className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-5 text-sm text-[var(--stitch-on-surface-variant)]">
                     Esta empresa aún no tiene sedes activas.
                   </p>
                 ) : null}
               </div>
-            </article>
+            </SectionCard>
           );
         })}
       </div>
@@ -368,19 +366,21 @@ function Metric({
   label,
   value,
 }: {
-  icon: typeof Building2;
+  icon: LucideIcon;
   label: string;
   value: number;
 }) {
   return (
-    <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
+    <article className="stitch-card p-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-slate-400">{label}</p>
-          <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
+          <p className="stitch-label">{label}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--stitch-on-surface)]">
+            {value}
+          </p>
         </div>
 
-        <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
+        <div className="rounded-lg bg-[rgb(0_63_135_/_0.08)] p-3 text-[var(--stitch-primary)]">
           <Icon size={24} />
         </div>
       </div>

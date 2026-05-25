@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import type { LucideIcon } from 'lucide-react';
 import { ClipboardList, Download, FileSpreadsheet, FileText, MonitorCog } from 'lucide-react';
 
 import { getErrorMessage } from '../lib/error-message';
-import { ReportMetricCard } from '../reports/ReportMetricCard';
 import { formatDate } from '../reports/report-utils';
 import { reportsService } from '../services/reports.service';
 import type {
@@ -11,7 +11,13 @@ import type {
   MaintenanceStatus,
   MaintenanceType,
 } from '../types/domain';
+import { ActionButton } from '../ui/ActionButton';
+import { FilterBar } from '../ui/FilterBar';
+import { PageHeader } from '../ui/PageHeader';
+import { ResponsiveTable } from '../ui/ResponsiveTable';
+import { SectionCard } from '../ui/SectionCard';
 import { ErrorState, LoadingState } from '../ui/StateMessage';
+import { StatusPill } from '../ui/StatusPill';
 import { useToast } from '../ui/ToastProvider';
 
 const equipmentStatusOptions: Array<EquipmentStatus | ''> = [
@@ -35,6 +41,23 @@ const maintenanceTypeOptions: Array<MaintenanceType | ''> = [
   'PREVENTIVE',
   'CORRECTIVE',
 ];
+
+function getEquipmentTone(status: EquipmentStatus): 'success' | 'warning' | 'danger' | 'neutral' {
+  if (status === 'ACTIVE') return 'success';
+  if (status === 'IN_MAINTENANCE') return 'warning';
+  if (status === 'OUT_OF_SERVICE') return 'danger';
+  return 'neutral';
+}
+
+function getMaintenanceTone(
+  status: MaintenanceStatus,
+): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
+  if (status === 'COMPLETED') return 'success';
+  if (status === 'IN_PROGRESS') return 'info';
+  if (status === 'PENDING') return 'warning';
+  if (status === 'CANCELLED') return 'danger';
+  return 'neutral';
+}
 
 export function ReportsPage() {
   const { addToast } = useToast();
@@ -215,45 +238,43 @@ export function ReportsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
-            Backend Reports API
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Reportes</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Reportes operativos generados desde el backend con scoping, filtros, CSV y Excel.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-400">
-          Generado: {summary?.generatedAt ? new Date(summary.generatedAt).toLocaleString() : '-'}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Backend Reports API"
+        title="Reportes"
+        description="Reportes operativos generados desde el backend con scoping, filtros, CSV y Excel."
+        actions={
+          <div className="stitch-card px-4 py-3 text-sm text-[var(--stitch-on-surface-variant)]">
+            Generado:{' '}
+            <span className="font-bold text-[var(--stitch-on-surface)]">
+              {summary?.generatedAt ? new Date(summary.generatedAt).toLocaleString() : '-'}
+            </span>
+          </div>
+        }
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <ReportMetricCard
+        <ReportMetric
           title="Equipos totales"
           value={summary?.equipment.total ?? 0}
           description="Resumen desde /reports/summary"
           icon={MonitorCog}
         />
 
-        <ReportMetricCard
+        <ReportMetric
           title="Equipos filtrados"
           value={equipment.length}
           description={`Activos en filtro: ${activeEquipment}`}
           icon={FileText}
         />
 
-        <ReportMetricCard
+        <ReportMetric
           title="Órdenes totales"
           value={summary?.maintenanceOrders.total ?? 0}
           description="Resumen desde /reports/summary"
           icon={ClipboardList}
         />
 
-        <ReportMetricCard
+        <ReportMetric
           title="Órdenes filtradas"
           value={orders.length}
           description={`Abiertas en filtro: ${openOrders}`}
@@ -261,267 +282,330 @@ export function ReportsPage() {
         />
       </div>
 
-      <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-        <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-          <div>
-            <h2 className="text-lg font-semibold text-white">Reporte de equipos</h2>
-            <p className="mt-1 text-sm text-slate-400">
-              Datos, CSV y Excel generados desde `/reports/equipment`.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button
+      <SectionCard
+        title="Reporte de equipos"
+        description="Datos, CSV y Excel generados desde /reports/equipment."
+        icon={<MonitorCog size={22} />}
+        actions={
+          <>
+            <ActionButton
               type="button"
+              variant="secondary"
+              icon={<Download size={18} />}
               onClick={() => void handleDownloadEquipmentCsv()}
               disabled={isDownloadingEquipmentCsv}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Download size={18} />
               {isDownloadingEquipmentCsv ? 'Descargando...' : 'CSV'}
-            </button>
+            </ActionButton>
 
-            <button
+            <ActionButton
               type="button"
+              icon={<FileSpreadsheet size={18} />}
               onClick={() => void handleDownloadEquipmentXlsx()}
               disabled={isDownloadingEquipmentXlsx}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <FileSpreadsheet size={18} />
               {isDownloadingEquipmentXlsx ? 'Descargando...' : 'Excel'}
-            </button>
-          </div>
-        </div>
+            </ActionButton>
+          </>
+        }
+      >
+        <FilterBar className="grid border-0 bg-transparent p-0 shadow-none md:grid-cols-4">
+          <label className="block md:col-span-2">
+            <span className="stitch-label">Búsqueda</span>
+            <input
+              className="stitch-input mt-2 px-4 py-3"
+              placeholder="Buscar equipo..."
+              value={equipmentSearch}
+              onChange={(event) => setEquipmentSearch(event.target.value)}
+            />
+          </label>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-4">
-          <input
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400 md:col-span-2"
-            placeholder="Buscar equipo..."
-            value={equipmentSearch}
-            onChange={(event) => setEquipmentSearch(event.target.value)}
-          />
-
-          <select
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-            value={equipmentStatus}
-            onChange={(event) =>
-              setEquipmentStatus(event.target.value as EquipmentStatus | '')
-            }
-          >
-            {equipmentStatusOptions.map((option) => (
-              <option key={option || 'all'} value={option}>
-                {option || 'Todos los estados'}
-              </option>
-            ))}
-          </select>
+          <label className="block">
+            <span className="stitch-label">Estado</span>
+            <select
+              className="stitch-input mt-2 px-4 py-3"
+              value={equipmentStatus}
+              onChange={(event) =>
+                setEquipmentStatus(event.target.value as EquipmentStatus | '')
+              }
+            >
+              {equipmentStatusOptions.map((option) => (
+                <option key={option || 'all'} value={option}>
+                  {option || 'Todos los estados'}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <div className="grid gap-3 md:col-span-4 md:grid-cols-2">
-            <label>
-              <span className="text-xs text-slate-400">Creado desde</span>
+            <label className="block">
+              <span className="stitch-label">Creado desde</span>
               <input
-                className="mt-1 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+                className="stitch-input mt-2 px-4 py-3"
                 type="date"
                 value={equipmentCreatedFrom}
                 onChange={(event) => setEquipmentCreatedFrom(event.target.value)}
               />
             </label>
 
-            <label>
-              <span className="text-xs text-slate-400">Creado hasta</span>
+            <label className="block">
+              <span className="stitch-label">Creado hasta</span>
               <input
-                className="mt-1 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+                className="stitch-input mt-2 px-4 py-3"
                 type="date"
                 value={equipmentCreatedTo}
                 onChange={(event) => setEquipmentCreatedTo(event.target.value)}
               />
             </label>
           </div>
-        </div>
+        </FilterBar>
 
-        <div className="mt-5 overflow-hidden rounded-2xl border border-slate-800">
-          <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-slate-950 text-slate-400">
+        <div className="mt-5">
+          <ResponsiveTable wrapperClassName="rounded-lg">
+            <thead>
               <tr>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Equipo</th>
-                <th className="px-4 py-3">Marca / Modelo</th>
-                <th className="px-4 py-3">Sede</th>
-                <th className="px-4 py-3">Área</th>
-                <th className="px-4 py-3">Estado</th>
+                <th>Código</th>
+                <th>Equipo</th>
+                <th>Marca / Modelo</th>
+                <th>Sede</th>
+                <th>Área</th>
+                <th>Estado</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-800">
+            <tbody>
               {equipment.slice(0, 10).map((item) => (
-                <tr key={item.id} className="text-slate-300">
-                  <td className="px-4 py-3 font-medium text-white">
-                    {item.internalCode}
+                <tr key={item.id}>
+                  <td>
+                    <span className="stitch-code font-semibold text-[var(--stitch-primary)]">
+                      {item.internalCode}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">{item.name}</td>
-                  <td className="px-4 py-3">
+                  <td className="font-semibold text-[var(--stitch-on-surface)]">
+                    {item.name}
+                  </td>
+                  <td className="text-[var(--stitch-on-surface-variant)]">
                     {[item.brand, item.model].filter(Boolean).join(' / ') || '-'}
                   </td>
-                  <td className="px-4 py-3">{item.site?.name ?? '-'}</td>
-                  <td className="px-4 py-3">{item.area?.name ?? '-'}</td>
-                  <td className="px-4 py-3">{item.status}</td>
+                  <td className="text-[var(--stitch-on-surface-variant)]">
+                    {item.site?.name ?? '-'}
+                  </td>
+                  <td className="text-[var(--stitch-on-surface-variant)]">
+                    {item.area?.name ?? '-'}
+                  </td>
+                  <td>
+                    <StatusPill tone={getEquipmentTone(item.status)}>
+                      {item.status}
+                    </StatusPill>
+                  </td>
                 </tr>
               ))}
 
               {equipment.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6 text-center text-slate-500" colSpan={6}>
+                  <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={6}>
                     Sin equipos para los filtros seleccionados.
                   </td>
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>
 
         {equipment.length > 10 ? (
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-3 text-sm text-[var(--stitch-on-surface-variant)]">
             Vista previa limitada a 10 registros. Los archivos backend descargan
             todos los registros filtrados.
           </p>
         ) : null}
-      </article>
+      </SectionCard>
 
-      <article className="rounded-3xl border border-slate-800 bg-slate-900 p-5">
-        <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
-          <div>
-            <h2 className="text-lg font-semibold text-white">
-              Reporte de mantenimientos
-            </h2>
-            <p className="mt-1 text-sm text-slate-400">
-              Datos, CSV y Excel generados desde `/reports/maintenance-orders`.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button
+      <SectionCard
+        title="Reporte de mantenimientos"
+        description="Datos, CSV y Excel generados desde /reports/maintenance-orders."
+        icon={<ClipboardList size={22} />}
+        actions={
+          <>
+            <ActionButton
               type="button"
+              variant="secondary"
+              icon={<Download size={18} />}
               onClick={() => void handleDownloadOrdersCsv()}
               disabled={isDownloadingOrdersCsv}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Download size={18} />
               {isDownloadingOrdersCsv ? 'Descargando...' : 'CSV'}
-            </button>
+            </ActionButton>
 
-            <button
+            <ActionButton
               type="button"
+              icon={<FileSpreadsheet size={18} />}
               onClick={() => void handleDownloadOrdersXlsx()}
               disabled={isDownloadingOrdersXlsx}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <FileSpreadsheet size={18} />
               {isDownloadingOrdersXlsx ? 'Descargando...' : 'Excel'}
-            </button>
-          </div>
-        </div>
+            </ActionButton>
+          </>
+        }
+      >
+        <FilterBar className="grid border-0 bg-transparent p-0 shadow-none md:grid-cols-5">
+          <label className="block md:col-span-2">
+            <span className="stitch-label">Búsqueda</span>
+            <input
+              className="stitch-input mt-2 px-4 py-3"
+              placeholder="Buscar orden o equipo..."
+              value={orderSearch}
+              onChange={(event) => setOrderSearch(event.target.value)}
+            />
+          </label>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-5">
-          <input
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400 md:col-span-2"
-            placeholder="Buscar orden o equipo..."
-            value={orderSearch}
-            onChange={(event) => setOrderSearch(event.target.value)}
-          />
+          <label className="block">
+            <span className="stitch-label">Estado</span>
+            <select
+              className="stitch-input mt-2 px-4 py-3"
+              value={orderStatus}
+              onChange={(event) =>
+                setOrderStatus(event.target.value as MaintenanceStatus | '')
+              }
+            >
+              {maintenanceStatusOptions.map((option) => (
+                <option key={option || 'all'} value={option}>
+                  {option || 'Estados'}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <select
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-            value={orderStatus}
-            onChange={(event) =>
-              setOrderStatus(event.target.value as MaintenanceStatus | '')
-            }
-          >
-            {maintenanceStatusOptions.map((option) => (
-              <option key={option || 'all'} value={option}>
-                {option || 'Estados'}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
-            value={orderType}
-            onChange={(event) =>
-              setOrderType(event.target.value as MaintenanceType | '')
-            }
-          >
-            {maintenanceTypeOptions.map((option) => (
-              <option key={option || 'all'} value={option}>
-                {option || 'Tipos'}
-              </option>
-            ))}
-          </select>
+          <label className="block">
+            <span className="stitch-label">Tipo</span>
+            <select
+              className="stitch-input mt-2 px-4 py-3"
+              value={orderType}
+              onChange={(event) =>
+                setOrderType(event.target.value as MaintenanceType | '')
+              }
+            >
+              {maintenanceTypeOptions.map((option) => (
+                <option key={option || 'all'} value={option}>
+                  {option || 'Tipos'}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <div className="grid gap-3 md:col-span-5 md:grid-cols-2">
-            <label>
-              <span className="text-xs text-slate-400">Creado desde</span>
+            <label className="block">
+              <span className="stitch-label">Creado desde</span>
               <input
-                className="mt-1 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+                className="stitch-input mt-2 px-4 py-3"
                 type="date"
                 value={orderCreatedFrom}
                 onChange={(event) => setOrderCreatedFrom(event.target.value)}
               />
             </label>
 
-            <label>
-              <span className="text-xs text-slate-400">Creado hasta</span>
+            <label className="block">
+              <span className="stitch-label">Creado hasta</span>
               <input
-                className="mt-1 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+                className="stitch-input mt-2 px-4 py-3"
                 type="date"
                 value={orderCreatedTo}
                 onChange={(event) => setOrderCreatedTo(event.target.value)}
               />
             </label>
           </div>
-        </div>
+        </FilterBar>
 
-        <div className="mt-5 overflow-hidden rounded-2xl border border-slate-800">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead className="bg-slate-950 text-slate-400">
+        <div className="mt-5">
+          <ResponsiveTable wrapperClassName="rounded-lg">
+            <thead>
               <tr>
-                <th className="px-4 py-3">Código</th>
-                <th className="px-4 py-3">Equipo</th>
-                <th className="px-4 py-3">Tipo</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Creación</th>
-                <th className="px-4 py-3">Cierre</th>
+                <th>Código</th>
+                <th>Equipo</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Creación</th>
+                <th>Cierre</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-800">
+            <tbody>
               {orders.slice(0, 10).map((order) => (
-                <tr key={order.id} className="text-slate-300">
-                  <td className="px-4 py-3 font-medium text-white">{order.code}</td>
-                  <td className="px-4 py-3">{order.equipment?.name ?? '-'}</td>
-                  <td className="px-4 py-3">{order.type}</td>
-                  <td className="px-4 py-3">{order.status}</td>
-                  <td className="px-4 py-3">{formatDate(order.createdAt)}</td>
-                  <td className="px-4 py-3">{formatDate(order.completedAt)}</td>
+                <tr key={order.id}>
+                  <td>
+                    <span className="stitch-code font-semibold text-[var(--stitch-primary)]">
+                      {order.code}
+                    </span>
+                  </td>
+                  <td className="font-semibold text-[var(--stitch-on-surface)]">
+                    {order.equipment?.name ?? '-'}
+                  </td>
+                  <td>
+                    <StatusPill tone="info">{order.type}</StatusPill>
+                  </td>
+                  <td>
+                    <StatusPill tone={getMaintenanceTone(order.status)}>
+                      {order.status}
+                    </StatusPill>
+                  </td>
+                  <td className="text-[var(--stitch-on-surface-variant)]">
+                    {formatDate(order.createdAt)}
+                  </td>
+                  <td className="text-[var(--stitch-on-surface-variant)]">
+                    {formatDate(order.completedAt)}
+                  </td>
                 </tr>
               ))}
 
               {orders.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-6 text-center text-slate-500" colSpan={6}>
+                  <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={6}>
                     Sin órdenes para los filtros seleccionados.
                   </td>
                 </tr>
               ) : null}
             </tbody>
-          </table>
+          </ResponsiveTable>
         </div>
 
         {orders.length > 10 ? (
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-3 text-sm text-[var(--stitch-on-surface-variant)]">
             Vista previa limitada a 10 registros. Los archivos backend descargan
             todos los registros filtrados.
           </p>
         ) : null}
-      </article>
+      </SectionCard>
     </section>
+  );
+}
+
+function ReportMetric({
+  title,
+  value,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  value: number;
+  description: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <article className="stitch-card p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="stitch-label">{title}</p>
+          <p className="mt-3 text-3xl font-bold tracking-[-0.03em] text-[var(--stitch-on-surface)]">
+            {value}
+          </p>
+          <p className="mt-2 text-sm text-[var(--stitch-on-surface-variant)]">
+            {description}
+          </p>
+        </div>
+
+        <div className="rounded-lg bg-[rgb(0_63_135_/_0.08)] p-3 text-[var(--stitch-primary)]">
+          <Icon size={23} />
+        </div>
+      </div>
+    </article>
   );
 }
