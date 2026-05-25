@@ -9,6 +9,7 @@ import { LoginPage } from './pages/LoginPage';
 import { MaintenanceOrderDetailPage } from './pages/MaintenanceOrderDetailPage';
 import { MaintenanceOrdersPage } from './pages/MaintenanceOrdersPage';
 import { OrganizationPage } from './pages/OrganizationPage';
+import { ReportsPage } from './pages/ReportsPage';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
             element={<MaintenanceOrderDetailPage />}
           />
           <Route path="/organization" element={<OrganizationPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
         </Route>
       </Route>
     </Routes>

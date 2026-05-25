@@ -1,5 +1,6 @@
 import {
   Activity,
+  BarChart3,
   Building2,
   ClipboardList,
   LayoutDashboard,
@@ -31,6 +32,11 @@ const navItems = [
     href: '/organization',
     icon: Building2,
   },
+  {
+    label: 'Reportes',
+    href: '/reports',
+    icon: BarChart3,
+  }
 ];
 
 export function AppLayout() {
