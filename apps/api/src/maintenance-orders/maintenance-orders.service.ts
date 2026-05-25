@@ -40,7 +40,7 @@ export class MaintenanceOrdersService {
     }
 
     try {
-      return await this.prisma.maintenanceOrder.create({
+      const order = await this.prisma.maintenanceOrder.create({
         data: {
           code: this.generateOrderCode(),
           type: dto.type,
@@ -61,6 +61,23 @@ export class MaintenanceOrdersService {
         },
         include: this.defaultInclude(),
       });
+
+      await this.auditLogsService.safeCreate({
+        userId: user.id,
+        action: AUDIT_ACTIONS.MAINTENANCE_ORDER_CREATED,
+        entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
+        entityId: order.id,
+        newValue: {
+          id: order.id,
+          code: order.code,
+          equipmentId: order.equipmentId,
+          type: order.type,
+          status: order.status,
+          assignedToId: order.assignedToId,
+        },
+      });
+
+      return order;
     } catch (error) {
       this.handlePrismaError(error);
     }
@@ -217,6 +234,23 @@ export class MaintenanceOrdersService {
         },
       });
 
+      await this.auditLogsService.safeCreate({
+        userId: user.id,
+        action: AUDIT_ACTIONS.MAINTENANCE_ORDER_STARTED,
+        entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
+        entityId: updatedOrder.id,
+        oldValue: {
+          status: order.status,
+          assignedToId: order.assignedToId,
+        },
+        newValue: {
+          status: updatedOrder.status,
+          assignedToId: updatedOrder.assignedToId,
+          startedAt: updatedOrder.startedAt,
+          equipmentStatus: EquipmentStatus.IN_MAINTENANCE,
+        },
+      });
+
       return updatedOrder;
     });
   }
@@ -254,6 +288,22 @@ export class MaintenanceOrdersService {
         },
         data: {
           status: finalEquipmentStatus,
+        },
+      });
+
+      await this.auditLogsService.safeCreate({
+        userId: user.id,
+        action: AUDIT_ACTIONS.MAINTENANCE_ORDER_COMPLETED,
+        entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
+        entityId: updatedOrder.id,
+        oldValue: {
+          status: order.status,
+          equipmentStatus: order.equipment.status,
+        },
+        newValue: {
+          status: updatedOrder.status,
+          completedAt: updatedOrder.completedAt,
+          finalEquipmentStatus: updatedOrder.finalEquipmentStatus,
         },
       });
 
@@ -295,6 +345,20 @@ export class MaintenanceOrdersService {
           },
         });
       }
+
+      await this.auditLogsService.safeCreate({
+        userId: user.id,
+        action: AUDIT_ACTIONS.MAINTENANCE_ORDER_CANCELLED,
+        entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
+        entityId: updatedOrder.id,
+        oldValue: {
+          status: order.status,
+        },
+        newValue: {
+          status: updatedOrder.status,
+          reason: dto.reason,
+        },
+      });
 
       return updatedOrder;
     });

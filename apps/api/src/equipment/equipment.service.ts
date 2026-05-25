@@ -37,7 +37,7 @@ export class EquipmentService {
     });
 
     try {
-      return await this.prisma.equipment.create({
+      const equipment = await this.prisma.equipment.create({
         data: {
           companyId,
           siteId: dto.siteId,
@@ -57,6 +57,24 @@ export class EquipmentService {
         },
         include: this.defaultInclude(),
       });
+
+      await this.auditLogsService.safeCreate({
+        userId: user.id,
+        action: AUDIT_ACTIONS.EQUIPMENT_CREATED,
+        entity: AUDIT_ENTITIES.EQUIPMENT,
+        entityId: equipment.id,
+        newValue: {
+          id: equipment.id,
+          internalCode: equipment.internalCode,
+          name: equipment.name,
+          status: equipment.status,
+          companyId: equipment.companyId,
+          siteId: equipment.siteId,
+          areaId: equipment.areaId,
+        },
+      });
+
+      return equipment;
     } catch (error) {
       this.handlePrismaError(error);
     }
@@ -189,7 +207,7 @@ export class EquipmentService {
     });
 
     try {
-      return await this.prisma.equipment.update({
+      const equipment = await this.prisma.equipment.update({
         where: { id },
         data: {
           companyId,
@@ -210,6 +228,31 @@ export class EquipmentService {
         },
         include: this.defaultInclude(),
       });
+
+      await this.auditLogsService.safeCreate({
+        userId: user.id,
+        action: AUDIT_ACTIONS.EQUIPMENT_UPDATED,
+        entity: AUDIT_ENTITIES.EQUIPMENT,
+        entityId: equipment.id,
+        oldValue: {
+          internalCode: currentEquipment.internalCode,
+          name: currentEquipment.name,
+          status: currentEquipment.status,
+          companyId: currentEquipment.companyId,
+          siteId: currentEquipment.siteId,
+          areaId: currentEquipment.areaId,
+        },
+        newValue: {
+          internalCode: equipment.internalCode,
+          name: equipment.name,
+          status: equipment.status,
+          companyId: equipment.companyId,
+          siteId: equipment.siteId,
+          areaId: equipment.areaId,
+        },
+      });
+
+      return equipment;
     } catch (error) {
       this.handlePrismaError(error);
     }
@@ -226,7 +269,7 @@ export class EquipmentService {
       throw new ForbiddenException('You cannot update equipment status');
     }
 
-    return this.prisma.equipment.update({
+    const updatedEquipment = await this.prisma.equipment.update({
       where: {
         id: equipment.id,
       },
@@ -236,6 +279,26 @@ export class EquipmentService {
       },
       include: this.defaultInclude(),
     });
+
+    await this.auditLogsService.safeCreate({
+      userId: user.id,
+      action:
+        updatedEquipment.status === EquipmentStatus.RETIRED
+          ? AUDIT_ACTIONS.EQUIPMENT_RETIRED
+          : AUDIT_ACTIONS.EQUIPMENT_STATUS_CHANGED,
+      entity: AUDIT_ENTITIES.EQUIPMENT,
+      entityId: updatedEquipment.id,
+      oldValue: {
+        status: equipment.status,
+        notes: equipment.notes,
+      },
+      newValue: {
+        status: updatedEquipment.status,
+        notes: updatedEquipment.notes,
+      },
+    });
+
+    return updatedEquipment;
   }
 
   async remove(user: AuthUser, id: string) {
@@ -245,7 +308,7 @@ export class EquipmentService {
       throw new ForbiddenException('You cannot retire equipment');
     }
 
-    return this.prisma.equipment.update({
+    const retiredEquipment = await this.prisma.equipment.update({
       where: {
         id: equipment.id,
       },
@@ -254,6 +317,21 @@ export class EquipmentService {
       },
       include: this.defaultInclude(),
     });
+
+    await this.auditLogsService.safeCreate({
+      userId: user.id,
+      action: AUDIT_ACTIONS.EQUIPMENT_RETIRED,
+      entity: AUDIT_ENTITIES.EQUIPMENT,
+      entityId: retiredEquipment.id,
+      oldValue: {
+        status: equipment.status,
+      },
+      newValue: {
+        status: retiredEquipment.status,
+      },
+    });
+
+    return retiredEquipment;
   }
 
   private resolveCompanyId(user: AuthUser, requestedCompanyId?: string): string {
