@@ -34,3 +34,6 @@ tmp/
 # Database
 *.sqlite
 *.db
+
+# Local uploaded files
+/apps/api/storage/attachments/

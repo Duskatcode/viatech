@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { AreasModule } from './areas/areas.module';
+import { AttachmentsModule } from './attachments/attachments.module';
 import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
 import { appConfig } from './config/app.config';
@@ -31,6 +32,7 @@ import { UsersModule } from './users/users.module';
     EquipmentModule,
     MaintenanceOrdersModule,
     ReportsModule,
+    AttachmentsModule,
     HealthModule,
   ],
 })
