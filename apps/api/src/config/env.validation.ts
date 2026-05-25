@@ -8,6 +8,7 @@ interface ValidatedEnv {
   FRONTEND_ORIGIN: string;
   APP_NAME: string;
   APP_VERSION: string;
+  DATABASE_URL: string;
 }
 
 function parseNumber(value: unknown, fallback: number): number {
@@ -31,6 +32,12 @@ function parseNodeEnv(value: unknown): NodeEnv {
 }
 
 export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
+  const databaseUrl = String(config.DATABASE_URL ?? '');
+
+  if (!databaseUrl.trim()) {
+    throw new Error('DATABASE_URL is required');
+  }
+
   const validatedConfig: ValidatedEnv = {
     NODE_ENV: parseNodeEnv(config.NODE_ENV),
     API_PORT: parseNumber(config.API_PORT, 3000),
@@ -39,6 +46,7 @@ export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
     FRONTEND_ORIGIN: String(config.FRONTEND_ORIGIN ?? 'http://localhost:5173'),
     APP_NAME: String(config.APP_NAME ?? 'Biomed Maintenance API'),
     APP_VERSION: String(config.APP_VERSION ?? '0.0.1'),
+    DATABASE_URL: databaseUrl,
   };
 
   if (validatedConfig.API_PORT <= 0) {

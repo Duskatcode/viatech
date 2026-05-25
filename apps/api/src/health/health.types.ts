@@ -5,3 +5,9 @@ export interface HealthResponse {
   uptime: number;
   timestamp: string;
 }
+
+export interface DatabaseHealthResponse {
+  status: 'ok';
+  database: 'reachable';
+  timestamp: string;
+}

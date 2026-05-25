@@ -22,4 +22,7 @@ export const appConfig = () => ({
   cors: {
     frontendOrigin: process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173',
   },
+  database: {
+    url: process.env.DATABASE_URL,
+  },
 });
