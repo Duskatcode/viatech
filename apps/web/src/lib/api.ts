@@ -1,6 +1,15 @@
-import axios from 'axios';
+import axios, {
+  type AxiosError,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 
-import { clearTokens, getAccessToken } from './auth-storage';
+import type { AuthResponse } from '../types/auth';
+import {
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+} from './auth-storage';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/v1';
@@ -11,6 +20,43 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+let refreshRequest: Promise<string> | null = null;
+
+function isAuthEndpoint(url: string | undefined) {
+  return url === '/auth/login' || url === '/auth/refresh';
+}
+
+function refreshAccessToken() {
+  if (!refreshRequest) {
+    const refreshToken = getRefreshToken();
+
+    if (!refreshToken) {
+      clearTokens();
+      return Promise.reject(new Error('No refresh token available'));
+    }
+
+    refreshRequest = axios
+      .post<AuthResponse>(`${API_BASE_URL}/auth/refresh`, { refreshToken })
+      .then(({ data }) => {
+        setTokens(data.accessToken, data.refreshToken);
+        return data.accessToken;
+      })
+      .catch((error: unknown) => {
+        clearTokens();
+        throw error;
+      })
+      .finally(() => {
+        refreshRequest = null;
+      });
+  }
+
+  return refreshRequest;
+}
 
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
@@ -24,11 +70,32 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      clearTokens();
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetryableRequestConfig | undefined;
+
+    if (
+      error.response?.status !== 401 ||
+      !originalRequest ||
+      originalRequest._retry ||
+      isAuthEndpoint(originalRequest.url)
+    ) {
+      if (error.response?.status === 401) {
+        clearTokens();
+      }
+
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    originalRequest._retry = true;
+
+    try {
+      const accessToken = await refreshAccessToken();
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+      return api(originalRequest);
+    } catch {
+      clearTokens();
+      return Promise.reject(error);
+    }
   },
 );
