@@ -404,7 +404,7 @@ export function ReportsPage() {
               {equipment.length === 0 ? (
                 <tr>
                   <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={6}>
-                    Sin equipos para los filtros seleccionados.
+                    No hay datos suficientes para el filtro seleccionado.
                   </td>
                 </tr>
               ) : null}
@@ -559,7 +559,7 @@ export function ReportsPage() {
               {orders.length === 0 ? (
                 <tr>
                   <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={6}>
-                    Sin órdenes para los filtros seleccionados.
+                    No hay datos suficientes para el filtro seleccionado.
                   </td>
                 </tr>
               ) : null}

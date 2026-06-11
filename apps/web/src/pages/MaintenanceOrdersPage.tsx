@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Eye, Play, Plus, XCircle } from 'lucide-react';
+import { CheckCircle2, Eye, Play, Plus, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { getErrorMessage } from '../lib/error-message';
 import { CompleteMaintenanceOrderModal } from '../maintenance-orders/CompleteMaintenanceOrderModal';
 import { MaintenanceOrderFormModal } from '../maintenance-orders/MaintenanceOrderFormModal';
 import { MaintenanceStatusBadge } from '../maintenance-orders/MaintenanceStatusBadge';
@@ -22,6 +23,7 @@ import { FilterBar } from '../ui/FilterBar';
 import { PageHeader } from '../ui/PageHeader';
 import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { StatusPill } from '../ui/StatusPill';
+import { useToast } from '../ui/ToastProvider';
 
 const statusOptions: Array<MaintenanceStatus | ''> = [
   '',
@@ -35,12 +37,14 @@ const typeOptions: Array<MaintenanceType | ''> = ['', 'PREVENTIVE', 'CORRECTIVE'
 
 export function MaintenanceOrdersPage() {
   const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<MaintenanceStatus | ''>('');
   const [type, setType] = useState<MaintenanceType | ''>('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [completeOrder, setCompleteOrder] = useState<MaintenanceOrder | null>(null);
+  const [cancelOrder, setCancelOrder] = useState<MaintenanceOrder | null>(null);
 
   const filters = useMemo<QueryMaintenanceOrdersParams>(
     () => ({
@@ -72,6 +76,18 @@ export function MaintenanceOrdersPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['maintenance-orders'] });
       setIsCreateOpen(false);
+      addToast({
+        type: 'success',
+        title: 'Orden creada',
+        description: 'La orden de mantenimiento quedó disponible en el cronograma.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo crear la orden',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -80,6 +96,18 @@ export function MaintenanceOrdersPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['maintenance-orders'] });
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
+      addToast({
+        type: 'success',
+        title: 'Orden iniciada',
+        description: 'La orden ahora está en progreso.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo iniciar la orden',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -95,15 +123,40 @@ export function MaintenanceOrdersPage() {
       await queryClient.invalidateQueries({ queryKey: ['maintenance-orders'] });
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setCompleteOrder(null);
+      addToast({
+        type: 'success',
+        title: 'Orden completada',
+        description: 'El mantenimiento y el estado final del equipo fueron actualizados.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo completar la orden',
+        description: getErrorMessage(error),
+      });
     },
   });
 
   const cancelMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
       maintenanceOrdersService.cancel(id, { reason }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['maintenance-orders'] });
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
+      setCancelOrder(null);
+      addToast({
+        type: 'success',
+        title: 'Orden cancelada',
+        description: 'El motivo de cancelación quedó registrado.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo cancelar la orden',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -111,13 +164,11 @@ export function MaintenanceOrdersPage() {
   const equipment = equipmentQuery.data ?? [];
   const users = usersQuery.data ?? [];
 
-  async function handleCancel(order: MaintenanceOrder) {
-    const reason = window.prompt('Motivo de cancelación');
-
-    if (reason === null) return;
+  async function handleCancel(reason: string) {
+    if (!cancelOrder) return;
 
     await cancelMutation.mutateAsync({
-      id: order.id,
+      id: cancelOrder.id,
       reason,
     });
   }
@@ -272,7 +323,7 @@ export function MaintenanceOrdersPage() {
                   <button
                     type="button"
                     disabled={order.status === 'COMPLETED' || order.status === 'CANCELLED'}
-                    onClick={() => void handleCancel(order)}
+                    onClick={() => setCancelOrder(order)}
                     className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:cursor-not-allowed disabled:opacity-30"
                     title="Cancelar"
                   >
@@ -286,7 +337,7 @@ export function MaintenanceOrdersPage() {
           {orders.length === 0 ? (
             <tr>
               <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={7}>
-                No hay órdenes para los filtros seleccionados.
+                No hay órdenes con los filtros actuales.
               </td>
             </tr>
           ) : null}
@@ -313,6 +364,99 @@ export function MaintenanceOrdersPage() {
           onSubmit={handleComplete}
         />
       ) : null}
+
+      {cancelOrder ? (
+        <CancelMaintenanceOrderModal
+          order={cancelOrder}
+          isSubmitting={cancelMutation.isPending}
+          onClose={() => setCancelOrder(null)}
+          onSubmit={handleCancel}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function CancelMaintenanceOrderModal({
+  order,
+  isSubmitting,
+  onClose,
+  onSubmit,
+}: {
+  order: MaintenanceOrder;
+  isSubmitting: boolean;
+  onClose: () => void;
+  onSubmit: (reason: string) => Promise<void>;
+}) {
+  const [reason, setReason] = useState('');
+  const canSubmit = reason.trim().length > 0 && !isSubmitting;
+
+  return (
+    <div className="fixed inset-0 z-[70] grid place-items-center bg-slate-950/80 px-4 backdrop-blur">
+      <section className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-white">Cancelar orden</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Indica el motivo de cancelación.
+            </p>
+            <p className="mt-2 text-xs font-medium text-slate-500">
+              {order.code} · {order.equipment?.name ?? 'Equipo'}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isSubmitting}
+            className="rounded-xl border border-slate-700 p-2 text-slate-300 transition hover:bg-slate-800 disabled:opacity-60"
+            aria-label="Cerrar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <form
+          className="mt-6 space-y-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+
+            if (!canSubmit) return;
+
+            void onSubmit(reason.trim());
+          }}
+        >
+          <label className="block">
+            <span className="text-sm text-slate-300">Motivo</span>
+            <textarea
+              autoFocus
+              className="mt-2 min-h-28 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-400"
+              placeholder="Describe por qué se cancela la orden..."
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+            />
+          </label>
+
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="rounded-2xl border border-slate-700 px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:opacity-60"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="rounded-2xl bg-red-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting ? 'Cancelando...' : 'Confirmar'}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }

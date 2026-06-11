@@ -74,6 +74,18 @@ export function EquipmentPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setFormEquipment(undefined);
+      addToast({
+        type: 'success',
+        title: 'Equipo creado',
+        description: 'El equipo fue agregado al inventario biomédico.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo crear el equipo',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -88,6 +100,18 @@ export function EquipmentPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setFormEquipment(undefined);
+      addToast({
+        type: 'success',
+        title: 'Equipo actualizado',
+        description: 'Los cambios del equipo fueron guardados.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo actualizar el equipo',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -102,6 +126,18 @@ export function EquipmentPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setStatusEquipment(null);
+      addToast({
+        type: 'success',
+        title: 'Estado actualizado',
+        description: 'El estado técnico del equipo fue guardado.',
+      });
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: 'No se pudo cambiar el estado',
+        description: getErrorMessage(error),
+      });
     },
   });
 
@@ -325,7 +361,7 @@ export function EquipmentPage() {
           {equipment.length === 0 ? (
             <tr>
               <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={7}>
-                No hay equipos para los filtros seleccionados.
+                No hay equipos con los filtros actuales.
               </td>
             </tr>
           ) : null}

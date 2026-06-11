@@ -264,7 +264,7 @@ export function AuditLogsPage() {
       {logs.length === 0 ? (
         <EmptyState
           title="Sin eventos"
-          description="No hay registros de auditoría para los filtros seleccionados."
+          description="No hay eventos de auditoría para los filtros seleccionados."
         />
       ) : (
         <article className="hidden lg:block">
