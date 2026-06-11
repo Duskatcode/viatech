@@ -43,7 +43,7 @@ function refreshAccessToken() {
     refreshRequest = axios
       .post<AuthResponse>(`${API_BASE_URL}/auth/refresh`, { refreshToken })
       .then(({ data }) => {
-        setTokens(data.accessToken, data.refreshToken);
+        setTokens(data.accessToken, data.refreshToken ?? refreshToken);
         return data.accessToken;
       })
       .catch((error: unknown) => {
