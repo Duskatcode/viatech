@@ -4,10 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
-import { join, normalize } from 'node:path';
+import { relative, resolve, sep } from 'node:path';
 
 import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
@@ -31,6 +32,7 @@ export class AttachmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLogsService: AuditLogsService,
+    private readonly configService: ConfigService,
   ) {}
 
   async listByEquipment(user: AuthUser, equipmentId: string) {
@@ -187,12 +189,12 @@ export class AttachmentsService {
       throw new BadRequestException(`Unsupported file type: ${file.mimetype}`);
     }
 
-    const storageDir = join(process.cwd(), ATTACHMENTS_STORAGE_DIR);
+    const storageDir = this.getStorageDir();
     await mkdir(storageDir, { recursive: true });
 
     const extension = this.getSafeExtension(file.originalname);
     const filename = `${randomUUID()}${extension}`;
-    const absolutePath = join(storageDir, filename);
+    const absolutePath = resolve(storageDir, filename);
 
     await writeFile(absolutePath, file.buffer);
 
@@ -234,14 +236,38 @@ export class AttachmentsService {
   }
 
   private resolveSafePath(relativePath: string) {
-    const root = normalize(join(process.cwd(), ATTACHMENTS_STORAGE_DIR));
-    const absolutePath = normalize(join(process.cwd(), relativePath));
+    const logicalRoot = resolve(process.cwd(), ATTACHMENTS_STORAGE_DIR);
+    const logicalPath = resolve(process.cwd(), relativePath);
 
-    if (!absolutePath.startsWith(root)) {
+    if (
+      logicalPath !== logicalRoot &&
+      !logicalPath.startsWith(`${logicalRoot}${sep}`)
+    ) {
+      throw new ForbiddenException('Invalid attachment path');
+    }
+
+    const storageRoot = this.getStorageDir();
+    const absolutePath = resolve(
+      storageRoot,
+      relative(logicalRoot, logicalPath),
+    );
+
+    if (
+      absolutePath !== storageRoot &&
+      !absolutePath.startsWith(`${storageRoot}${sep}`)
+    ) {
       throw new ForbiddenException('Invalid attachment path');
     }
 
     return absolutePath;
+  }
+
+  private getStorageDir() {
+    const configuredDir =
+      this.configService.get<string>('storage.attachmentsDir') ??
+      ATTACHMENTS_STORAGE_DIR;
+
+    return resolve(process.cwd(), configuredDir);
   }
 
   private async findAccessibleAttachment(user: AuthUser, attachmentId: string) {

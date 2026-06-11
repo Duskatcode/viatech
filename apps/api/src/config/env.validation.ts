@@ -8,6 +8,7 @@ interface ValidatedEnv {
   FRONTEND_ORIGIN: string;
   APP_NAME: string;
   APP_VERSION: string;
+  ATTACHMENTS_STORAGE_DIR: string;
   DATABASE_URL: string;
   JWT_ACCESS_SECRET: string;
   JWT_REFRESH_SECRET: string;
@@ -54,6 +55,9 @@ export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
     FRONTEND_ORIGIN: String(config.FRONTEND_ORIGIN ?? 'http://localhost:5173'),
     APP_NAME: String(config.APP_NAME ?? 'Biomed Maintenance API'),
     APP_VERSION: String(config.APP_VERSION ?? '0.0.1'),
+    ATTACHMENTS_STORAGE_DIR: String(
+      config.ATTACHMENTS_STORAGE_DIR ?? 'storage/attachments',
+    ),
     DATABASE_URL: requiredString(config, 'DATABASE_URL'),
     JWT_ACCESS_SECRET: requiredString(config, 'JWT_ACCESS_SECRET'),
     JWT_REFRESH_SECRET: requiredString(config, 'JWT_REFRESH_SECRET'),

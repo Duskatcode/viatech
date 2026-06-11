@@ -28,17 +28,18 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 3000
+      API_PORT: 3000
       DATABASE_URL: ${DATABASE_URL:-postgresql://biomed:biomed_password@db:5432/biomed?schema=public}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
-      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN:-15m}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      JWT_ACCESS_EXPIRES_IN_SECONDS: ${JWT_ACCESS_EXPIRES_IN_SECONDS:-900}
+      JWT_REFRESH_EXPIRES_IN_SECONDS: ${JWT_REFRESH_EXPIRES_IN_SECONDS:-604800}
+      ATTACHMENTS_STORAGE_DIR: ${ATTACHMENTS_STORAGE_DIR:-/app/storage/attachments}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8081}
     ports:
       - "${API_PORT:-3001}:3000"
     volumes:
-      - biomed_uploads:/app/apps/api/uploads
+      - biomed_uploads:/app/storage/attachments
       - biomed_reports:/app/apps/api/reports
 
   web:

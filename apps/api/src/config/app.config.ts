@@ -25,6 +25,10 @@ export const appConfig = () => ({
   database: {
     url: process.env.DATABASE_URL,
   },
+  storage: {
+    attachmentsDir:
+      process.env.ATTACHMENTS_STORAGE_DIR ?? 'storage/attachments',
+  },
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,
     refreshSecret: process.env.JWT_REFRESH_SECRET,
