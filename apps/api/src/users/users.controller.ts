@@ -38,7 +38,7 @@ export class UsersController {
   @ApiOkResponse({
     description: 'Get user by id.',
   })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findProfileById(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.usersService.findProfileById(id, user);
   }
 }

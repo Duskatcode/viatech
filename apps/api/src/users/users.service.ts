@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
+import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import { UserRole } from '../generated/prisma/client';
 
@@ -38,9 +39,22 @@ export class UsersService {
     });
   }
 
-  async findProfileById(id: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
+  async findProfileById(id: string, currentUser?: AuthUser) {
+    if (
+      currentUser &&
+      (currentUser.role !== UserRole.SUPER_ADMIN &&
+        (currentUser.role !== UserRole.ADMIN || !currentUser.companyId))
+    ) {
+      throw new NotFoundException('User not found');
+    }
+
+    const where =
+      currentUser?.role === UserRole.ADMIN
+        ? { id, companyId: currentUser.companyId as string }
+        : { id };
+
+    const user = await this.prisma.user.findFirst({
+      where,
       select: {
         id: true,
         name: true,
