@@ -272,6 +272,18 @@ body {
     transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+.landing-check-item {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.landing-check-item:has(input:focus-visible) {
+  outline: 3px solid rgb(18 63 145 / 0.28);
+  outline-offset: 3px;
+}
+
 .landing-enter {
   animation: landing-enter 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
@@ -363,6 +375,7 @@ body {
   .landing-button,
   .landing-secondary-button,
   .landing-feature-card,
+  .landing-check-item,
   .landing-skip-link {
     transition-duration: 0.01ms;
   }

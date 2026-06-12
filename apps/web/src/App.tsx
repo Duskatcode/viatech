@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './auth/AuthProvider';
@@ -15,10 +16,30 @@ import { OrganizationPage } from './pages/OrganizationPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { UsersPage } from './pages/UsersPage';
 
+const DemoGuidePage = lazy(() =>
+  import('./pages/DemoGuidePage').then((module) => ({
+    default: module.DemoGuidePage,
+  })),
+);
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/demo"
+        element={
+          <Suspense
+            fallback={
+              <main className="grid min-h-screen place-items-center bg-[#f7f8fa] text-sm font-semibold text-[#475467]">
+                Cargando guía de demo...
+              </main>
+            }
+          >
+            <DemoGuidePage />
+          </Suspense>
+        }
+      />
       <Route
         path="/login"
         element={

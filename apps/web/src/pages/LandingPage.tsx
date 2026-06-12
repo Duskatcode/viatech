@@ -158,12 +158,12 @@ export function LandingPage() {
             >
               Funciones
             </a>
-            <a
+            <Link
               className="landing-nav-link landing-focus rounded-md text-sm font-medium text-[#596273]"
-              href="#demo"
+              to="/demo"
             >
               Demo
-            </a>
+            </Link>
           </nav>
 
           <Link
@@ -484,13 +484,22 @@ export function LandingPage() {
                 órdenes, usuarios, reportes y auditoría sin depender de
                 información clínica real.
               </p>
-              <Link
-                to="/login"
-                className="landing-button landing-focus mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#123f91] px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgb(16_24_40_/_0.16)]"
-              >
-                Entrar a la demo
-                <ArrowRight size={17} aria-hidden="true" />
-              </Link>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/login"
+                  className="landing-button landing-focus inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#123f91] px-5 text-sm font-semibold text-white shadow-[0_1px_2px_rgb(16_24_40_/_0.16)]"
+                >
+                  Entrar a la demo
+                  <ArrowRight size={17} aria-hidden="true" />
+                </Link>
+                <Link
+                  to="/demo"
+                  className="landing-secondary-button landing-focus inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-[#cfd5dd] bg-white px-5 text-sm font-semibold text-[#344054]"
+                >
+                  Ver guía de prueba
+                  <ChevronRight size={17} aria-hidden="true" />
+                </Link>
+              </div>
             </div>
 
             <ol className="grid gap-3 sm:grid-cols-2">
