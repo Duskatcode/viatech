@@ -1,19 +1,24 @@
+# syntax=docker/dockerfile:1.7
+
 FROM node:22-alpine AS base
 
 WORKDIR /app
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV NODE_ENV=production
 
 RUN corepack enable
+RUN pnpm config set store-dir /pnpm/store
 
 FROM base AS deps
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps ./apps
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/shared/package.json packages/shared/package.json
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store,sharing=locked \
+    pnpm install --frozen-lockfile
 
 FROM deps AS build
 
@@ -24,6 +29,8 @@ RUN pnpm --filter @biomed/api build
 FROM base AS runner
 
 WORKDIR /app
+
+ENV NODE_ENV=production
 
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/pnpm-lock.yaml ./pnpm-lock.yaml

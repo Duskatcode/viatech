@@ -11,10 +11,16 @@ build
 !.env.example
 !.env.docker.example
 coverage
+**/coverage
+storage
+**/storage
+logs
+**/logs
 .DS_Store
 .vscode
 .idea
 reports
 uploads
 tmp
+.pnpm-store
 *.log
