@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Eye, Play, Plus, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '../auth/useAuth';
 import { getErrorMessage } from '../lib/error-message';
 import { CompleteMaintenanceOrderModal } from '../maintenance-orders/CompleteMaintenanceOrderModal';
 import { MaintenanceOrderFormModal } from '../maintenance-orders/MaintenanceOrderFormModal';
@@ -33,17 +34,28 @@ const statusOptions: Array<MaintenanceStatus | ''> = [
   'CANCELLED',
 ];
 
-const typeOptions: Array<MaintenanceType | ''> = ['', 'PREVENTIVE', 'CORRECTIVE'];
+const typeOptions: Array<MaintenanceType | ''> = [
+  '',
+  'PREVENTIVE',
+  'CORRECTIVE',
+];
 
 export function MaintenanceOrdersPage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { addToast } = useToast();
+  const canCreateOrders =
+    user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+  const canWorkOrders = canCreateOrders || user?.role === 'TECHNICIAN';
+  const canCancelOrders = canCreateOrders;
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<MaintenanceStatus | ''>('');
   const [type, setType] = useState<MaintenanceType | ''>('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [completeOrder, setCompleteOrder] = useState<MaintenanceOrder | null>(null);
+  const [completeOrder, setCompleteOrder] = useState<MaintenanceOrder | null>(
+    null,
+  );
   const [cancelOrder, setCancelOrder] = useState<MaintenanceOrder | null>(null);
 
   const filters = useMemo<QueryMaintenanceOrdersParams>(
@@ -68,6 +80,7 @@ export function MaintenanceOrdersPage() {
   const usersQuery = useQuery({
     queryKey: ['users'],
     queryFn: usersService.findAll,
+    enabled: canCreateOrders,
   });
 
   const createMutation = useMutation({
@@ -79,7 +92,8 @@ export function MaintenanceOrdersPage() {
       addToast({
         type: 'success',
         title: 'Orden creada',
-        description: 'La orden de mantenimiento quedó disponible en el cronograma.',
+        description:
+          'La orden de mantenimiento quedó disponible en el cronograma.',
       });
     },
     onError: (error) => {
@@ -126,7 +140,8 @@ export function MaintenanceOrdersPage() {
       addToast({
         type: 'success',
         title: 'Orden completada',
-        description: 'El mantenimiento y el estado final del equipo fueron actualizados.',
+        description:
+          'El mantenimiento y el estado final del equipo fueron actualizados.',
       });
     },
     onError: (error) => {
@@ -189,13 +204,15 @@ export function MaintenanceOrdersPage() {
         title="Mantenimientos"
         description="Flujo técnico de órdenes, estados, responsables y checklist operativo."
         actions={
-          <ActionButton
-            type="button"
-            icon={<Plus size={18} />}
-            onClick={() => setIsCreateOpen(true)}
-          >
-            Nueva orden
-          </ActionButton>
+          canCreateOrders ? (
+            <ActionButton
+              type="button"
+              icon={<Plus size={18} />}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              Nueva orden
+            </ActionButton>
+          ) : undefined
         }
       />
 
@@ -215,7 +232,9 @@ export function MaintenanceOrdersPage() {
           <select
             className="stitch-input mt-2 px-4 py-3"
             value={status}
-            onChange={(event) => setStatus(event.target.value as MaintenanceStatus | '')}
+            onChange={(event) =>
+              setStatus(event.target.value as MaintenanceStatus | '')
+            }
           >
             {statusOptions.map((option) => (
               <option key={option || 'all'} value={option}>
@@ -230,7 +249,9 @@ export function MaintenanceOrdersPage() {
           <select
             className="stitch-input mt-2 px-4 py-3"
             value={type}
-            onChange={(event) => setType(event.target.value as MaintenanceType | '')}
+            onChange={(event) =>
+              setType(event.target.value as MaintenanceType | '')
+            }
           >
             {typeOptions.map((option) => (
               <option key={option || 'all'} value={option}>
@@ -300,35 +321,44 @@ export function MaintenanceOrdersPage() {
                     <Eye size={16} />
                   </Link>
 
-                  <button
-                    type="button"
-                    disabled={order.status !== 'PENDING'}
-                    onClick={() => void startMutation.mutateAsync(order.id)}
-                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)] disabled:cursor-not-allowed disabled:opacity-30"
-                    title="Iniciar"
-                  >
-                    <Play size={16} />
-                  </button>
+                  {canWorkOrders ? (
+                    <>
+                      <button
+                        type="button"
+                        disabled={order.status !== 'PENDING'}
+                        onClick={() => void startMutation.mutateAsync(order.id)}
+                        className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)] disabled:cursor-not-allowed disabled:opacity-30"
+                        title="Iniciar"
+                      >
+                        <Play size={16} />
+                      </button>
 
-                  <button
-                    type="button"
-                    disabled={order.status !== 'IN_PROGRESS'}
-                    onClick={() => setCompleteOrder(order)}
-                    className="rounded-lg border border-[rgb(21_87_36_/_0.25)] p-2 text-[var(--stitch-success-text)] transition hover:bg-[var(--stitch-success-bg)] disabled:cursor-not-allowed disabled:opacity-30"
-                    title="Completar"
-                  >
-                    <CheckCircle2 size={16} />
-                  </button>
+                      <button
+                        type="button"
+                        disabled={order.status !== 'IN_PROGRESS'}
+                        onClick={() => setCompleteOrder(order)}
+                        className="rounded-lg border border-[rgb(21_87_36_/_0.25)] p-2 text-[var(--stitch-success-text)] transition hover:bg-[var(--stitch-success-bg)] disabled:cursor-not-allowed disabled:opacity-30"
+                        title="Completar"
+                      >
+                        <CheckCircle2 size={16} />
+                      </button>
+                    </>
+                  ) : null}
 
-                  <button
-                    type="button"
-                    disabled={order.status === 'COMPLETED' || order.status === 'CANCELLED'}
-                    onClick={() => setCancelOrder(order)}
-                    className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:cursor-not-allowed disabled:opacity-30"
-                    title="Cancelar"
-                  >
-                    <XCircle size={16} />
-                  </button>
+                  {canCancelOrders ? (
+                    <button
+                      type="button"
+                      disabled={
+                        order.status === 'COMPLETED' ||
+                        order.status === 'CANCELLED'
+                      }
+                      onClick={() => setCancelOrder(order)}
+                      className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:cursor-not-allowed disabled:opacity-30"
+                      title="Cancelar"
+                    >
+                      <XCircle size={16} />
+                    </button>
+                  ) : null}
                 </div>
               </td>
             </tr>
@@ -336,7 +366,10 @@ export function MaintenanceOrdersPage() {
 
           {orders.length === 0 ? (
             <tr>
-              <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={7}>
+              <td
+                className="px-4 py-8 text-center text-[var(--stitch-outline)]"
+                colSpan={7}
+              >
                 No hay órdenes con los filtros actuales.
               </td>
             </tr>
@@ -344,7 +377,7 @@ export function MaintenanceOrdersPage() {
         </tbody>
       </ResponsiveTable>
 
-      {isCreateOpen ? (
+      {canCreateOrders && isCreateOpen ? (
         <MaintenanceOrderFormModal
           equipment={equipment}
           users={users}
@@ -356,7 +389,7 @@ export function MaintenanceOrdersPage() {
         />
       ) : null}
 
-      {completeOrder ? (
+      {canWorkOrders && completeOrder ? (
         <CompleteMaintenanceOrderModal
           order={completeOrder}
           isSubmitting={completeMutation.isPending}
@@ -365,7 +398,7 @@ export function MaintenanceOrdersPage() {
         />
       ) : null}
 
-      {cancelOrder ? (
+      {canCancelOrders && cancelOrder ? (
         <CancelMaintenanceOrderModal
           order={cancelOrder}
           isSubmitting={cancelMutation.isPending}

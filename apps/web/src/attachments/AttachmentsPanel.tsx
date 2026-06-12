@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Download, FileText, Paperclip, Trash2, Upload } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuth } from '../auth/useAuth';
 import { getErrorMessage } from '../lib/error-message';
 import { validateFileSize } from '../lib/form-validation';
 import { attachmentsService } from '../services/attachments.service';
@@ -46,15 +47,21 @@ export function AttachmentsPanel({
   title,
   description,
 }: AttachmentsPanelProps) {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { addToast } = useToast();
+  const canAdministerAttachments =
+    user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+  const canUpload =
+    canAdministerAttachments ||
+    (user?.role === 'TECHNICIAN' && ownerType === 'maintenance-order');
+  const canDelete = canAdministerAttachments;
 
   const [type, setType] = useState('OTHER');
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState('');
-  const [attachmentToDelete, setAttachmentToDelete] = useState<Attachment | null>(
-    null,
-  );
+  const [attachmentToDelete, setAttachmentToDelete] =
+    useState<Attachment | null>(null);
 
   const queryKey = ['attachments', ownerType, ownerId];
 
@@ -196,49 +203,51 @@ export function AttachmentsPanel({
           </div>
         </div>
 
-        <form
-          className="grid gap-3 rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 md:min-w-[460px]"
-          onSubmit={handleSubmit}
-        >
-          <div className="grid gap-3 md:grid-cols-[0.8fr_1.4fr]">
-            <label className="block">
-              <span className="stitch-label">Tipo</span>
-              <input
-                className="stitch-input mt-2 px-4 py-3"
-                placeholder="OTHER, MANUAL, EVIDENCE..."
-                value={type}
-                onChange={(event) => setType(event.target.value)}
-              />
-            </label>
-
-            <label className="block">
-              <span className="stitch-label">Archivo</span>
-              <input
-                className="stitch-input mt-2 px-4 py-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--stitch-primary)] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
-                type="file"
-                onChange={(event) => {
-                  setFile(event.target.files?.[0] ?? null);
-                  setFileError('');
-                }}
-              />
-            </label>
-          </div>
-
-          <div>
-            <FieldHint message="Formatos permitidos según backend. Tamaño recomendado: máximo 10 MB." />
-            <FieldError message={fileError} />
-          </div>
-
-          <SubmitButton
-            isLoading={uploadMutation.isPending}
-            loadingLabel="Subiendo..."
-            disabled={!file}
-            className="px-4"
+        {canUpload ? (
+          <form
+            className="grid gap-3 rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 md:min-w-[460px]"
+            onSubmit={handleSubmit}
           >
-            <Upload size={18} />
-            Subir adjunto
-          </SubmitButton>
-        </form>
+            <div className="grid gap-3 md:grid-cols-[0.8fr_1.4fr]">
+              <label className="block">
+                <span className="stitch-label">Tipo</span>
+                <input
+                  className="stitch-input mt-2 px-4 py-3"
+                  placeholder="OTHER, MANUAL, EVIDENCE..."
+                  value={type}
+                  onChange={(event) => setType(event.target.value)}
+                />
+              </label>
+
+              <label className="block">
+                <span className="stitch-label">Archivo</span>
+                <input
+                  className="stitch-input mt-2 px-4 py-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--stitch-primary)] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
+                  type="file"
+                  onChange={(event) => {
+                    setFile(event.target.files?.[0] ?? null);
+                    setFileError('');
+                  }}
+                />
+              </label>
+            </div>
+
+            <div>
+              <FieldHint message="Formatos permitidos según backend. Tamaño recomendado: máximo 10 MB." />
+              <FieldError message={fileError} />
+            </div>
+
+            <SubmitButton
+              isLoading={uploadMutation.isPending}
+              loadingLabel="Subiendo..."
+              disabled={!file}
+              className="px-4"
+            >
+              <Upload size={18} />
+              Subir adjunto
+            </SubmitButton>
+          </form>
+        ) : null}
       </div>
 
       <div className="p-5">
@@ -300,7 +309,9 @@ export function AttachmentsPanel({
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => void downloadMutation.mutateAsync(attachment)}
+                    onClick={() =>
+                      void downloadMutation.mutateAsync(attachment)
+                    }
                     disabled={downloadMutation.isPending}
                     className="inline-flex items-center gap-2 rounded-lg border border-[var(--stitch-outline-variant)] px-3 py-2 text-xs font-bold text-[var(--stitch-primary)] transition hover:bg-[rgb(0_63_135_/_0.06)] disabled:opacity-60"
                   >
@@ -308,15 +319,17 @@ export function AttachmentsPanel({
                     Descargar
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setAttachmentToDelete(attachment)}
-                    disabled={deleteMutation.isPending}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[var(--stitch-danger-border)] px-3 py-2 text-xs font-bold text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:opacity-60"
-                  >
-                    <Trash2 size={15} />
-                    Eliminar
-                  </button>
+                  {canDelete ? (
+                    <button
+                      type="button"
+                      onClick={() => setAttachmentToDelete(attachment)}
+                      disabled={deleteMutation.isPending}
+                      className="inline-flex items-center gap-2 rounded-lg border border-[var(--stitch-danger-border)] px-3 py-2 text-xs font-bold text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:opacity-60"
+                    >
+                      <Trash2 size={15} />
+                      Eliminar
+                    </button>
+                  ) : null}
                 </div>
               </article>
             ))}
@@ -387,15 +400,17 @@ export function AttachmentsPanel({
                           <Download size={16} />
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() => setAttachmentToDelete(attachment)}
-                          disabled={deleteMutation.isPending}
-                          className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:opacity-60"
-                          title="Eliminar"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {canDelete ? (
+                          <button
+                            type="button"
+                            onClick={() => setAttachmentToDelete(attachment)}
+                            disabled={deleteMutation.isPending}
+                            className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)] disabled:opacity-60"
+                            title="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        ) : null}
                       </div>
                     </td>
                   </tr>
@@ -406,7 +421,7 @@ export function AttachmentsPanel({
         ) : null}
       </div>
 
-      {attachmentToDelete ? (
+      {canDelete && attachmentToDelete ? (
         <ConfirmModal
           title="Eliminar adjunto"
           description={`Se eliminará el archivo "${attachmentToDelete.originalName}". Esta acción no se puede deshacer.`}

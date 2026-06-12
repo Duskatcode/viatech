@@ -25,8 +25,14 @@ function formatJson(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
 
-function getAuditTone(action: string): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
-  if (action.includes('DELETED') || action.includes('CANCELLED') || action.includes('RETIRED')) {
+function getAuditTone(
+  action: string,
+): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
+  if (
+    action.includes('DELETED') ||
+    action.includes('CANCELLED') ||
+    action.includes('RETIRED')
+  ) {
     return 'danger';
   }
 
@@ -57,7 +63,9 @@ export function AuditLogsPage() {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   const canViewAuditLogs =
-    user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+    user?.role === 'ADMIN' ||
+    user?.role === 'SUPER_ADMIN' ||
+    user?.role === 'VIEWER';
 
   const params = useMemo(
     () => ({
@@ -92,7 +100,7 @@ export function AuditLogsPage() {
     return (
       <ErrorState
         title="Acceso restringido"
-        description="Solo ADMIN y SUPER_ADMIN pueden consultar auditoría."
+        description="Solo ADMIN, SUPER_ADMIN y VIEWER pueden consultar auditoría."
       />
     );
   }
@@ -124,7 +132,9 @@ export function AuditLogsPage() {
         actions={
           <div className="stitch-card px-4 py-3 text-sm text-[var(--stitch-on-surface-variant)]">
             Eventos encontrados:{' '}
-            <span className="font-bold text-[var(--stitch-on-surface)]">{logs.length}</span>
+            <span className="font-bold text-[var(--stitch-on-surface)]">
+              {logs.length}
+            </span>
           </div>
         }
       />
@@ -211,10 +221,7 @@ export function AuditLogsPage() {
           <p className="sr-only">Vista móvil de auditoría</p>
 
           {logs.map((log) => (
-            <article
-              key={log.id}
-              className="stitch-card p-4"
-            >
+            <article key={log.id} className="stitch-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <StatusPill tone={getAuditTone(log.action)}>

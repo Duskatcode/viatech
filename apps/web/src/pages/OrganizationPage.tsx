@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { LucideIcon } from 'lucide-react';
 import { Building2, Layers3, MapPin, Pencil, Plus, Trash2 } from 'lucide-react';
 
+import { useAuth } from '../auth/useAuth';
 import { AreaFormModal } from '../organization/AreaFormModal';
 import { CompanyFormModal } from '../organization/CompanyFormModal';
 import { SiteFormModal } from '../organization/SiteFormModal';
@@ -20,9 +21,14 @@ import type {
 import { ActionButton } from '../ui/ActionButton';
 import { PageHeader } from '../ui/PageHeader';
 import { SectionCard } from '../ui/SectionCard';
+import { ErrorState } from '../ui/StateMessage';
 
 export function OrganizationPage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
+  const canManageOrganization =
+    user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+  const canEditCompany = user?.role === 'SUPER_ADMIN';
 
   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
   const [siteForm, setSiteForm] = useState<Site | null | undefined>();
@@ -31,16 +37,19 @@ export function OrganizationPage() {
   const companiesQuery = useQuery({
     queryKey: ['companies'],
     queryFn: organizationService.companies,
+    enabled: canManageOrganization,
   });
 
   const sitesQuery = useQuery({
     queryKey: ['sites'],
     queryFn: organizationService.sites,
+    enabled: canManageOrganization,
   });
 
   const areasQuery = useQuery({
     queryKey: ['areas'],
     queryFn: organizationService.areas,
+    enabled: canManageOrganization,
   });
 
   const updateCompanyMutation = useMutation({
@@ -58,7 +67,8 @@ export function OrganizationPage() {
   });
 
   const createSiteMutation = useMutation({
-    mutationFn: (payload: CreateSitePayload) => organizationService.createSite(payload),
+    mutationFn: (payload: CreateSitePayload) =>
+      organizationService.createSite(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['sites'] });
       setSiteForm(undefined);
@@ -83,7 +93,8 @@ export function OrganizationPage() {
   });
 
   const createAreaMutation = useMutation({
-    mutationFn: (payload: CreateAreaPayload) => organizationService.createArea(payload),
+    mutationFn: (payload: CreateAreaPayload) =>
+      organizationService.createArea(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['areas'] });
       setAreaForm(undefined);
@@ -108,7 +119,7 @@ export function OrganizationPage() {
 
   const companies = companiesQuery.data ?? [];
   const sites = sitesQuery.data ?? [];
-  const areas = areasQuery.data ?? [];
+  const areas = useMemo(() => areasQuery.data ?? [], [areasQuery.data]);
 
   const areasBySiteId = useMemo(() => {
     return areas.reduce<Record<string, Area[]>>((acc, area) => {
@@ -128,7 +139,9 @@ export function OrganizationPage() {
     });
   }
 
-  async function handleSiteSubmit(payload: CreateSitePayload | UpdateSitePayload) {
+  async function handleSiteSubmit(
+    payload: CreateSitePayload | UpdateSitePayload,
+  ) {
     if (siteForm?.id) {
       await updateSiteMutation.mutateAsync({
         id: siteForm.id,
@@ -140,7 +153,9 @@ export function OrganizationPage() {
     await createSiteMutation.mutateAsync(payload as CreateSitePayload);
   }
 
-  async function handleAreaSubmit(payload: CreateAreaPayload | UpdateAreaPayload) {
+  async function handleAreaSubmit(
+    payload: CreateAreaPayload | UpdateAreaPayload,
+  ) {
     if (areaForm?.id) {
       await updateAreaMutation.mutateAsync({
         id: areaForm.id,
@@ -170,6 +185,15 @@ export function OrganizationPage() {
 
   const isLoading =
     companiesQuery.isLoading || sitesQuery.isLoading || areasQuery.isLoading;
+
+  if (!canManageOrganization) {
+    return (
+      <ErrorState
+        title="No tienes permisos para ver esta sección."
+        description="La administración de la organización está disponible para ADMIN y SUPER_ADMIN."
+      />
+    );
+  }
 
   if (isLoading) {
     return (
@@ -215,7 +239,9 @@ export function OrganizationPage() {
 
       <div className="space-y-5">
         {companies.map((company) => {
-          const companySites = sites.filter((site) => site.companyId === company.id);
+          const companySites = sites.filter(
+            (site) => site.companyId === company.id,
+          );
 
           return (
             <SectionCard
@@ -224,14 +250,16 @@ export function OrganizationPage() {
               description={`${company.nit ?? 'Sin NIT'} · ${company.email ?? 'Sin email'}`}
               icon={<Building2 size={22} />}
               actions={
-                <ActionButton
-                  type="button"
-                  variant="secondary"
-                  icon={<Pencil size={16} />}
-                  onClick={() => setCompanyToEdit(company)}
-                >
-                  Editar empresa
-                </ActionButton>
+                canEditCompany ? (
+                  <ActionButton
+                    type="button"
+                    variant="secondary"
+                    icon={<Pencil size={16} />}
+                    onClick={() => setCompanyToEdit(company)}
+                  >
+                    Editar empresa
+                  </ActionButton>
+                ) : undefined
               }
             >
               <div className="grid gap-4 lg:grid-cols-2">
@@ -247,7 +275,8 @@ export function OrganizationPage() {
                           {site.name}
                         </h3>
                         <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
-                          {site.city ?? 'Sin ciudad'} · {site.address ?? 'Sin dirección'}
+                          {site.city ?? 'Sin ciudad'} ·{' '}
+                          {site.address ?? 'Sin dirección'}
                         </p>
                       </div>
 
@@ -342,7 +371,9 @@ export function OrganizationPage() {
         <SiteFormModal
           site={siteForm}
           companies={companies}
-          isSubmitting={createSiteMutation.isPending || updateSiteMutation.isPending}
+          isSubmitting={
+            createSiteMutation.isPending || updateSiteMutation.isPending
+          }
           onClose={() => setSiteForm(undefined)}
           onSubmit={handleSiteSubmit}
         />
@@ -352,7 +383,9 @@ export function OrganizationPage() {
         <AreaFormModal
           area={areaForm}
           sites={sites}
-          isSubmitting={createAreaMutation.isPending || updateAreaMutation.isPending}
+          isSubmitting={
+            createAreaMutation.isPending || updateAreaMutation.isPending
+          }
           onClose={() => setAreaForm(undefined)}
           onSubmit={handleAreaSubmit}
         />

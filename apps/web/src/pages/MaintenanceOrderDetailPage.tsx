@@ -4,6 +4,7 @@ import { ArrowLeft, CheckSquare, ClipboardList, Plus } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { AttachmentsPanel } from '../attachments/AttachmentsPanel';
+import { useAuth } from '../auth/useAuth';
 import { MaintenanceOrderPdfButton } from '../maintenance-orders/MaintenanceOrderPdfButton';
 import { MaintenanceStatusBadge } from '../maintenance-orders/MaintenanceStatusBadge';
 import { maintenanceOrdersService } from '../services/maintenance-orders.service';
@@ -19,6 +20,7 @@ function formatDateTime(value?: string | null) {
 }
 
 export function MaintenanceOrderDetailPage() {
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
 
@@ -35,7 +37,9 @@ export function MaintenanceOrderDetailPage() {
       maintenanceOrdersService.addTask(id ?? '', { title }),
     onSuccess: async () => {
       setTaskTitle('');
-      await queryClient.invalidateQueries({ queryKey: ['maintenance-order', id] });
+      await queryClient.invalidateQueries({
+        queryKey: ['maintenance-order', id],
+      });
     },
   });
 
@@ -51,7 +55,9 @@ export function MaintenanceOrderDetailPage() {
         isCompleted,
       }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['maintenance-order', id] });
+      await queryClient.invalidateQueries({
+        queryKey: ['maintenance-order', id],
+      });
     },
   });
 
@@ -74,7 +80,11 @@ export function MaintenanceOrderDetailPage() {
   }
 
   const tasks = order.tasks ?? [];
-  const canEditTasks = order.status !== 'CANCELLED';
+  const canEditTasks =
+    order.status !== 'CANCELLED' &&
+    (user?.role === 'SUPER_ADMIN' ||
+      user?.role === 'ADMIN' ||
+      user?.role === 'TECHNICIAN');
 
   return (
     <section className="space-y-6">
@@ -107,11 +117,20 @@ export function MaintenanceOrderDetailPage() {
 
             <div className="grid gap-3 text-sm sm:grid-cols-2 lg:min-w-[440px]">
               <Info label="Equipo" value={order.equipment?.name ?? '-'} />
-              <Info label="Código equipo" value={order.equipment?.internalCode ?? '-'} />
-              <Info label="Técnico" value={order.assignedTo?.name ?? 'Sin asignar'} />
+              <Info
+                label="Código equipo"
+                value={order.equipment?.internalCode ?? '-'}
+              />
+              <Info
+                label="Técnico"
+                value={order.assignedTo?.name ?? 'Sin asignar'}
+              />
               <Info label="Creada por" value={order.createdBy?.name ?? '-'} />
               <Info label="Inicio" value={formatDateTime(order.startedAt)} />
-              <Info label="Finalización" value={formatDateTime(order.completedAt)} />
+              <Info
+                label="Finalización"
+                value={formatDateTime(order.completedAt)}
+              />
             </div>
           </div>
         </div>
@@ -226,7 +245,10 @@ export function MaintenanceOrderDetailPage() {
 
           {tasks.length === 0 ? (
             <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] p-6 text-center text-[var(--stitch-on-surface-variant)]">
-              <CheckSquare className="mx-auto mb-2 text-[var(--stitch-outline)]" size={24} />
+              <CheckSquare
+                className="mx-auto mb-2 text-[var(--stitch-outline)]"
+                size={24}
+              />
               Esta orden no tiene tareas.
             </div>
           ) : null}
@@ -240,7 +262,9 @@ function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4">
       <p className="stitch-label">{label}</p>
-      <p className="mt-1 font-semibold text-[var(--stitch-on-surface)]">{value}</p>
+      <p className="mt-1 font-semibold text-[var(--stitch-on-surface)]">
+        {value}
+      </p>
     </div>
   );
 }

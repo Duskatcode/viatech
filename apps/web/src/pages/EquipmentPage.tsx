@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Eye, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '../auth/useAuth';
 import { EquipmentFormModal } from '../equipment/EquipmentFormModal';
 import { EquipmentStatusBadge } from '../equipment/EquipmentStatusBadge';
 import { EquipmentStatusModal } from '../equipment/EquipmentStatusModal';
@@ -33,16 +34,25 @@ const statusOptions: Array<EquipmentStatus | ''> = [
 ];
 
 export function EquipmentPage() {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const { addToast } = useToast();
+  const canManageEquipment =
+    user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
 
   const [search, setSearch] = useState('');
   const [siteId, setSiteId] = useState('');
   const [areaId, setAreaId] = useState('');
   const [status, setStatus] = useState<EquipmentStatus | ''>('');
-  const [formEquipment, setFormEquipment] = useState<Equipment | null | undefined>();
-  const [statusEquipment, setStatusEquipment] = useState<Equipment | null>(null);
-  const [equipmentToRetire, setEquipmentToRetire] = useState<Equipment | null>(null);
+  const [formEquipment, setFormEquipment] = useState<
+    Equipment | null | undefined
+  >();
+  const [statusEquipment, setStatusEquipment] = useState<Equipment | null>(
+    null,
+  );
+  const [equipmentToRetire, setEquipmentToRetire] = useState<Equipment | null>(
+    null,
+  );
 
   const filters = useMemo<QueryEquipmentParams>(
     () => ({
@@ -70,7 +80,8 @@ export function EquipmentPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: CreateEquipmentPayload) => equipmentService.create(payload),
+    mutationFn: (payload: CreateEquipmentPayload) =>
+      equipmentService.create(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['equipment'] });
       setFormEquipment(undefined);
@@ -201,13 +212,15 @@ export function EquipmentPage() {
         title="Equipos"
         description="Inventario clínico con creación, edición, filtros, estado técnico y hoja de vida."
         actions={
-          <ActionButton
-            type="button"
-            icon={<Plus size={18} />}
-            onClick={() => setFormEquipment(null)}
-          >
-            Nuevo equipo
-          </ActionButton>
+          canManageEquipment ? (
+            <ActionButton
+              type="button"
+              icon={<Plus size={18} />}
+              onClick={() => setFormEquipment(null)}
+            >
+              Nuevo equipo
+            </ActionButton>
+          ) : undefined
         }
       />
 
@@ -259,7 +272,9 @@ export function EquipmentPage() {
           <select
             className="stitch-input mt-2 px-4 py-3"
             value={status}
-            onChange={(event) => setStatus(event.target.value as EquipmentStatus | '')}
+            onChange={(event) =>
+              setStatus(event.target.value as EquipmentStatus | '')
+            }
           >
             {statusOptions.map((option) => (
               <option key={option || 'all'} value={option}>
@@ -327,32 +342,36 @@ export function EquipmentPage() {
                     <Eye size={16} />
                   </Link>
 
-                  <button
-                    type="button"
-                    onClick={() => setFormEquipment(item)}
-                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
-                    title="Editar"
-                  >
-                    <Pencil size={16} />
-                  </button>
+                  {canManageEquipment ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setFormEquipment(item)}
+                        className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
+                        title="Editar"
+                      >
+                        <Pencil size={16} />
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setStatusEquipment(item)}
-                    className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
-                    title="Cambiar estado"
-                  >
-                    <RotateCcw size={16} />
-                  </button>
+                      <button
+                        type="button"
+                        onClick={() => setStatusEquipment(item)}
+                        className="rounded-lg border border-[var(--stitch-outline-variant)] p-2 text-[var(--stitch-on-surface-variant)] transition hover:border-[var(--stitch-primary)] hover:bg-[rgb(0_63_135_/_0.06)] hover:text-[var(--stitch-primary)]"
+                        title="Cambiar estado"
+                      >
+                        <RotateCcw size={16} />
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setEquipmentToRetire(item)}
-                    className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)]"
-                    title="Retirar"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                      <button
+                        type="button"
+                        onClick={() => setEquipmentToRetire(item)}
+                        className="rounded-lg border border-[var(--stitch-danger-border)] p-2 text-[var(--stitch-danger-text)] transition hover:bg-[var(--stitch-danger-bg)]"
+                        title="Retirar"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  ) : null}
                 </div>
               </td>
             </tr>
@@ -360,7 +379,10 @@ export function EquipmentPage() {
 
           {equipment.length === 0 ? (
             <tr>
-              <td className="px-4 py-8 text-center text-[var(--stitch-outline)]" colSpan={7}>
+              <td
+                className="px-4 py-8 text-center text-[var(--stitch-outline)]"
+                colSpan={7}
+              >
                 No hay equipos con los filtros actuales.
               </td>
             </tr>
@@ -368,7 +390,7 @@ export function EquipmentPage() {
         </tbody>
       </ResponsiveTable>
 
-      {formEquipment !== undefined ? (
+      {canManageEquipment && formEquipment !== undefined ? (
         <EquipmentFormModal
           equipment={formEquipment}
           sites={sites}
@@ -379,7 +401,7 @@ export function EquipmentPage() {
         />
       ) : null}
 
-      {statusEquipment ? (
+      {canManageEquipment && statusEquipment ? (
         <EquipmentStatusModal
           equipment={statusEquipment}
           isSubmitting={statusMutation.isPending}
@@ -388,7 +410,7 @@ export function EquipmentPage() {
         />
       ) : null}
 
-      {equipmentToRetire ? (
+      {canManageEquipment && equipmentToRetire ? (
         <ConfirmModal
           title="Retirar equipo"
           description={`El equipo "${equipmentToRetire.name}" quedará marcado como RETIRED. Esta acción no borra el historial.`}

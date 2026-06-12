@@ -48,6 +48,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Organización',
     href: '/organization',
     icon: Building2,
+    roles: ['SUPER_ADMIN', 'ADMIN'],
   },
   {
     label: 'Usuarios',
@@ -64,6 +65,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Auditoría',
     href: '/audit-logs',
     icon: ShieldCheck,
+    roles: ['SUPER_ADMIN', 'ADMIN', 'VIEWER'],
   },
 ];
 
