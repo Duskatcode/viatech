@@ -131,11 +131,43 @@ async function upsertAuditLog(data: {
   });
 }
 
-async function main() {
-  const defaultPassword = 'Admin12345!';
-  const passwordHash = await bcrypt.hash(defaultPassword, 12);
+type DemoEquipmentDefinition = {
+  companyId: string;
+  internalCode: string;
+  name: string;
+  brand: string;
+  model: string;
+  serialNumber: string;
+  equipmentType: string;
+  riskLevel: string;
+  status: EquipmentStatus;
+  siteId: string;
+  areaId: string;
+  purchaseDate: Date;
+  installationDate: Date;
+  warrantyUntil: Date;
+  notes: string;
+};
 
-  const company = await prisma.company.upsert({
+type DemoOrderDefinition = {
+  code: string;
+  equipmentCode: string;
+  type: MaintenanceType;
+  status: MaintenanceStatus;
+  scheduledDate: Date;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  description: string;
+  diagnosis: string | null;
+  actionsPerformed: string | null;
+  recommendations: string | null;
+  finalEquipmentStatus: EquipmentStatus | null;
+  assignedToId: string;
+  createdById: string;
+};
+
+async function main() {
+  const metroCompany = await prisma.company.upsert({
     where: { nit: '900000000-1' },
     update: {
       name: 'Clínica Metropolitana',
@@ -153,260 +185,449 @@ async function main() {
     },
   });
 
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@biomed.local' },
+  const rafaelCompany = await prisma.company.upsert({
+    where: { nit: '900000000-2' },
     update: {
-      name: 'Admin Demo',
-      passwordHash,
-      role: UserRole.ADMIN,
-      companyId: company.id,
+      name: 'Hospital San Rafael Demo',
+      phone: '6044442020',
+      email: 'biomedica@sanrafael.demo',
+      address: 'Calle 38 Sur # 27-120, Envigado',
       isActive: true,
     },
     create: {
+      name: 'Hospital San Rafael Demo',
+      nit: '900000000-2',
+      phone: '6044442020',
+      email: 'biomedica@sanrafael.demo',
+      address: 'Calle 38 Sur # 27-120, Envigado',
+    },
+  });
+
+  const userDefinitions = [
+    {
+      name: 'Super Admin Demo',
+      email: 'superadmin@biomed.local',
+      password: 'SuperAdmin123!',
+      role: UserRole.SUPER_ADMIN,
+      companyId: null,
+    },
+    {
       name: 'Admin Demo',
       email: 'admin@biomed.local',
-      passwordHash,
+      password: 'Admin12345!',
       role: UserRole.ADMIN,
-      companyId: company.id,
+      companyId: metroCompany.id,
     },
-  });
-
-  const technician = await prisma.user.upsert({
-    where: { email: 'tecnico@biomed.local' },
-    update: {
-      name: 'Técnico Biomédico Demo',
-      passwordHash,
-      role: UserRole.TECHNICIAN,
-      companyId: company.id,
-      isActive: true,
+    {
+      name: 'Admin Clínica Metropolitana',
+      email: 'admin.metro@biomed.local',
+      password: 'AdminMetro123!',
+      role: UserRole.ADMIN,
+      companyId: metroCompany.id,
     },
-    create: {
+    {
       name: 'Técnico Biomédico Demo',
       email: 'tecnico@biomed.local',
-      passwordHash,
+      password: 'Tecnico123!',
       role: UserRole.TECHNICIAN,
-      companyId: company.id,
+      companyId: metroCompany.id,
     },
-  });
-
-  await prisma.user.upsert({
-    where: { email: 'visualizador@biomed.local' },
-    update: {
-      name: 'Visualizador Demo',
-      passwordHash,
+    {
+      name: 'Auditor Clínica Metropolitana',
+      email: 'auditor.metro@biomed.local',
+      password: 'AuditorMetro123!',
       role: UserRole.VIEWER,
-      companyId: company.id,
-      isActive: true,
+      companyId: metroCompany.id,
     },
-    create: {
-      name: 'Visualizador Demo',
-      email: 'visualizador@biomed.local',
-      passwordHash,
+    {
+      name: 'Admin Hospital San Rafael',
+      email: 'admin.rafael@biomed.local',
+      password: 'AdminRafael123!',
+      role: UserRole.ADMIN,
+      companyId: rafaelCompany.id,
+    },
+    {
+      name: 'Técnico Hospital San Rafael',
+      email: 'tecnico.rafael@biomed.local',
+      password: 'TecnicoRafael123!',
+      role: UserRole.TECHNICIAN,
+      companyId: rafaelCompany.id,
+    },
+    {
+      name: 'Auditor Hospital San Rafael',
+      email: 'auditor.rafael@biomed.local',
+      password: 'AuditorRafael123!',
       role: UserRole.VIEWER,
-      companyId: company.id,
+      companyId: rafaelCompany.id,
     },
-  });
+  ];
 
-  const mainSite = await upsertSite(company.id, {
+  const usersByEmail = new Map<
+    string,
+    { id: string; email: string; companyId: string | null }
+  >();
+
+  for (const definition of userDefinitions) {
+    const passwordHash = await bcrypt.hash(definition.password, 12);
+    const user = await prisma.user.upsert({
+      where: { email: definition.email },
+      update: {
+        name: definition.name,
+        passwordHash,
+        role: definition.role,
+        companyId: definition.companyId,
+        isActive: true,
+      },
+      create: {
+        name: definition.name,
+        email: definition.email,
+        passwordHash,
+        role: definition.role,
+        companyId: definition.companyId,
+      },
+    });
+
+    usersByEmail.set(user.email, user);
+  }
+
+  const metroAdmin = usersByEmail.get('admin@biomed.local');
+  const metroTechnician = usersByEmail.get('tecnico@biomed.local');
+  const rafaelAdmin = usersByEmail.get('admin.rafael@biomed.local');
+  const rafaelTechnician = usersByEmail.get('tecnico.rafael@biomed.local');
+
+  if (!metroAdmin || !metroTechnician || !rafaelAdmin || !rafaelTechnician) {
+    throw new Error('Missing required demo users');
+  }
+
+  const metroMainSite = await upsertSite(metroCompany.id, {
     name: 'Sede Principal',
     city: 'Medellín',
     address: 'Carrera 48 # 20-85',
   });
-
-  const northSite = await upsertSite(company.id, {
+  const metroNorthSite = await upsertSite(metroCompany.id, {
     name: 'Sede Norte',
     city: 'Medellín',
     address: 'Calle 104 # 52-18',
   });
+  const rafaelCentralSite = await upsertSite(rafaelCompany.id, {
+    name: 'Sede Central',
+    city: 'Envigado',
+    address: 'Calle 38 Sur # 27-120',
+  });
+  const rafaelOutpatientSite = await upsertSite(rafaelCompany.id, {
+    name: 'Consulta Externa',
+    city: 'Envigado',
+    address: 'Carrera 43A # 25 Sur-50',
+  });
 
   const areas = {
-    urgencias: await upsertArea(mainSite.id, {
+    metroUrgencias: await upsertArea(metroMainSite.id, {
       name: 'Urgencias',
       floor: '1',
       description: 'Atención inicial, observación y estabilización.',
     }),
-    uci: await upsertArea(mainSite.id, {
+    metroUci: await upsertArea(metroMainSite.id, {
       name: 'UCI',
       floor: '3',
       description: 'Unidad de cuidados intensivos para pacientes críticos.',
     }),
-    cirugia: await upsertArea(mainSite.id, {
+    metroCirugia: await upsertArea(metroMainSite.id, {
       name: 'Cirugía',
       floor: '4',
       description: 'Quirófanos y central de apoyo quirúrgico.',
     }),
-    hospitalizacion: await upsertArea(northSite.id, {
+    metroHospitalizacion: await upsertArea(metroNorthSite.id, {
       name: 'Hospitalización',
       floor: '2',
       description: 'Hospitalización general y cuidado neonatal.',
     }),
-    imagenologia: await upsertArea(northSite.id, {
+    metroImagenologia: await upsertArea(metroNorthSite.id, {
       name: 'Imagenología',
       floor: '1',
       description: 'Diagnóstico por imágenes y apoyo ambulatorio.',
     }),
+    rafaelUrgencias: await upsertArea(rafaelCentralSite.id, {
+      name: 'Urgencias',
+      floor: '1',
+      description: 'Urgencias generales y observación clínica.',
+    }),
+    rafaelHospitalizacion: await upsertArea(rafaelCentralSite.id, {
+      name: 'Hospitalización',
+      floor: '2',
+      description: 'Hospitalización de adultos.',
+    }),
+    rafaelEsterilizacion: await upsertArea(rafaelCentralSite.id, {
+      name: 'Esterilización',
+      floor: '1',
+      description: 'Procesamiento y esterilización de instrumental.',
+    }),
+    rafaelConsultaPrioritaria: await upsertArea(rafaelOutpatientSite.id, {
+      name: 'Consulta Prioritaria',
+      floor: '1',
+      description: 'Atención ambulatoria prioritaria.',
+    }),
+    rafaelProcedimientos: await upsertArea(rafaelOutpatientSite.id, {
+      name: 'Procedimientos Menores',
+      floor: '2',
+      description: 'Sala de procedimientos ambulatorios.',
+    }),
   };
 
-  const equipmentDefinitions = [
+  const equipmentDefinitions: DemoEquipmentDefinition[] = [
     {
-      internalCode: 'EQ-DEMO-001',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-001',
       name: 'Pulsoxímetro Adulto',
-      brand: 'Masimo',
-      model: 'Rad-5',
-      serialNumber: 'MAS-R5-24001',
+      brand: 'ChoiceMMed',
+      model: 'MD300C',
+      serialNumber: 'MET-PUL-001',
       equipmentType: 'Monitorización',
       riskLevel: 'IIA',
       status: EquipmentStatus.ACTIVE,
-      siteId: mainSite.id,
-      areaId: areas.urgencias.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroUrgencias.id,
       purchaseDate: addDays(-720),
       installationDate: addDays(-710),
       warrantyUntil: addDays(180),
-      notes: 'Equipo portátil asignado a observación de adultos.',
+      notes: 'Equipo portátil para observación de pacientes adultos.',
     },
     {
-      internalCode: 'EQ-DEMO-002',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-002',
       name: 'Monitor Multiparámetro',
       brand: 'Mindray',
       model: 'BeneVision N12',
-      serialNumber: 'MDR-N12-24002',
+      serialNumber: 'MET-MON-002',
       equipmentType: 'Monitorización',
       riskLevel: 'IIB',
       status: EquipmentStatus.ACTIVE,
-      siteId: mainSite.id,
-      areaId: areas.uci.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroUci.id,
       purchaseDate: addDays(-690),
       installationDate: addDays(-680),
-      warrantyUntil: addDays(20),
+      warrantyUntil: addDays(210),
       notes: 'Monitor de cabecera con ECG, SpO2, PANI y temperatura.',
     },
     {
-      internalCode: 'EQ-DEMO-003',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-003',
       name: 'Bomba de Infusión',
       brand: 'B. Braun',
       model: 'Infusomat Space',
-      serialNumber: 'BBR-IS-24003',
+      serialNumber: 'MET-INF-003',
       equipmentType: 'Infusión',
       riskLevel: 'IIB',
       status: EquipmentStatus.IN_MAINTENANCE,
-      siteId: mainSite.id,
-      areaId: areas.uci.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroUci.id,
       purchaseDate: addDays(-540),
       installationDate: addDays(-535),
       warrantyUntil: addDays(150),
       notes: 'En revisión por alarma intermitente de presión.',
     },
     {
-      internalCode: 'EQ-DEMO-004',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-004',
       name: 'Desfibrilador Externo',
       brand: 'Zoll',
       model: 'R Series',
-      serialNumber: 'ZOL-RS-24004',
+      serialNumber: 'MET-DES-004',
       equipmentType: 'Reanimación',
       riskLevel: 'III',
       status: EquipmentStatus.ACTIVE,
-      siteId: mainSite.id,
-      areaId: areas.urgencias.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroUrgencias.id,
       purchaseDate: addDays(-820),
       installationDate: addDays(-815),
       warrantyUntil: addDays(12),
-      notes: 'Incluye marcapasos transcutáneo y palas externas.',
+      notes: 'Garantía próxima a vencer. Incluye marcapasos transcutáneo.',
     },
     {
-      internalCode: 'EQ-DEMO-005',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-005',
       name: 'Ventilador Mecánico',
       brand: 'Dräger',
       model: 'Evita V300',
-      serialNumber: 'DRA-EV-24005',
+      serialNumber: 'MET-VEN-005',
       equipmentType: 'Soporte vital',
       riskLevel: 'III',
       status: EquipmentStatus.OUT_OF_SERVICE,
-      siteId: mainSite.id,
-      areaId: areas.uci.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroUci.id,
       purchaseDate: addDays(-980),
       installationDate: addDays(-970),
       warrantyUntil: addDays(-120),
-      notes: 'Fuera de servicio por falla en el módulo de flujo.',
+      notes: 'Equipo crítico fuera de servicio por falla del módulo de flujo.',
     },
     {
-      internalCode: 'EQ-DEMO-006',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-006',
       name: 'Electrocardiógrafo',
       brand: 'GE Healthcare',
       model: 'MAC 2000',
-      serialNumber: 'GE-MAC-24006',
+      serialNumber: 'MET-ECG-006',
       equipmentType: 'Diagnóstico',
       riskLevel: 'IIA',
       status: EquipmentStatus.ACTIVE,
-      siteId: northSite.id,
-      areaId: areas.imagenologia.id,
+      siteId: metroNorthSite.id,
+      areaId: areas.metroImagenologia.id,
       purchaseDate: addDays(-430),
       installationDate: addDays(-425),
       warrantyUntil: addDays(300),
-      notes: 'Electrocardiógrafo de 12 derivaciones.',
+      notes: 'Electrocardiógrafo de doce derivaciones.',
     },
     {
-      internalCode: 'EQ-DEMO-007',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-007',
       name: 'Autoclave de Mesa',
       brand: 'Tuttnauer',
-      model: '3870EA',
-      serialNumber: 'TUT-3870-24007',
+      model: '2540M',
+      serialNumber: 'MET-AUT-007',
       equipmentType: 'Esterilización',
-      riskLevel: 'IIB',
+      riskLevel: 'IIA',
       status: EquipmentStatus.ACTIVE,
-      siteId: mainSite.id,
-      areaId: areas.cirugia.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroCirugia.id,
       purchaseDate: addDays(-760),
       installationDate: addDays(-755),
       warrantyUntil: addDays(90),
       notes: 'Autoclave para instrumental de procedimientos menores.',
     },
     {
-      internalCode: 'EQ-DEMO-008',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-008',
       name: 'Aspirador de Secreciones',
       brand: 'Allied Healthcare',
       model: 'Gomco 6000',
-      serialNumber: 'AH-G6-24008',
+      serialNumber: 'MET-ASP-008',
       equipmentType: 'Terapia respiratoria',
       riskLevel: 'IIA',
       status: EquipmentStatus.IN_MAINTENANCE,
-      siteId: northSite.id,
-      areaId: areas.hospitalizacion.id,
+      siteId: metroNorthSite.id,
+      areaId: areas.metroHospitalizacion.id,
       purchaseDate: addDays(-350),
       installationDate: addDays(-345),
       warrantyUntil: addDays(210),
       notes: 'Mantenimiento correctivo por pérdida de vacío.',
     },
     {
-      internalCode: 'EQ-DEMO-009',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-009',
       name: 'Lámpara Cialítica',
       brand: 'Dr. Mach',
-      model: 'LED 3MC',
-      serialNumber: 'MAC-LED-24009',
+      model: 'LED 3SC',
+      serialNumber: 'MET-LAM-009',
       equipmentType: 'Iluminación quirúrgica',
       riskLevel: 'I',
       status: EquipmentStatus.ACTIVE,
-      siteId: mainSite.id,
-      areaId: areas.cirugia.id,
+      siteId: metroMainSite.id,
+      areaId: areas.metroCirugia.id,
       purchaseDate: addDays(-610),
       installationDate: addDays(-600),
       warrantyUntil: addDays(240),
-      notes: 'Lámpara principal del quirófano 2.',
+      notes: 'Lámpara principal del quirófano dos.',
     },
     {
-      internalCode: 'EQ-DEMO-010',
+      companyId: metroCompany.id,
+      internalCode: 'EQ-MET-010',
       name: 'Incubadora Neonatal',
       brand: 'Atom Medical',
       model: 'Incu i',
-      serialNumber: 'ATM-II-24010',
+      serialNumber: 'MET-INC-010',
       equipmentType: 'Cuidado neonatal',
       riskLevel: 'IIB',
       status: EquipmentStatus.ACTIVE,
-      siteId: northSite.id,
-      areaId: areas.hospitalizacion.id,
+      siteId: metroNorthSite.id,
+      areaId: areas.metroHospitalizacion.id,
       purchaseDate: addDays(-500),
       installationDate: addDays(-495),
       warrantyUntil: addDays(28),
-      notes: 'Incubadora con control servo de temperatura y humedad.',
+      notes: 'Garantía próxima a vencer. Control servo de temperatura.',
+    },
+    {
+      companyId: rafaelCompany.id,
+      internalCode: 'EQ-RAF-001',
+      name: 'Monitor de Signos Vitales',
+      brand: 'Philips',
+      model: 'SureSigns VM6',
+      serialNumber: 'RAF-MON-001',
+      equipmentType: 'Monitorización',
+      riskLevel: 'IIA',
+      status: EquipmentStatus.ACTIVE,
+      siteId: rafaelCentralSite.id,
+      areaId: areas.rafaelUrgencias.id,
+      purchaseDate: addDays(-460),
+      installationDate: addDays(-455),
+      warrantyUntil: addDays(200),
+      notes: 'Monitor de signos vitales para observación de urgencias.',
+    },
+    {
+      companyId: rafaelCompany.id,
+      internalCode: 'EQ-RAF-002',
+      name: 'Bomba de Infusión Volumétrica',
+      brand: 'Hospira',
+      model: 'Plum A+',
+      serialNumber: 'RAF-INF-002',
+      equipmentType: 'Infusión',
+      riskLevel: 'IIB',
+      status: EquipmentStatus.ACTIVE,
+      siteId: rafaelCentralSite.id,
+      areaId: areas.rafaelHospitalizacion.id,
+      purchaseDate: addDays(-620),
+      installationDate: addDays(-615),
+      warrantyUntil: addDays(120),
+      notes: 'Bomba volumétrica para hospitalización de adultos.',
+    },
+    {
+      companyId: rafaelCompany.id,
+      internalCode: 'EQ-RAF-003',
+      name: 'Esterilizador Rápido',
+      brand: 'Steris',
+      model: 'AMSCO 400',
+      serialNumber: 'RAF-EST-003',
+      equipmentType: 'Esterilización',
+      riskLevel: 'IIA',
+      status: EquipmentStatus.OUT_OF_SERVICE,
+      siteId: rafaelCentralSite.id,
+      areaId: areas.rafaelEsterilizacion.id,
+      purchaseDate: addDays(-880),
+      installationDate: addDays(-870),
+      warrantyUntil: addDays(-90),
+      notes: 'Fuera de servicio por pérdida de presión en el ciclo rápido.',
+    },
+    {
+      companyId: rafaelCompany.id,
+      internalCode: 'EQ-RAF-004',
+      name: 'Electrocardiógrafo Portátil',
+      brand: 'Welch Allyn',
+      model: 'CP 150',
+      serialNumber: 'RAF-ECG-004',
+      equipmentType: 'Diagnóstico',
+      riskLevel: 'IIA',
+      status: EquipmentStatus.ACTIVE,
+      siteId: rafaelOutpatientSite.id,
+      areaId: areas.rafaelConsultaPrioritaria.id,
+      purchaseDate: addDays(-330),
+      installationDate: addDays(-325),
+      warrantyUntil: addDays(250),
+      notes: 'Equipo portátil para consulta prioritaria.',
+    },
+    {
+      companyId: rafaelCompany.id,
+      internalCode: 'EQ-RAF-005',
+      name: 'Tensiómetro Digital Clínico',
+      brand: 'Omron',
+      model: 'HEM-907',
+      serialNumber: 'RAF-TEN-005',
+      equipmentType: 'Diagnóstico',
+      riskLevel: 'I',
+      status: EquipmentStatus.ACTIVE,
+      siteId: rafaelOutpatientSite.id,
+      areaId: areas.rafaelProcedimientos.id,
+      purchaseDate: addDays(-270),
+      installationDate: addDays(-265),
+      warrantyUntil: addDays(25),
+      notes: 'Garantía próxima a vencer para apoyar alertas de la empresa.',
     },
   ];
 
@@ -416,42 +637,37 @@ async function main() {
     const equipment = await prisma.equipment.upsert({
       where: {
         companyId_internalCode: {
-          companyId: company.id,
+          companyId: definition.companyId,
           internalCode: definition.internalCode,
         },
       },
-      update: {
-        ...definition,
-        companyId: company.id,
-      },
-      create: {
-        ...definition,
-        companyId: company.id,
-      },
+      update: definition,
+      create: definition,
     });
 
     equipmentByCode.set(equipment.internalCode, equipment);
   }
 
-  const orderDefinitions = [
+  const orderDefinitions: DemoOrderDefinition[] = [
     {
-      code: 'MTTO-DEMO-001',
-      equipmentCode: 'EQ-DEMO-001',
+      code: 'MTTO-MET-001',
+      equipmentCode: 'EQ-MET-001',
       type: MaintenanceType.PREVENTIVE,
       status: MaintenanceStatus.PENDING,
       scheduledDate: addDays(7, 9),
       startedAt: null,
       completedAt: null,
-      description:
-        'Mantenimiento preventivo semestral y verificación de lectura.',
+      description: 'Mantenimiento preventivo y verificación de lectura.',
       diagnosis: null,
       actionsPerformed: null,
       recommendations: null,
       finalEquipmentStatus: null,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-002',
-      equipmentCode: 'EQ-DEMO-003',
+      code: 'MTTO-MET-002',
+      equipmentCode: 'EQ-MET-003',
       type: MaintenanceType.CORRECTIVE,
       status: MaintenanceStatus.IN_PROGRESS,
       scheduledDate: addDays(-2, 8),
@@ -462,24 +678,28 @@ async function main() {
       actionsPerformed: 'Desmontaje inicial y limpieza del mecanismo.',
       recommendations: null,
       finalEquipmentStatus: null,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-003',
-      equipmentCode: 'EQ-DEMO-002',
+      code: 'MTTO-MET-003',
+      equipmentCode: 'EQ-MET-002',
       type: MaintenanceType.PREVENTIVE,
       status: MaintenanceStatus.COMPLETED,
       scheduledDate: addDays(-18, 9),
       startedAt: addDays(-18, 9),
       completedAt: addDays(-18, 12),
-      description: 'Mantenimiento preventivo anual del monitor multiparámetro.',
+      description: 'Mantenimiento preventivo anual del monitor.',
       diagnosis: 'Equipo funcional, sin desviaciones críticas.',
       actionsPerformed: 'Limpieza, pruebas de ECG, SpO2, PANI y alarmas.',
       recommendations: 'Mantener limpieza semanal de sensores y cables.',
       finalEquipmentStatus: EquipmentStatus.ACTIVE,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-004',
-      equipmentCode: 'EQ-DEMO-005',
+      code: 'MTTO-MET-004',
+      equipmentCode: 'EQ-MET-005',
       type: MaintenanceType.CORRECTIVE,
       status: MaintenanceStatus.PENDING,
       scheduledDate: addDays(-8, 8),
@@ -490,10 +710,12 @@ async function main() {
       actionsPerformed: null,
       recommendations: null,
       finalEquipmentStatus: null,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-005',
-      equipmentCode: 'EQ-DEMO-004',
+      code: 'MTTO-MET-005',
+      equipmentCode: 'EQ-MET-004',
       type: MaintenanceType.PREVENTIVE,
       status: MaintenanceStatus.PENDING,
       scheduledDate: addDays(14, 10),
@@ -504,10 +726,12 @@ async function main() {
       actionsPerformed: null,
       recommendations: null,
       finalEquipmentStatus: null,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-006',
-      equipmentCode: 'EQ-DEMO-007',
+      code: 'MTTO-MET-006',
+      equipmentCode: 'EQ-MET-007',
       type: MaintenanceType.CORRECTIVE,
       status: MaintenanceStatus.COMPLETED,
       scheduledDate: addDays(-35, 7),
@@ -518,10 +742,12 @@ async function main() {
       actionsPerformed: 'Cambio de empaque y ciclo completo de validación.',
       recommendations: 'Inspeccionar el sello al inicio de cada jornada.',
       finalEquipmentStatus: EquipmentStatus.ACTIVE,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-007',
-      equipmentCode: 'EQ-DEMO-006',
+      code: 'MTTO-MET-007',
+      equipmentCode: 'EQ-MET-006',
       type: MaintenanceType.CORRECTIVE,
       status: MaintenanceStatus.CANCELLED,
       scheduledDate: addDays(-12, 11),
@@ -532,20 +758,88 @@ async function main() {
       actionsPerformed: null,
       recommendations: 'Mantener inventario mínimo de consumibles.',
       finalEquipmentStatus: null,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
     },
     {
-      code: 'MTTO-DEMO-008',
-      equipmentCode: 'EQ-DEMO-008',
-      type: MaintenanceType.CORRECTIVE,
-      status: MaintenanceStatus.IN_PROGRESS,
-      scheduledDate: addDays(3, 14),
-      startedAt: addDays(0, 8),
+      code: 'MTTO-MET-008',
+      equipmentCode: 'EQ-MET-010',
+      type: MaintenanceType.PREVENTIVE,
+      status: MaintenanceStatus.PENDING,
+      scheduledDate: addDays(21, 9),
+      startedAt: null,
       completedAt: null,
-      description: 'Recuperación de nivel de vacío y revisión de mangueras.',
-      diagnosis: 'Fuga en conexión interna y filtro saturado.',
-      actionsPerformed: 'Cambio de filtro y ajuste de conexiones.',
+      description: 'Preventivo previo al vencimiento de garantía.',
+      diagnosis: null,
+      actionsPerformed: null,
       recommendations: null,
       finalEquipmentStatus: null,
+      assignedToId: metroTechnician.id,
+      createdById: metroAdmin.id,
+    },
+    {
+      code: 'MTTO-RAF-001',
+      equipmentCode: 'EQ-RAF-001',
+      type: MaintenanceType.PREVENTIVE,
+      status: MaintenanceStatus.PENDING,
+      scheduledDate: addDays(10, 9),
+      startedAt: null,
+      completedAt: null,
+      description: 'Mantenimiento preventivo del monitor de urgencias.',
+      diagnosis: null,
+      actionsPerformed: null,
+      recommendations: null,
+      finalEquipmentStatus: null,
+      assignedToId: rafaelTechnician.id,
+      createdById: rafaelAdmin.id,
+    },
+    {
+      code: 'MTTO-RAF-002',
+      equipmentCode: 'EQ-RAF-003',
+      type: MaintenanceType.CORRECTIVE,
+      status: MaintenanceStatus.PENDING,
+      scheduledDate: addDays(-6, 8),
+      startedAt: null,
+      completedAt: null,
+      description: 'Diagnóstico de pérdida de presión en ciclo rápido.',
+      diagnosis: null,
+      actionsPerformed: null,
+      recommendations: null,
+      finalEquipmentStatus: null,
+      assignedToId: rafaelTechnician.id,
+      createdById: rafaelAdmin.id,
+    },
+    {
+      code: 'MTTO-RAF-003',
+      equipmentCode: 'EQ-RAF-002',
+      type: MaintenanceType.PREVENTIVE,
+      status: MaintenanceStatus.COMPLETED,
+      scheduledDate: addDays(-20, 9),
+      startedAt: addDays(-20, 9),
+      completedAt: addDays(-20, 13),
+      description: 'Preventivo anual de bomba volumétrica.',
+      diagnosis: 'Equipo dentro de tolerancias operativas.',
+      actionsPerformed: 'Limpieza, verificación eléctrica y calibración.',
+      recommendations: 'Repetir prueba de flujo en doce meses.',
+      finalEquipmentStatus: EquipmentStatus.ACTIVE,
+      assignedToId: rafaelTechnician.id,
+      createdById: rafaelAdmin.id,
+    },
+    {
+      code: 'MTTO-RAF-004',
+      equipmentCode: 'EQ-RAF-004',
+      type: MaintenanceType.CORRECTIVE,
+      status: MaintenanceStatus.IN_PROGRESS,
+      scheduledDate: addDays(-1, 10),
+      startedAt: addDays(0, 8),
+      completedAt: null,
+      description: 'Corrección de interferencia en el trazado ECG.',
+      diagnosis: 'Cable de paciente con falso contacto intermitente.',
+      actionsPerformed: 'Inspección y limpieza de conectores.',
+      recommendations: null,
+      finalEquipmentStatus: null,
+      assignedToId: rafaelTechnician.id,
+      createdById: rafaelAdmin.id,
     },
   ];
 
@@ -564,66 +858,62 @@ async function main() {
       update: {
         ...orderData,
         equipmentId: equipment.id,
-        assignedToId: technician.id,
-        createdById: admin.id,
       },
       create: {
         ...orderData,
         equipmentId: equipment.id,
-        assignedToId: technician.id,
-        createdById: admin.id,
       },
     });
 
     ordersByCode.set(order.code, order);
   }
 
-  const taskDefinitions: Record<
-    string,
-    Array<{ title: string; isCompleted: boolean }>
-  > = {
-    'MTTO-DEMO-001': [
-      { title: 'Limpieza externa', isCompleted: false },
-      { title: 'Prueba funcional', isCompleted: false },
-      { title: 'Verificación de lectura de SpO2', isCompleted: false },
-    ],
-    'MTTO-DEMO-002': [
-      { title: 'Inspección del mecanismo', isCompleted: true },
-      { title: 'Verificación eléctrica', isCompleted: true },
-      { title: 'Prueba funcional', isCompleted: false },
-      { title: 'Registro de observaciones', isCompleted: false },
-    ],
-    'MTTO-DEMO-003': [
-      { title: 'Limpieza externa', isCompleted: true },
-      { title: 'Verificación eléctrica', isCompleted: true },
-      { title: 'Calibración', isCompleted: true },
-      { title: 'Revisión de alarmas', isCompleted: true },
-    ],
-    'MTTO-DEMO-004': [
-      { title: 'Verificación eléctrica', isCompleted: false },
-      { title: 'Revisión de alarmas', isCompleted: false },
-      { title: 'Prueba del módulo de flujo', isCompleted: false },
-    ],
-    'MTTO-DEMO-005': [
-      { title: 'Prueba de descarga', isCompleted: false },
-      { title: 'Revisión de batería', isCompleted: false },
-      { title: 'Verificación de alarmas', isCompleted: false },
-    ],
-    'MTTO-DEMO-006': [
-      { title: 'Cambio de empaque', isCompleted: true },
-      { title: 'Prueba funcional', isCompleted: true },
-      { title: 'Registro de observaciones', isCompleted: true },
-    ],
-    'MTTO-DEMO-007': [
-      { title: 'Revisión de impresión', isCompleted: false },
-      { title: 'Registro de observaciones', isCompleted: false },
-    ],
-    'MTTO-DEMO-008': [
-      { title: 'Limpieza externa', isCompleted: true },
-      { title: 'Cambio de filtro', isCompleted: true },
-      { title: 'Prueba funcional', isCompleted: false },
-    ],
-  };
+  const preventiveTasks = [
+    'Limpieza externa',
+    'Verificación eléctrica',
+    'Prueba funcional',
+    'Calibración',
+    'Revisión de alarmas',
+    'Registro de observaciones',
+  ];
+  const correctiveTasks = [
+    'Diagnóstico inicial',
+    'Identificación de falla',
+    'Corrección técnica',
+    'Prueba posterior',
+    'Recomendaciones',
+  ];
+  const criticalVentilatorTasks = [
+    'Verificación eléctrica',
+    'Revisión de alarmas',
+    'Prueba del módulo de flujo',
+    'Validación de presión',
+    'Registro de salida de servicio',
+  ];
+  const taskDefinitions = Object.fromEntries(
+    orderDefinitions.map((order) => {
+      const titles =
+        order.code === 'MTTO-MET-004'
+          ? criticalVentilatorTasks
+          : order.type === MaintenanceType.PREVENTIVE
+            ? preventiveTasks
+            : correctiveTasks;
+      const completedCount =
+        order.status === MaintenanceStatus.COMPLETED
+          ? titles.length
+          : order.status === MaintenanceStatus.IN_PROGRESS
+            ? 2
+            : 0;
+
+      return [
+        order.code,
+        titles.map((title, index) => ({
+          title,
+          isCompleted: index < completedCount,
+        })),
+      ];
+    }),
+  );
 
   const demoOrderIds = [...ordersByCode.values()].map((order) => order.id);
 
@@ -652,16 +942,22 @@ async function main() {
     }),
   });
 
+  const companyAdminById = new Map([
+    [metroCompany.id, metroAdmin],
+    [rafaelCompany.id, rafaelAdmin],
+  ]);
+
   for (const definition of equipmentDefinitions) {
     const equipment = equipmentByCode.get(definition.internalCode);
+    const companyAdmin = companyAdminById.get(definition.companyId);
 
-    if (!equipment) continue;
+    if (!equipment || !companyAdmin) continue;
 
     await upsertAuditLog({
       action: AUDIT_ACTIONS.EQUIPMENT_CREATED,
       entity: AUDIT_ENTITIES.EQUIPMENT,
       entityId: equipment.id,
-      userId: admin.id,
+      userId: companyAdmin.id,
       newValue: {
         seed: true,
         internalCode: definition.internalCode,
@@ -680,7 +976,7 @@ async function main() {
       action: AUDIT_ACTIONS.MAINTENANCE_ORDER_CREATED,
       entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
       entityId: order.id,
-      userId: admin.id,
+      userId: definition.createdById,
       newValue: {
         seed: true,
         code: definition.code,
@@ -703,7 +999,7 @@ async function main() {
         action: statusAction,
         entity: AUDIT_ENTITIES.MAINTENANCE_ORDER,
         entityId: order.id,
-        userId: admin.id,
+        userId: definition.assignedToId,
         newValue: {
           seed: true,
           code: definition.code,
@@ -713,14 +1009,17 @@ async function main() {
     }
   }
 
-  const completedOrder = ordersByCode.get('MTTO-DEMO-003');
+  for (const code of ['MTTO-MET-003', 'MTTO-RAF-003']) {
+    const completedOrder = ordersByCode.get(code);
+    const definition = orderDefinitions.find((order) => order.code === code);
 
-  if (completedOrder) {
+    if (!completedOrder || !definition) continue;
+
     await upsertAuditLog({
       action: AUDIT_ACTIONS.REPORT_PDF_EXPORTED,
       entity: AUDIT_ENTITIES.REPORT,
       entityId: `maintenance-order-${completedOrder.id}`,
-      userId: admin.id,
+      userId: definition.createdById,
       newValue: {
         seed: true,
         report: 'maintenance-order-pdf',
@@ -730,43 +1029,56 @@ async function main() {
     });
   }
 
+  const companyIds = [metroCompany.id, rafaelCompany.id];
+  const demoEmails = userDefinitions.map((user) => user.email);
+  const demoEquipmentCodes = equipmentDefinitions.map(
+    (equipment) => equipment.internalCode,
+  );
+  const demoOrderCodes = orderDefinitions.map((order) => order.code);
   const counts = {
     companies: await prisma.company.count({
-      where: { id: company.id },
+      where: { id: { in: companyIds } },
     }),
     sites: await prisma.site.count({
-      where: { companyId: company.id },
+      where: { companyId: { in: companyIds } },
     }),
     areas: await prisma.area.count({
-      where: {
-        site: {
-          companyId: company.id,
-        },
-      },
+      where: { site: { companyId: { in: companyIds } } },
     }),
     users: await prisma.user.count({
-      where: { companyId: company.id },
+      where: { email: { in: demoEmails } },
     }),
     equipment: await prisma.equipment.count({
-      where: { companyId: company.id },
+      where: { internalCode: { in: demoEquipmentCodes } },
     }),
     orders: await prisma.maintenanceOrder.count({
-      where: {
-        equipment: {
-          companyId: company.id,
-        },
-      },
+      where: { code: { in: demoOrderCodes } },
+    }),
+    tasks: await prisma.maintenanceTask.count({
+      where: { orderId: { in: demoOrderIds } },
     }),
     auditLogs: await prisma.auditLog.count({
-      where: { userId: admin.id },
+      where: {
+        OR: [
+          {
+            entityId: { in: [...equipmentByCode.values()].map(({ id }) => id) },
+          },
+          { entityId: { in: demoOrderIds } },
+          {
+            entityId: {
+              in: demoOrderIds.map((id) => `maintenance-order-${id}`),
+            },
+          },
+        ],
+      },
     }),
   };
 
   console.log('Seed completed successfully.');
   console.log('Demo dataset:', counts);
-  console.log('Demo admin:');
-  console.log('Email: admin@biomed.local');
-  console.log(`Password: ${defaultPassword}`);
+  console.log(
+    'Demo accounts are documented in docs/59-demo-seed-accounts-and-test-plan.md.',
+  );
 }
 
 main()
