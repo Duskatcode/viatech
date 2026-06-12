@@ -14,9 +14,11 @@ import {
   Wrench,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { NavLink, Outlet } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
+import { organizationService } from '../services/organization.service';
 import type { UserRole } from '../types/auth';
 
 interface NavigationItem {
@@ -77,6 +79,19 @@ function getInitials(name?: string | null, email?: string | null) {
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const companyQuery = useQuery({
+    queryKey: ['layout-company', user?.companyId],
+    queryFn: organizationService.companies,
+    enabled: user?.role === 'ADMIN' && Boolean(user.companyId),
+  });
+  const headerTitle =
+    user?.role === 'SUPER_ADMIN'
+      ? 'Panel global'
+      : (companyQuery.data?.[0]?.name ?? 'Panel de empresa');
+  const headerSubtitle =
+    user?.role === 'SUPER_ADMIN'
+      ? 'Resumen general de todas las empresas'
+      : 'Plataforma de mantenimiento biomédico';
 
   return (
     <div className="stitch-app-shell">
@@ -87,7 +102,9 @@ export function AppLayout() {
           </div>
 
           <div className="min-w-0">
-            <p className="text-xl font-bold leading-none text-white">BioMed Control</p>
+            <p className="text-xl font-bold leading-none text-white">
+              BioMed Control
+            </p>
             <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/45">
               Institutional Precision
             </p>
@@ -131,8 +148,12 @@ export function AppLayout() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-white">{user?.name ?? 'Usuario'}</p>
-              <p className="truncate text-[11px] text-white/45">{user?.role ?? user?.email}</p>
+              <p className="truncate text-sm font-bold text-white">
+                {user?.name ?? 'Usuario'}
+              </p>
+              <p className="truncate text-[11px] text-white/45">
+                {user?.role ?? user?.email}
+              </p>
             </div>
 
             <button
@@ -153,10 +174,10 @@ export function AppLayout() {
           <div className="flex min-w-0 items-center gap-4">
             <div className="min-w-0">
               <p className="truncate text-xl font-bold text-[var(--stitch-on-surface)]">
-                Clínica Metropolitana
+                {headerTitle}
               </p>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--stitch-on-surface-variant)]">
-                Plataforma de mantenimiento biomédico
+                {headerSubtitle}
               </p>
             </div>
 

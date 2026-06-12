@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useAuth } from '../auth/useAuth';
+import { GlobalDashboard } from '../dashboard/GlobalDashboard';
 import { alertsService } from '../services/alerts.service';
 import type {
   AlertEquipment,
@@ -35,8 +37,14 @@ function formatDate(value?: string | null) {
   return new Date(value).toLocaleString();
 }
 
-function getAuditTone(action: string): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
-  if (action.includes('DELETED') || action.includes('CANCELLED') || action.includes('RETIRED')) {
+function getAuditTone(
+  action: string,
+): 'success' | 'warning' | 'danger' | 'info' | 'neutral' {
+  if (
+    action.includes('DELETED') ||
+    action.includes('CANCELLED') ||
+    action.includes('RETIRED')
+  ) {
     return 'danger';
   }
 
@@ -83,7 +91,10 @@ interface DashboardCardProps {
   tone?: 'default' | 'warning' | 'danger' | 'success';
 }
 
-const cardToneClassName: Record<NonNullable<DashboardCardProps['tone']>, string> = {
+const cardToneClassName: Record<
+  NonNullable<DashboardCardProps['tone']>,
+  string
+> = {
   default: 'bg-[rgb(0_63_135_/_0.08)] text-[var(--stitch-primary)]',
   warning: 'bg-[var(--stitch-warning-bg)] text-[var(--stitch-warning-text)]',
   danger: 'bg-[var(--stitch-danger-bg)] text-[var(--stitch-danger-text)]',
@@ -141,9 +152,13 @@ function MaintenanceAlertItem({
     <div className="rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-4 transition-colors hover:bg-[var(--stitch-surface-low)]">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
         <div>
-          <StatusPill tone={tone}>{tone === 'danger' ? 'Vencida' : 'Próxima'}</StatusPill>
+          <StatusPill tone={tone}>
+            {tone === 'danger' ? 'Vencida' : 'Próxima'}
+          </StatusPill>
 
-          <p className="mt-3 text-sm font-bold text-[var(--stitch-on-surface)]">{order.code}</p>
+          <p className="mt-3 text-sm font-bold text-[var(--stitch-on-surface)]">
+            {order.code}
+          </p>
 
           <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
             <span className="stitch-code text-xs">
@@ -215,6 +230,19 @@ function EquipmentAlertItem({
 }
 
 export function DashboardPage() {
+  const { user } = useAuth();
+
+  if (user?.role === 'SUPER_ADMIN') {
+    return <GlobalDashboard />;
+  }
+
+  return <CompanyDashboard />;
+}
+
+function CompanyDashboard() {
+  const { user } = useAuth();
+  const canViewAudit = user?.role === 'ADMIN' || user?.role === 'VIEWER';
+
   const summaryQuery = useQuery({
     queryKey: ['dashboard-reports-summary'],
     queryFn: reportsService.summary,
@@ -223,6 +251,7 @@ export function DashboardPage() {
   const auditLogsQuery = useQuery({
     queryKey: ['dashboard-audit-logs'],
     queryFn: () => auditLogsService.findAll({}),
+    enabled: canViewAudit,
   });
 
   const alertsQuery = useQuery({
@@ -231,15 +260,24 @@ export function DashboardPage() {
   });
 
   const summary = summaryQuery.data;
-  const auditLogs = auditLogsQuery.data ?? [];
+  const auditLogs = useMemo(
+    () => auditLogsQuery.data ?? [],
+    [auditLogsQuery.data],
+  );
   const alerts = alertsQuery.data;
 
   const latestAuditLogs = auditLogs.slice(0, 8);
 
   const auditMetrics = useMemo(() => {
-    const exportsCount = auditLogs.filter((log) => log.action.includes('EXPORTED')).length;
-    const attachmentEvents = auditLogs.filter((log) => log.action.includes('ATTACHMENT')).length;
-    const equipmentEvents = auditLogs.filter((log) => log.action.includes('EQUIPMENT')).length;
+    const exportsCount = auditLogs.filter((log) =>
+      log.action.includes('EXPORTED'),
+    ).length;
+    const attachmentEvents = auditLogs.filter((log) =>
+      log.action.includes('ATTACHMENT'),
+    ).length;
+    const equipmentEvents = auditLogs.filter((log) =>
+      log.action.includes('EQUIPMENT'),
+    ).length;
     const maintenanceEvents = auditLogs.filter((log) =>
       log.action.includes('MAINTENANCE_ORDER'),
     ).length;
@@ -286,10 +324,14 @@ export function DashboardPage() {
   const warrantyExpiringEquipment = alerts?.warrantyExpiringEquipment ?? [];
 
   const isLoading =
-    summaryQuery.isLoading || auditLogsQuery.isLoading || alertsQuery.isLoading;
+    summaryQuery.isLoading ||
+    alertsQuery.isLoading ||
+    (canViewAudit && auditLogsQuery.isLoading);
 
   const isError =
-    summaryQuery.isError || auditLogsQuery.isError || alertsQuery.isError;
+    summaryQuery.isError ||
+    alertsQuery.isError ||
+    (canViewAudit && auditLogsQuery.isError);
 
   if (isLoading) {
     return (
@@ -313,8 +355,8 @@ export function DashboardPage() {
     <section className="space-y-8">
       <PageHeader
         eyebrow="Panel operativo"
-        title="Gestión institucional"
-        description="Resumen operativo del ecosistema BioMed Control: equipos, órdenes, alertas, reportes y auditoría."
+        title="Panel de empresa"
+        description="Resumen operativo de equipos, órdenes, alertas y disponibilidad de tu empresa."
         actions={
           <div className="stitch-card px-4 py-3 text-sm text-[var(--stitch-on-surface-variant)]">
             Alertas actualizadas:{' '}
@@ -355,7 +397,9 @@ export function DashboardPage() {
           value={alertCounts.warrantyExpiringEquipment}
           description="Equipos con garantía por vencer"
           icon={MonitorCog}
-          tone={alertCounts.warrantyExpiringEquipment > 0 ? 'warning' : 'success'}
+          tone={
+            alertCounts.warrantyExpiringEquipment > 0 ? 'warning' : 'success'
+          }
         />
       </div>
 
@@ -372,7 +416,13 @@ export function DashboardPage() {
           value={equipmentInMaintenance}
           description={`${outOfService} fuera de servicio`}
           icon={Wrench}
-          tone={outOfService > 0 ? 'danger' : equipmentInMaintenance > 0 ? 'warning' : 'default'}
+          tone={
+            outOfService > 0
+              ? 'danger'
+              : equipmentInMaintenance > 0
+                ? 'warning'
+                : 'default'
+          }
         />
 
         <DashboardCard
@@ -430,7 +480,8 @@ export function DashboardPage() {
                 Alertas operativas
               </h2>
               <p className="mt-1 text-sm text-[var(--stitch-on-surface-variant)]">
-                Órdenes vencidas, próximas y equipos críticos desde /alerts/summary.
+                Órdenes vencidas, próximas y equipos críticos desde
+                /alerts/summary.
               </p>
             </div>
 
@@ -441,11 +492,19 @@ export function DashboardPage() {
 
           <div className="space-y-3 p-5">
             {overdueOrders.slice(0, 4).map((order) => (
-              <MaintenanceAlertItem key={order.id} order={order} tone="danger" />
+              <MaintenanceAlertItem
+                key={order.id}
+                order={order}
+                tone="danger"
+              />
             ))}
 
             {upcomingOrders.slice(0, 4).map((order) => (
-              <MaintenanceAlertItem key={order.id} order={order} tone="warning" />
+              <MaintenanceAlertItem
+                key={order.id}
+                order={order}
+                tone="warning"
+              />
             ))}
 
             {outOfServiceEquipment.slice(0, 4).map((equipment) => (
@@ -465,7 +524,9 @@ export function DashboardPage() {
             ))}
 
             {alertCounts.total === 0 ? (
-              <EmptyPanel>Sin alertas operativas para la ventana actual.</EmptyPanel>
+              <EmptyPanel>
+                Sin alertas operativas para la ventana actual.
+              </EmptyPanel>
             ) : null}
           </div>
         </article>
