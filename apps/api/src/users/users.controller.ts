@@ -1,4 +1,13 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -7,6 +16,11 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { UserRole } from '../generated/prisma/client';
 import type { AuthUser } from '../auth/types/auth-user.type';
+import { CreateUserDto } from './dto/create-user.dto';
+import { QueryUsersDto } from './dto/query-users.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -29,8 +43,12 @@ export class UsersController {
   @ApiOkResponse({
     description: 'List users.',
   })
-  list(@CurrentUser() user: AuthUser) {
-    return this.usersService.listUsers(user.role, user.companyId);
+  list(@CurrentUser() user: AuthUser, @Query() query: QueryUsersDto) {
+    return this.usersService.listUsers(
+      user.role,
+      user.companyId,
+      query.companyId,
+    );
   }
 
   @Get(':id')
@@ -40,5 +58,53 @@ export class UsersController {
   })
   findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
     return this.usersService.findProfileById(id, user);
+  }
+
+  @Post()
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @ApiOkResponse({
+    description: 'Create user.',
+  })
+  create(@CurrentUser() user: AuthUser, @Body() dto: CreateUserDto) {
+    return this.usersService.create(user, dto);
+  }
+
+  @Patch(':id')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @ApiOkResponse({
+    description: 'Update user profile and allowed access fields.',
+  })
+  update(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.usersService.update(user, id, dto);
+  }
+
+  @Patch(':id/role')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @ApiOkResponse({
+    description: 'Update user role.',
+  })
+  updateRole(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserRoleDto,
+  ) {
+    return this.usersService.updateRole(user, id, dto);
+  }
+
+  @Patch(':id/status')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @ApiOkResponse({
+    description: 'Activate or deactivate user.',
+  })
+  updateStatus(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateUserStatusDto,
+  ) {
+    return this.usersService.updateStatus(user, id, dto);
   }
 }
