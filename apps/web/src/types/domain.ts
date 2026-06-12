@@ -58,6 +58,36 @@ export interface UserSummary {
   role: UserRole;
   companyId: string | null;
   isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface QueryUsersParams {
+  companyId?: string;
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  companyId?: string;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  email?: string;
+  role?: UserRole;
+  companyId?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateUserRolePayload {
+  role: UserRole;
+}
+
+export interface UpdateUserStatusPayload {
+  isActive: boolean;
 }
 
 export interface Equipment {

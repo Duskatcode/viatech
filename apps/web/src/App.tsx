@@ -11,6 +11,7 @@ import { MaintenanceOrderDetailPage } from './pages/MaintenanceOrderDetailPage';
 import { MaintenanceOrdersPage } from './pages/MaintenanceOrdersPage';
 import { OrganizationPage } from './pages/OrganizationPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { UsersPage } from './pages/UsersPage';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
             element={<MaintenanceOrderDetailPage />}
           />
           <Route path="/organization" element={<OrganizationPage />} />
+          <Route path="/users" element={<UsersPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/audit-logs" element={<AuditLogsPage />} />
         </Route>

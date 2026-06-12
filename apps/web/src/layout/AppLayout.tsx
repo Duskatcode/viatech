@@ -10,13 +10,23 @@ import {
   Search,
   ShieldCheck,
   Stethoscope,
+  UsersRound,
   Wrench,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
+import type { UserRole } from '../types/auth';
 
-const navigationItems = [
+interface NavigationItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  roles?: UserRole[];
+}
+
+const navigationItems: NavigationItem[] = [
   {
     label: 'Panel de control',
     href: '/',
@@ -36,6 +46,12 @@ const navigationItems = [
     label: 'Organización',
     href: '/organization',
     icon: Building2,
+  },
+  {
+    label: 'Usuarios',
+    href: '/users',
+    icon: UsersRound,
+    roles: ['SUPER_ADMIN', 'ADMIN'],
   },
   {
     label: 'Reportes',
@@ -79,28 +95,33 @@ export function AppLayout() {
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-3">
-          {navigationItems.map((item) => {
-            const Icon = item.icon;
+          {navigationItems
+            .filter(
+              (item) =>
+                !item.roles || (user ? item.roles.includes(user.role) : false),
+            )
+            .map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <NavLink
-                key={item.href}
-                to={item.href}
-                end={item.href === '/'}
-                className={({ isActive }) =>
-                  [
-                    'flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors',
-                    isActive
-                      ? 'border-l-4 border-[var(--stitch-primary)] bg-[rgb(0_86_179_/_0.16)] text-white'
-                      : 'text-white/55 hover:bg-white/10 hover:text-white',
-                  ].join(' ')
-                }
-              >
-                <Icon size={19} />
-                <span className="font-medium">{item.label}</span>
-              </NavLink>
-            );
-          })}
+              return (
+                <NavLink
+                  key={item.href}
+                  to={item.href}
+                  end={item.href === '/'}
+                  className={({ isActive }) =>
+                    [
+                      'flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors',
+                      isActive
+                        ? 'border-l-4 border-[var(--stitch-primary)] bg-[rgb(0_86_179_/_0.16)] text-white'
+                        : 'text-white/55 hover:bg-white/10 hover:text-white',
+                    ].join(' ')
+                  }
+                >
+                  <Icon size={19} />
+                  <span className="font-medium">{item.label}</span>
+                </NavLink>
+              );
+            })}
         </nav>
 
         <div className="border-t border-white/10 p-4">
