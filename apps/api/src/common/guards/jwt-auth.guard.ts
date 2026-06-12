@@ -10,12 +10,14 @@ import { JwtService } from '@nestjs/jwt';
 import type { AuthUser } from '../../auth/types/auth-user.type';
 import type { JwtPayload } from '../../auth/types/jwt-payload.type';
 import type { RequestWithUser } from '../../auth/types/request-with-user.type';
+import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -37,12 +39,30 @@ export class JwtAuthGuard implements CanActivate {
         secret,
       });
 
+      const currentUser = await this.prisma.user.findFirst({
+        where: {
+          id: payload.sub,
+          isActive: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          companyId: true,
+        },
+      });
+
+      if (!currentUser) {
+        throw new UnauthorizedException('Invalid or inactive user');
+      }
+
       const user: AuthUser = {
-        id: payload.sub,
-        name: '',
-        email: payload.email,
-        role: payload.role,
-        companyId: payload.companyId,
+        id: currentUser.id,
+        name: currentUser.name,
+        email: currentUser.email,
+        role: currentUser.role,
+        companyId: currentUser.companyId,
       };
 
       request.user = user;

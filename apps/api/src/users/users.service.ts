@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
@@ -42,8 +46,8 @@ export class UsersService {
   async findProfileById(id: string, currentUser?: AuthUser) {
     if (
       currentUser &&
-      (currentUser.role !== UserRole.SUPER_ADMIN &&
-        (currentUser.role !== UserRole.ADMIN || !currentUser.companyId))
+      currentUser.role !== UserRole.SUPER_ADMIN &&
+      (currentUser.role !== UserRole.ADMIN || !currentUser.companyId)
     ) {
       throw new NotFoundException('User not found');
     }
@@ -75,11 +79,15 @@ export class UsersService {
   }
 
   listUsers(currentUserRole: UserRole, currentUserCompanyId: string | null) {
+    if (currentUserRole !== UserRole.SUPER_ADMIN && !currentUserCompanyId) {
+      throw new ForbiddenException('User has no company assigned');
+    }
+
     const where =
       currentUserRole === UserRole.SUPER_ADMIN
         ? {}
         : {
-            companyId: currentUserCompanyId ?? undefined,
+            companyId: currentUserCompanyId as string,
           };
 
     return this.prisma.user.findMany({
@@ -100,7 +108,10 @@ export class UsersService {
     });
   }
 
-  async updateRefreshTokenHash(userId: string, refreshTokenHash: string | null) {
+  async updateRefreshTokenHash(
+    userId: string,
+    refreshTokenHash: string | null,
+  ) {
     await this.prisma.user.update({
       where: { id: userId },
       data: { refreshTokenHash },

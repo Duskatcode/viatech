@@ -37,11 +37,13 @@ const READ_ROLES = [
   UserRole.VIEWER,
 ];
 
-const WRITE_ROLES = [
+const UPLOAD_ORDER_ROLES = [
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
   UserRole.TECHNICIAN,
 ];
+
+const ADMIN_WRITE_ROLES = [UserRole.SUPER_ADMIN, UserRole.ADMIN];
 
 @ApiTags('attachments')
 @ApiBearerAuth()
@@ -75,7 +77,7 @@ export class AttachmentsController {
   }
 
   @Post('equipment/:equipmentId')
-  @Roles(...WRITE_ROLES)
+  @Roles(...ADMIN_WRITE_ROLES)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -108,7 +110,7 @@ export class AttachmentsController {
   }
 
   @Post('maintenance-orders/:orderId')
-  @Roles(...WRITE_ROLES)
+  @Roles(...UPLOAD_ORDER_ROLES)
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -161,7 +163,7 @@ export class AttachmentsController {
   }
 
   @Delete(':id')
-  @Roles(...WRITE_ROLES)
+  @Roles(...ADMIN_WRITE_ROLES)
   remove(@CurrentUser() user: AuthUser, @Param('id') id: string) {
     return this.attachmentsService.remove(user, id);
   }

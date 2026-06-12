@@ -6,7 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITIES,
+} from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
@@ -45,7 +48,9 @@ export class MaintenanceOrdersService {
           code: this.generateOrderCode(),
           type: dto.type,
           status: MaintenanceStatus.PENDING,
-          scheduledDate: dto.scheduledDate ? new Date(dto.scheduledDate) : undefined,
+          scheduledDate: dto.scheduledDate
+            ? new Date(dto.scheduledDate)
+            : undefined,
           description: dto.description,
           equipmentId: equipment.id,
           assignedToId: dto.assignedToId,
@@ -87,9 +92,23 @@ export class MaintenanceOrdersService {
     const where: Prisma.MaintenanceOrderWhereInput = {
       equipment: {
         companyId:
-          user.role === UserRole.SUPER_ADMIN ? undefined : user.companyId ?? '',
+          user.role === UserRole.SUPER_ADMIN
+            ? undefined
+            : (user.companyId ?? ''),
       },
     };
+
+    if (user.role === UserRole.TECHNICIAN) {
+      where.OR = [
+        {
+          assignedToId: user.id,
+        },
+        {
+          assignedToId: null,
+          status: MaintenanceStatus.PENDING,
+        },
+      ];
+    }
 
     if (query.equipmentId) {
       where.equipmentId = query.equipmentId;
@@ -108,19 +127,30 @@ export class MaintenanceOrdersService {
     }
 
     if (query.search) {
-      where.OR = [
-        {
-          code: {
-            contains: query.search,
-            mode: 'insensitive',
+      const searchScope: Prisma.MaintenanceOrderWhereInput = {
+        OR: [
+          {
+            code: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
           },
-        },
-        {
-          description: {
-            contains: query.search,
-            mode: 'insensitive',
+          {
+            description: {
+              contains: query.search,
+              mode: 'insensitive',
+            },
           },
-        },
+        ],
+      };
+
+      where.AND = [
+        ...(where.AND
+          ? Array.isArray(where.AND)
+            ? where.AND
+            : [where.AND]
+          : []),
+        searchScope,
       ];
     }
 
@@ -146,6 +176,7 @@ export class MaintenanceOrdersService {
     }
 
     this.assertCompanyAccess(user, order.equipment.companyId);
+    this.assertTechnicianCanAccessOrder(user, order.assignedToId, order.status);
 
     return order;
   }
@@ -159,7 +190,10 @@ export class MaintenanceOrdersService {
     let equipmentCompanyId = order.equipment.companyId;
 
     if (dto.equipmentId) {
-      const equipment = await this.findEquipmentForAccess(user, dto.equipmentId);
+      const equipment = await this.findEquipmentForAccess(
+        user,
+        dto.equipmentId,
+      );
       equipmentId = equipment.id;
       equipmentCompanyId = equipment.companyId;
     }
@@ -175,7 +209,9 @@ export class MaintenanceOrdersService {
       data: {
         equipmentId,
         type: dto.type,
-        scheduledDate: dto.scheduledDate ? new Date(dto.scheduledDate) : undefined,
+        scheduledDate: dto.scheduledDate
+          ? new Date(dto.scheduledDate)
+          : undefined,
         description: dto.description,
         assignedToId: dto.assignedToId,
       },
@@ -188,7 +224,10 @@ export class MaintenanceOrdersService {
 
     this.assertEditable(order.status);
 
-    await this.assertAssignableUser(dto.assignedToId, order.equipment.companyId);
+    await this.assertAssignableUser(
+      dto.assignedToId,
+      order.equipment.companyId,
+    );
 
     return this.prisma.maintenanceOrder.update({
       where: {
@@ -264,7 +303,8 @@ export class MaintenanceOrdersService {
 
     this.assertTechnicianCanWorkOnOrder(user, order.assignedToId);
 
-    const finalEquipmentStatus = dto.finalEquipmentStatus ?? EquipmentStatus.ACTIVE;
+    const finalEquipmentStatus =
+      dto.finalEquipmentStatus ?? EquipmentStatus.ACTIVE;
 
     return this.prisma.$transaction(async (tx) => {
       const updatedOrder = await tx.maintenanceOrder.update({
@@ -318,7 +358,9 @@ export class MaintenanceOrdersService {
       order.status === MaintenanceStatus.COMPLETED ||
       order.status === MaintenanceStatus.CANCELLED
     ) {
-      throw new BadRequestException('Completed or cancelled orders cannot be cancelled');
+      throw new BadRequestException(
+        'Completed or cancelled orders cannot be cancelled',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -364,9 +406,14 @@ export class MaintenanceOrdersService {
     });
   }
 
-  async addTask(user: AuthUser, orderId: string, dto: CreateMaintenanceTaskDto) {
+  async addTask(
+    user: AuthUser,
+    orderId: string,
+    dto: CreateMaintenanceTaskDto,
+  ) {
     const order = await this.findOne(user, orderId);
 
+    this.assertTechnicianCanWorkOnOrder(user, order.assignedToId);
     this.assertEditable(order.status);
 
     return this.prisma.maintenanceTask.create({
@@ -386,6 +433,7 @@ export class MaintenanceOrdersService {
   ) {
     const order = await this.findOne(user, orderId);
 
+    this.assertTechnicianCanWorkOnOrder(user, order.assignedToId);
     this.assertEditable(order.status);
 
     const task = await this.prisma.maintenanceTask.findFirst({
@@ -456,7 +504,9 @@ export class MaintenanceOrdersService {
     });
 
     if (!user) {
-      throw new BadRequestException('Assigned user must be active and belong to the equipment company');
+      throw new BadRequestException(
+        'Assigned user must be active and belong to the equipment company',
+      );
     }
   }
 
@@ -466,7 +516,9 @@ export class MaintenanceOrdersService {
     }
 
     if (!user.companyId || user.companyId !== companyId) {
-      throw new ForbiddenException('You do not have access to this maintenance order');
+      throw new ForbiddenException(
+        'You do not have access to this maintenance order',
+      );
     }
   }
 
@@ -475,7 +527,9 @@ export class MaintenanceOrdersService {
       status === MaintenanceStatus.COMPLETED ||
       status === MaintenanceStatus.CANCELLED
     ) {
-      throw new BadRequestException('Completed or cancelled orders cannot be edited');
+      throw new BadRequestException(
+        'Completed or cancelled orders cannot be edited',
+      );
     }
   }
 
@@ -488,7 +542,28 @@ export class MaintenanceOrdersService {
     }
 
     if (assignedToId && assignedToId !== user.id) {
-      throw new ForbiddenException('Technician can only work on assigned orders');
+      throw new ForbiddenException(
+        'Technician can only work on assigned orders',
+      );
+    }
+  }
+
+  private assertTechnicianCanAccessOrder(
+    user: AuthUser,
+    assignedToId: string | null,
+    status: MaintenanceStatus,
+  ) {
+    if (user.role !== UserRole.TECHNICIAN) {
+      return;
+    }
+
+    if (
+      assignedToId !== user.id &&
+      !(assignedToId === null && status === MaintenanceStatus.PENDING)
+    ) {
+      throw new ForbiddenException(
+        'Technician can only access assigned or unassigned pending orders',
+      );
     }
   }
 

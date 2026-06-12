@@ -95,7 +95,7 @@ export class EquipmentController {
   }
 
   @Patch(':id/status')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @ApiOkResponse({
     description: 'Update equipment status.',
   })

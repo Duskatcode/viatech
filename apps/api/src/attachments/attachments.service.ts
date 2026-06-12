@@ -10,11 +10,18 @@ import { createReadStream } from 'node:fs';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { relative, resolve, sep } from 'node:path';
 
-import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITIES,
+} from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
-import { AttachmentType, UserRole } from '../generated/prisma/client';
+import {
+  AttachmentType,
+  MaintenanceStatus,
+  UserRole,
+} from '../generated/prisma/client';
 import {
   ALLOWED_ATTACHMENT_MIME_TYPES,
   ATTACHMENTS_STORAGE_DIR,
@@ -61,10 +68,7 @@ export class AttachmentsService {
     });
   }
 
-  async uploadForEquipment(
-    equipmentId: string,
-    input: CreateAttachmentInput,
-  ) {
+  async uploadForEquipment(equipmentId: string, input: CreateAttachmentInput) {
     await this.ensureEquipmentAccess(input.user, equipmentId);
 
     const storedFile = await this.storeFile(input.file);
@@ -102,7 +106,7 @@ export class AttachmentsService {
     orderId: string,
     input: CreateAttachmentInput,
   ) {
-    await this.ensureMaintenanceOrderAccess(input.user, orderId);
+    await this.ensureMaintenanceOrderAccess(input.user, orderId, true);
 
     const storedFile = await this.storeFile(input.file);
 
@@ -306,7 +310,8 @@ export class AttachmentsService {
 
     if (
       user.companyId &&
-      (equipmentCompanyId === user.companyId || orderCompanyId === user.companyId)
+      (equipmentCompanyId === user.companyId ||
+        orderCompanyId === user.companyId)
     ) {
       return attachment;
     }
@@ -340,7 +345,11 @@ export class AttachmentsService {
     throw new ForbiddenException('You cannot access this equipment');
   }
 
-  private async ensureMaintenanceOrderAccess(user: AuthUser, orderId: string) {
+  private async ensureMaintenanceOrderAccess(
+    user: AuthUser,
+    orderId: string,
+    requireWorkAccess = false,
+  ) {
     const order = await this.prisma.maintenanceOrder.findUnique({
       where: {
         id: orderId,
@@ -362,10 +371,24 @@ export class AttachmentsService {
       return order;
     }
 
-    if (user.companyId === order.equipment.companyId) {
-      return order;
+    if (user.companyId !== order.equipment.companyId) {
+      throw new ForbiddenException('You cannot access this maintenance order');
     }
 
-    throw new ForbiddenException('You cannot access this maintenance order');
+    if (
+      requireWorkAccess &&
+      user.role === UserRole.TECHNICIAN &&
+      order.assignedToId !== user.id &&
+      !(
+        order.assignedToId === null &&
+        order.status === MaintenanceStatus.PENDING
+      )
+    ) {
+      throw new ForbiddenException(
+        'Technician can only upload attachments to assigned or unassigned pending orders',
+      );
+    }
+
+    return order;
   }
 }

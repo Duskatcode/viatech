@@ -55,7 +55,7 @@ export class CompaniesController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOkResponse({
     description: 'Update company.',
   })

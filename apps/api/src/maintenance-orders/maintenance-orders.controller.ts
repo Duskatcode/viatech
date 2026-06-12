@@ -36,11 +36,14 @@ export class MaintenanceOrdersController {
   ) {}
 
   @Post()
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.TECHNICIAN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @ApiOkResponse({
     description: 'Create maintenance order.',
   })
-  create(@CurrentUser() user: AuthUser, @Body() dto: CreateMaintenanceOrderDto) {
+  create(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: CreateMaintenanceOrderDto,
+  ) {
     return this.maintenanceOrdersService.create(user, dto);
   }
 

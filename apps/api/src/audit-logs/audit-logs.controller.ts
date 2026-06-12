@@ -18,7 +18,7 @@ export class AuditLogsController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
   @Get()
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.VIEWER)
   @ApiOkResponse({
     description: 'List audit logs.',
   })
