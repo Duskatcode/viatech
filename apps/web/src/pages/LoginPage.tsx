@@ -18,7 +18,7 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -36,7 +36,7 @@ export function LoginPage() {
         description: 'Bienvenido a BioMed Control.',
       });
 
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     } catch (caughtError) {
       const message = getErrorMessage(
         caughtError,

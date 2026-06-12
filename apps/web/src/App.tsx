@@ -1,11 +1,13 @@
 import { Route, Routes } from 'react-router-dom';
 
+import { AuthProvider } from './auth/AuthProvider';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { AppLayout } from './layout/AppLayout';
 import { AuditLogsPage } from './pages/AuditLogsPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { EquipmentPage } from './pages/EquipmentPage';
 import { EquipmentProfilePage } from './pages/EquipmentProfilePage';
+import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { MaintenanceOrderDetailPage } from './pages/MaintenanceOrderDetailPage';
 import { MaintenanceOrdersPage } from './pages/MaintenanceOrdersPage';
@@ -16,11 +18,25 @@ import { UsersPage } from './pages/UsersPage';
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/login"
+        element={
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        }
+      />
 
-      <Route element={<ProtectedRoute />}>
+      <Route
+        element={
+          <AuthProvider>
+            <ProtectedRoute />
+          </AuthProvider>
+        }
+      >
         <Route element={<AppLayout />}>
-          <Route index element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/equipment" element={<EquipmentPage />} />
           <Route path="/equipment/:id" element={<EquipmentProfilePage />} />
           <Route path="/maintenance-orders" element={<MaintenanceOrdersPage />} />

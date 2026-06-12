@@ -209,6 +209,165 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Public landing page                                                        */
+/* -------------------------------------------------------------------------- */
+
+.landing-page {
+  color-scheme: light;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+.landing-skip-link {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.landing-skip-link:focus {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.landing-focus:focus-visible {
+  outline: 3px solid rgb(18 63 145 / 0.28);
+  outline-offset: 3px;
+}
+
+.landing-button {
+  transition:
+    background-color 160ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 160ms ease;
+}
+
+.landing-button:active,
+.landing-secondary-button:active {
+  transform: scale(0.97);
+}
+
+.landing-secondary-button {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.landing-nav-link,
+.landing-inline-link {
+  transition: color 160ms ease;
+}
+
+.landing-feature-card {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.landing-enter {
+  animation: landing-enter 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.landing-enter-1 {
+  animation-delay: 40ms;
+}
+
+.landing-enter-2 {
+  animation-delay: 90ms;
+}
+
+.landing-enter-3 {
+  animation-delay: 140ms;
+}
+
+.landing-enter-4 {
+  animation-delay: 190ms;
+}
+
+.landing-enter-5 {
+  animation-delay: 240ms;
+}
+
+.landing-enter-preview {
+  animation-delay: 130ms;
+}
+
+.landing-float-card {
+  animation: landing-float 4.5s ease-in-out 900ms infinite;
+}
+
+@keyframes landing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .landing-button:hover {
+    background: #0d347d;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 0.16), 0 10px 22px rgb(18 63 145 / 0.16);
+  }
+
+  .landing-secondary-button:hover {
+    border-color: #aeb7c4;
+    background: #fbfcfd;
+  }
+
+  .landing-nav-link:hover,
+  .landing-inline-link:hover {
+    color: #123f91;
+  }
+
+  .landing-feature-card:hover {
+    border-color: #b7c4d7;
+    box-shadow: 0 12px 28px rgb(16 24 40 / 0.07);
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .landing-enter,
+  .landing-float-card {
+    animation: none;
+  }
+
+  .landing-button,
+  .landing-secondary-button,
+  .landing-feature-card,
+  .landing-skip-link {
+    transition-duration: 0.01ms;
+  }
+}
+
 code,
 pre,
 .stitch-code {

@@ -31,7 +31,7 @@ interface NavigationItem {
 const navigationItems: NavigationItem[] = [
   {
     label: 'Panel de control',
-    href: '/',
+    href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
@@ -126,7 +126,7 @@ export function AppLayout() {
                 <NavLink
                   key={item.href}
                   to={item.href}
-                  end={item.href === '/'}
+                  end={item.href === '/dashboard'}
                   className={({ isActive }) =>
                     [
                       'flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors',
