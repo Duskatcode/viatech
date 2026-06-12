@@ -284,6 +284,57 @@ body {
   outline-offset: 3px;
 }
 
+.feedback-input {
+  width: 100%;
+  border: 1px solid #cfd5dd;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #101828;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.feedback-input::placeholder {
+  color: #98a2b3;
+}
+
+.feedback-input:focus {
+  border-color: #123f91;
+  box-shadow: 0 0 0 3px rgb(18 63 145 / 0.12);
+  outline: none;
+}
+
+.feedback-rating-option,
+.feedback-radio-choice {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.feedback-rating-option:has(input:checked),
+.feedback-radio-choice:has(input:checked) {
+  border-color: #123f91;
+  background: #e9f0fb;
+  color: #123f91;
+}
+
+.feedback-rating-option:has(input:focus-visible),
+.feedback-radio-choice:has(input:focus-visible) {
+  outline: 3px solid rgb(18 63 145 / 0.28);
+  outline-offset: 3px;
+}
+
+.feedback-rating-option:active,
+.feedback-radio-choice:active {
+  transform: scale(0.97);
+}
+
 .landing-enter {
   animation: landing-enter 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
@@ -376,6 +427,9 @@ body {
   .landing-secondary-button,
   .landing-feature-card,
   .landing-check-item,
+  .feedback-input,
+  .feedback-rating-option,
+  .feedback-radio-choice,
   .landing-skip-link {
     transition-duration: 0.01ms;
   }

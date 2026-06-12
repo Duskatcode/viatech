@@ -22,6 +22,12 @@ const DemoGuidePage = lazy(() =>
   })),
 );
 
+const FeedbackPage = lazy(() =>
+  import('./pages/FeedbackPage').then((module) => ({
+    default: module.FeedbackPage,
+  })),
+);
+
 export default function App() {
   return (
     <Routes>
@@ -37,6 +43,20 @@ export default function App() {
             }
           >
             <DemoGuidePage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/feedback"
+        element={
+          <Suspense
+            fallback={
+              <main className="grid min-h-screen place-items-center bg-[#f7f8fa] text-sm font-semibold text-[#475467]">
+                Cargando formulario de feedback...
+              </main>
+            }
+          >
+            <FeedbackPage />
           </Suspense>
         }
       />

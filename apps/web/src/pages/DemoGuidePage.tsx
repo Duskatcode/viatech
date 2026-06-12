@@ -146,6 +146,17 @@ const recommendedFlow = [
   },
 ];
 
+const presentationFlow = [
+  ['01', 'SUPER_ADMIN', 'Panel global'],
+  ['02', 'ADMIN', 'Equipos y usuarios'],
+  ['03', 'ADMIN', 'Crear o revisar una orden'],
+  ['04', 'TECHNICIAN', 'Ejecutar tareas'],
+  ['05', 'VIEWER', 'Validar solo lectura'],
+  ['06', 'ADMIN Empresa B', 'Validar aislamiento'],
+  ['07', 'Reporte', 'Descargar un documento'],
+  ['08', 'Feedback', 'Completar la evaluación'],
+];
+
 type CopyState = {
   key: string;
   status: 'copied' | 'error';
@@ -207,6 +218,12 @@ export function DemoGuidePage() {
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/feedback"
+              className="landing-nav-link landing-focus hidden rounded-md px-2 py-2 text-sm font-semibold text-[#596273] md:inline-flex"
+            >
+              Feedback
+            </Link>
             <Link
               to="/"
               className="landing-nav-link landing-focus hidden rounded-md px-2 py-2 text-sm font-semibold text-[#596273] sm:inline-flex"
@@ -301,6 +318,47 @@ export function DemoGuidePage() {
                 <li>Estas cuentas contienen únicamente datos ficticios.</li>
                 <li>La URL temporal deja de funcionar si el servidor se apaga.</li>
               </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-[#dfe3e8] bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+            <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-start">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#123f91]">
+                  Modo presentación
+                </p>
+                <h2 className="mt-4 text-3xl font-bold leading-tight tracking-[-0.045em] text-[#101828]">
+                  Recorrido recomendado de 10 minutos
+                </h2>
+                <p className="mt-4 text-sm leading-7 text-[#667085]">
+                  Usa este resumen cuando necesites presentar el producto con
+                  rapidez. El checklist detallado permanece disponible más
+                  abajo.
+                </p>
+              </div>
+
+              <ol className="grid gap-3 sm:grid-cols-2">
+                {presentationFlow.map(([number, role, action]) => (
+                  <li
+                    key={number}
+                    className="flex items-start gap-4 rounded-xl border border-[#d8dde5] bg-[#f8fafc] p-4"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e9f0fb] font-mono text-xs font-bold text-[#123f91]">
+                      {number}
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#7a8494]">
+                        {role}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-[#344054]">
+                        {action}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </section>
@@ -509,6 +567,27 @@ export function DemoGuidePage() {
                 />
               </div>
             </div>
+
+            <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl border border-[#cbd7ec] bg-[#123f91] p-6 text-white sm:flex-row sm:items-center sm:p-8">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#b9d0f1]">
+                  Cierre de la revisión
+                </p>
+                <h2 className="mt-2 text-2xl font-bold tracking-[-0.035em]">
+                  ¿Terminaste el recorrido?
+                </h2>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-[#d9e5f6]">
+                  Comparte qué fue claro, qué falló y qué debería mejorar.
+                </p>
+              </div>
+              <Link
+                to="/feedback"
+                className="landing-focus inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-bold text-[#123f91]"
+              >
+                Finalicé la prueba — Enviar feedback
+                <ArrowRight size={17} />
+              </Link>
+            </div>
           </div>
         </section>
       </main>
@@ -520,7 +599,15 @@ export function DemoGuidePage() {
             <span className="font-semibold text-[#344054]">BioMed Control</span>
           </div>
           <p>Guía pública de revisión para el entorno demo.</p>
-          <p>© 2026 BioMed Control</p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/feedback"
+              className="landing-nav-link landing-focus rounded font-semibold text-[#475467]"
+            >
+              Enviar feedback
+            </Link>
+            <p>© 2026 BioMed Control</p>
+          </div>
         </div>
       </footer>
     </div>
