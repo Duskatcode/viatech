@@ -12,10 +12,18 @@ import {
 } from './common/constants/api.constants';
 
 function parseCorsOrigins(value: string): string[] {
-  return value
+  const origins = value
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
+
+  if (origins.includes('*')) {
+    throw new Error(
+      'CORS_ORIGINS cannot include "*" when credentials are enabled',
+    );
+  }
+
+  return origins;
 }
 
 async function bootstrap() {
@@ -24,11 +32,12 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const port = configService.get<number>('app.port') ?? DEFAULT_API_PORT;
-  const apiPrefix = configService.get<string>('app.apiPrefix') ?? DEFAULT_API_PREFIX;
+  const apiPrefix =
+    configService.get<string>('app.apiPrefix') ?? DEFAULT_API_PREFIX;
   const swaggerPath =
     configService.get<string>('swagger.path') ?? DEFAULT_SWAGGER_PATH;
-  const frontendOrigin =
-    configService.get<string>('cors.frontendOrigin') ?? 'http://localhost:5173';
+  const corsOrigins =
+    configService.get<string>('cors.origins') ?? 'http://localhost:5173';
   const appName =
     configService.get<string>('app.name') ?? 'Biomed Maintenance API';
   const appVersion = configService.get<string>('app.version') ?? '0.0.1';
@@ -36,7 +45,7 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: parseCorsOrigins(frontendOrigin),
+    origin: parseCorsOrigins(corsOrigins),
     credentials: true,
   });
 

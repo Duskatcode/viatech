@@ -37,3 +37,4 @@ tmp/
 
 # Local uploaded files
 /apps/api/storage/attachments/
+.aider*

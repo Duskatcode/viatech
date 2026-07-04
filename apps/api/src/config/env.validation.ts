@@ -5,7 +5,7 @@ interface ValidatedEnv {
   API_PORT: number;
   API_PREFIX: string;
   SWAGGER_PATH: string;
-  FRONTEND_ORIGIN: string;
+  CORS_ORIGINS: string;
   APP_NAME: string;
   APP_VERSION: string;
   ATTACHMENTS_STORAGE_DIR: string;
@@ -46,13 +46,34 @@ function requiredString(config: Record<string, unknown>, key: string): string {
   return value;
 }
 
+function parseCorsOrigins(value: unknown): string {
+  const origins = String(value ?? 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (origins.length === 0) {
+    throw new Error('CORS_ORIGINS must include at least one origin');
+  }
+
+  if (origins.includes('*')) {
+    throw new Error(
+      'CORS_ORIGINS cannot include "*" when credentials are enabled',
+    );
+  }
+
+  return origins.join(',');
+}
+
 export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
   const validatedConfig: ValidatedEnv = {
     NODE_ENV: parseNodeEnv(config.NODE_ENV),
-    API_PORT: parseNumber(config.API_PORT, 3000),
+    API_PORT: parseNumber(config.PORT ?? config.API_PORT, 3000),
     API_PREFIX: String(config.API_PREFIX ?? 'api/v1'),
     SWAGGER_PATH: String(config.SWAGGER_PATH ?? 'api/docs'),
-    FRONTEND_ORIGIN: String(config.FRONTEND_ORIGIN ?? 'http://localhost:5173'),
+    CORS_ORIGINS: parseCorsOrigins(
+      config.CORS_ORIGINS ?? config.FRONTEND_ORIGIN,
+    ),
     APP_NAME: String(config.APP_NAME ?? 'Biomed Maintenance API'),
     APP_VERSION: String(config.APP_VERSION ?? '0.0.1'),
     ATTACHMENTS_STORAGE_DIR: String(
@@ -72,7 +93,7 @@ export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
   };
 
   if (validatedConfig.API_PORT <= 0) {
-    throw new Error('API_PORT must be greater than 0');
+    throw new Error('PORT or API_PORT must be greater than 0');
   }
 
   if (validatedConfig.JWT_ACCESS_EXPIRES_IN_SECONDS <= 0) {
