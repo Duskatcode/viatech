@@ -1,5 +1,5 @@
-export { UserRole } from '@biomed/shared';
-import type { UserRole } from '@biomed/shared';
+export { UserRole } from '@vitatech/shared';
+import type { UserRole } from '@vitatech/shared';
 
 export interface AuthUser {
   id: string;

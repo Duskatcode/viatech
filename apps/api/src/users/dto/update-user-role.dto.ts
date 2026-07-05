@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum } from 'class-validator';
 
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 
 export class UpdateUserRoleDto {
   @ApiProperty({

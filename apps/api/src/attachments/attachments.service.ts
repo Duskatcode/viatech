@@ -21,7 +21,7 @@ import {
   AttachmentType,
   MaintenanceStatus,
 } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import {
   ALLOWED_ATTACHMENT_MIME_TYPES,
   ATTACHMENTS_STORAGE_DIR,

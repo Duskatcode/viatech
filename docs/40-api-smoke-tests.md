@@ -14,7 +14,7 @@ Script
 pnpm test:api:smoke
 Variables soportadas
 API_BASE_URL=http://localhost:3000/api/v1
-SMOKE_EMAIL=admin@biomed.local
+SMOKE_EMAIL=admin@vitatech.local
 SMOKE_PASSWORD=Admin12345!
 Endpoints probados
 GET /health

@@ -36,7 +36,7 @@ No cambiar rutas.
 No usar HTML directo de Stitch.
 No agregar CDN.
 Validación
-pnpm --filter @biomed/web build
+pnpm --filter @vitatech/web build
 pnpm check:phase40
 pnpm check:phase39
 

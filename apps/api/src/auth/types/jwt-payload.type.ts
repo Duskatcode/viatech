@@ -1,4 +1,4 @@
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 
 export interface JwtPayload {
   sub: string;

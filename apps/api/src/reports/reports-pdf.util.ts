@@ -73,20 +73,15 @@ function safe(value?: string | number | null) {
 }
 
 function addSectionTitle(doc: PDFKit.PDFDocument, title: string) {
-  doc.moveDown(1);
+  doc.moveDown(1.1);
   doc
-    .fontSize(13)
+    .fontSize(12)
     .fillColor('#0f172a')
     .font('Helvetica-Bold')
-    .text(title);
+    .text(title, { underline: false });
 
-  doc
-    .moveTo(doc.x, doc.y + 4)
-    .lineTo(555, doc.y + 4)
-    .strokeColor('#cbd5e1')
-    .stroke();
-
-  doc.moveDown(0.8);
+  doc.moveTo(42, doc.y + 4).lineTo(555, doc.y + 4).strokeColor('#cbd5e1').stroke();
+  doc.moveDown(0.6);
 }
 
 function addKeyValue(
@@ -94,7 +89,7 @@ function addKeyValue(
   label: string,
   value?: string | number | null,
 ) {
-  const startX = doc.x;
+  const startX = 50;
   const startY = doc.y;
 
   doc
@@ -102,16 +97,17 @@ function addKeyValue(
     .fontSize(9)
     .fillColor('#334155')
     .text(`${label}:`, startX, startY, {
-      width: 130,
-      continued: false,
+      width: 180,
+      align: 'left',
     });
 
   doc
     .font('Helvetica')
     .fontSize(9)
     .fillColor('#0f172a')
-    .text(safe(value), startX + 135, startY, {
-      width: 360,
+    .text(safe(value), startX + 190, startY, {
+      width: 300,
+      align: 'left',
     });
 
   doc.moveDown(0.4);
@@ -124,11 +120,11 @@ function addParagraph(
 ) {
   doc
     .font('Helvetica-Bold')
-    .fontSize(10)
+    .fontSize(9)
     .fillColor('#334155')
-    .text(label);
+    .text(`${label}:`);
 
-  doc.moveDown(0.2);
+  doc.moveDown(0.25);
 
   doc
     .font('Helvetica')
@@ -137,9 +133,34 @@ function addParagraph(
     .text(safe(value), {
       width: 500,
       align: 'left',
+      lineGap: 2,
     });
 
   doc.moveDown(0.8);
+}
+
+function addChecklistItem(doc: PDFKit.PDFDocument, index: number, task: PdfTask) {
+  const mark = task.isCompleted ? '✓' : '○';
+  const title = `${index}. ${mark} ${task.title}`;
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(9)
+    .fillColor('#0f172a')
+    .text(title, { indent: 8 });
+
+  if (task.description) {
+    doc
+      .font('Helvetica')
+      .fontSize(8)
+      .fillColor('#475569')
+      .text(`   ${task.description}`, {
+        indent: 16,
+        lineGap: 1.4,
+      });
+  }
+
+  doc.moveDown(0.3);
 }
 
 export async function buildMaintenanceOrderPdf({
@@ -152,7 +173,7 @@ export async function buildMaintenanceOrderPdf({
       bufferPages: true,
       info: {
         Title: `Orden de mantenimiento ${order.code}`,
-        Author: 'Biomed Maintenance Platform',
+        Author: 'BioMed Control',
         Subject: 'Hoja imprimible de mantenimiento',
       },
     });
@@ -163,44 +184,29 @@ export async function buildMaintenanceOrderPdf({
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    doc
-      .rect(0, 0, doc.page.width, 78)
-      .fill('#0f172a');
-
-    doc
-      .fillColor('#ffffff')
-      .font('Helvetica-Bold')
-      .fontSize(18)
-      .text('Biomed Maintenance Platform', 40, 24);
-
-    doc
-      .font('Helvetica')
-      .fontSize(10)
-      .fillColor('#cbd5e1')
-      .text('Hoja imprimible de orden de mantenimiento', 40, 49);
-
-    doc
-      .font('Helvetica-Bold')
-      .fontSize(12)
-      .fillColor('#ffffff')
-      .text(order.code, 410, 27, {
-        width: 145,
-        align: 'right',
-      });
+    doc.rect(0, 0, doc.page.width, 78).fill('#0f172a');
+    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(18).text('BioMed Control', 40, 24);
+    doc.font('Helvetica').fontSize(10).fillColor('#cbd5e1').text('Hoja institucional de orden de mantenimiento', 40, 49);
+    doc.font('Helvetica-Bold').fontSize(12).fillColor('#ffffff').text(order.code, 420, 27, {
+      width: 135,
+      align: 'right',
+    });
 
     doc.y = 100;
+    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(11).text('Orden de mantenimiento biomédica', 42, 90);
+    doc.font('Helvetica').fontSize(9).fillColor('#475569').text(`Emitida el ${formatDate(order.createdAt)}`, 42, 107);
 
-    addSectionTitle(doc, '1. Datos generales de la orden');
-    addKeyValue(doc, 'Codigo', order.code);
+    addSectionTitle(doc, '1. Datos generales');
+    addKeyValue(doc, 'Código', order.code);
     addKeyValue(doc, 'Tipo', order.type);
     addKeyValue(doc, 'Estado', order.status);
     addKeyValue(doc, 'Fecha programada', formatDate(order.scheduledDate));
     addKeyValue(doc, 'Inicio', formatDate(order.startedAt));
-    addKeyValue(doc, 'Finalizacion', formatDate(order.completedAt));
-    addKeyValue(doc, 'Creacion', formatDate(order.createdAt));
+    addKeyValue(doc, 'Finalización', formatDate(order.completedAt));
+    addKeyValue(doc, 'Creación', formatDate(order.createdAt));
 
     addSectionTitle(doc, '2. Equipo');
-    addKeyValue(doc, 'Codigo interno', order.equipment?.internalCode);
+    addKeyValue(doc, 'Código interno', order.equipment?.internalCode);
     addKeyValue(doc, 'Nombre', order.equipment?.name);
     addKeyValue(doc, 'Marca', order.equipment?.brand);
     addKeyValue(doc, 'Modelo', order.equipment?.model);
@@ -209,103 +215,58 @@ export async function buildMaintenanceOrderPdf({
     addKeyValue(doc, 'Riesgo', order.equipment?.riskLevel);
     addKeyValue(doc, 'Estado actual', order.equipment?.status);
 
-    addSectionTitle(doc, '3. Ubicacion');
+    addSectionTitle(doc, '3. Ubicación');
     addKeyValue(doc, 'Empresa', order.equipment?.company?.name);
     addKeyValue(doc, 'NIT', order.equipment?.company?.nit);
     addKeyValue(doc, 'Sede', order.equipment?.site?.name);
     addKeyValue(doc, 'Ciudad', order.equipment?.site?.city);
-    addKeyValue(doc, 'Area', order.equipment?.area?.name);
+    addKeyValue(doc, 'Área', order.equipment?.area?.name);
     addKeyValue(doc, 'Piso', order.equipment?.area?.floor);
 
     addSectionTitle(doc, '4. Responsables');
-    addKeyValue(doc, 'Tecnico asignado', order.assignedTo?.name);
-    addKeyValue(doc, 'Email tecnico', order.assignedTo?.email);
+    addKeyValue(doc, 'Técnico asignado', order.assignedTo?.name);
+    addKeyValue(doc, 'Email técnico', order.assignedTo?.email);
     addKeyValue(doc, 'Creado por', order.createdBy?.name);
     addKeyValue(doc, 'Email creador', order.createdBy?.email);
 
-    addSectionTitle(doc, '5. Descripcion');
-    addParagraph(doc, 'Descripcion inicial', order.description);
+    addSectionTitle(doc, '5. Descripción');
+    addParagraph(doc, 'Descripción inicial', order.description);
 
     addSectionTitle(doc, '6. Checklist');
     if (order.tasks.length === 0) {
-      doc
-        .font('Helvetica')
-        .fontSize(9)
-        .fillColor('#64748b')
-        .text('Esta orden no tiene tareas registradas.');
+      doc.font('Helvetica').fontSize(9).fillColor('#64748b').text('Esta orden no tiene tareas registradas.');
     } else {
       order.tasks.forEach((task, index) => {
-        const mark = task.isCompleted ? '[x]' : '[ ]';
-
-        doc
-          .font('Helvetica-Bold')
-          .fontSize(9)
-          .fillColor('#0f172a')
-          .text(`${index + 1}. ${mark} ${task.title}`);
-
-        if (task.description) {
-          doc
-            .font('Helvetica')
-            .fontSize(8)
-            .fillColor('#475569')
-            .text(task.description, {
-              indent: 18,
-            });
-        }
-
-        doc.moveDown(0.35);
+        addChecklistItem(doc, index + 1, task);
       });
     }
 
-    addSectionTitle(doc, '7. Cierre tecnico');
-    addParagraph(doc, 'Diagnostico', order.diagnosis);
+    addSectionTitle(doc, '7. Cierre técnico');
+    addParagraph(doc, 'Diagnóstico', order.diagnosis);
     addParagraph(doc, 'Acciones realizadas', order.actionsPerformed);
     addParagraph(doc, 'Recomendaciones', order.recommendations);
     addKeyValue(doc, 'Estado final del equipo', order.finalEquipmentStatus);
 
-    addSectionTitle(doc, '8. Firma');
-    doc.moveDown(1.5);
-    doc
-      .moveTo(40, doc.y)
-      .lineTo(260, doc.y)
-      .strokeColor('#0f172a')
-      .stroke();
+    addSectionTitle(doc, '8. Firmas');
+    doc.moveDown(0.8);
+    doc.moveTo(48, doc.y).lineTo(250, doc.y).strokeColor('#0f172a').stroke();
+    doc.font('Helvetica').fontSize(9).fillColor('#334155').text('Firma técnico responsable', 48, doc.y + 7);
 
-    doc
-      .font('Helvetica')
-      .fontSize(9)
-      .fillColor('#334155')
-      .text('Firma tecnico responsable', 40, doc.y + 6);
-
-    doc
-      .moveTo(330, doc.y - 6)
-      .lineTo(555, doc.y - 6)
-      .strokeColor('#0f172a')
-      .stroke();
-
-    doc
-      .font('Helvetica')
-      .fontSize(9)
-      .fillColor('#334155')
-      .text('Firma recibido / responsable area', 330, doc.y + 6);
+    doc.moveTo(320, doc.y - 7).lineTo(552, doc.y - 7).strokeColor('#0f172a').stroke();
+    doc.font('Helvetica').fontSize(9).fillColor('#334155').text('Firma recibido / responsable área', 320, doc.y + 7);
 
     const range = doc.bufferedPageRange();
-
     for (let i = range.start; i < range.start + range.count; i += 1) {
       doc.switchToPage(i);
-      doc
-        .font('Helvetica')
-        .fontSize(8)
-        .fillColor('#64748b')
-        .text(
-          `Pagina ${i + 1} de ${range.count} - Generado por Biomed Maintenance Platform`,
-          40,
-          doc.page.height - 32,
-          {
-            width: doc.page.width - 80,
-            align: 'center',
-          },
-        );
+      doc.font('Helvetica').fontSize(8).fillColor('#64748b').text(
+        `Página ${i + 1} de ${range.count} - Generado por BioMed Control`,
+        40,
+        doc.page.height - 32,
+        {
+          width: doc.page.width - 80,
+          align: 'center',
+        },
+      );
     }
 
     doc.end();

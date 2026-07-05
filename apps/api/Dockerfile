@@ -24,7 +24,8 @@ FROM deps AS build
 
 COPY . .
 
-RUN pnpm --filter @biomed/api build
+RUN pnpm --filter @biomed/shared build \
+ && pnpm --filter @biomed/api build
 
 FROM base AS runner
 
@@ -37,6 +38,7 @@ COPY --from=build /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=build /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/api ./apps/api
+COPY --from=build /app/packages ./packages
 
 EXPOSE 3000
 

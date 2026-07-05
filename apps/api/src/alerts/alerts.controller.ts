@@ -6,7 +6,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { AlertsService } from './alerts.service';
 import { QueryAlertsSummaryDto } from './dto/query-alerts-summary.dto';
 

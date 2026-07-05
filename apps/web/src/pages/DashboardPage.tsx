@@ -89,6 +89,7 @@ interface DashboardCardProps {
   description: string;
   icon: typeof Activity;
   tone?: 'default' | 'warning' | 'danger' | 'success';
+  href?: string;
 }
 
 const cardToneClassName: Record<
@@ -107,9 +108,10 @@ function DashboardCard({
   description,
   icon: Icon,
   tone = 'default',
+  href,
 }: DashboardCardProps) {
-  return (
-    <article className="stitch-card group relative overflow-hidden p-5 transition-all hover:border-[var(--stitch-primary)]">
+  const content = (
+    <article className="stitch-card group relative overflow-hidden p-5 transition-all duration-200 hover:-translate-y-1 hover:border-[var(--stitch-primary)] hover:shadow-lg focus-within:border-[var(--stitch-primary)] focus-within:outline-none">
       <div className="absolute -bottom-8 -right-8 opacity-[0.04] transition-opacity group-hover:opacity-[0.08]">
         <Icon size={112} />
       </div>
@@ -130,6 +132,16 @@ function DashboardCard({
         </div>
       </div>
     </article>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link to={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--stitch-primary)] focus-visible:ring-offset-2">
+      {content}
+    </Link>
   );
 }
 
@@ -374,6 +386,7 @@ function CompanyDashboard() {
           description={`Ventana: ${alerts?.windowDays ?? 30} días`}
           icon={ShieldAlert}
           tone={alertCounts.total > 0 ? 'warning' : 'success'}
+          href="/reports"
         />
 
         <DashboardCard
@@ -382,6 +395,7 @@ function CompanyDashboard() {
           description="Vencidas + fuera de servicio"
           icon={AlertTriangle}
           tone={criticalAlerts > 0 ? 'danger' : 'success'}
+          href="/reports"
         />
 
         <DashboardCard
@@ -390,6 +404,7 @@ function CompanyDashboard() {
           description={`${alertCounts.upcomingOrders} próximas`}
           icon={CalendarClock}
           tone={alertCounts.overdueOrders > 0 ? 'danger' : 'success'}
+          href="/maintenance-orders"
         />
 
         <DashboardCard
@@ -400,6 +415,7 @@ function CompanyDashboard() {
           tone={
             alertCounts.warrantyExpiringEquipment > 0 ? 'warning' : 'success'
           }
+          href="/equipment"
         />
       </div>
 
@@ -409,6 +425,7 @@ function CompanyDashboard() {
           value={totalEquipment}
           description={`${activeEquipment} activos`}
           icon={MonitorCog}
+          href="/equipment"
         />
 
         <DashboardCard
@@ -423,6 +440,7 @@ function CompanyDashboard() {
                 ? 'warning'
                 : 'default'
           }
+          href="/equipment"
         />
 
         <DashboardCard
@@ -431,6 +449,7 @@ function CompanyDashboard() {
           description={`${pendingOrders} pendientes · ${inProgressOrders} en progreso`}
           icon={ClipboardList}
           tone={openOrders > 0 ? 'warning' : 'success'}
+          href="/maintenance-orders"
         />
 
         <DashboardCard
@@ -439,6 +458,7 @@ function CompanyDashboard() {
           description="Total histórico registrado"
           icon={ClipboardCheck}
           tone="success"
+          href="/maintenance-orders"
         />
       </div>
 
@@ -448,6 +468,7 @@ function CompanyDashboard() {
           value={auditLogs.length}
           description="Últimos 100 eventos consultados"
           icon={ShieldCheck}
+          href="/audit-logs"
         />
 
         <DashboardCard
@@ -455,6 +476,7 @@ function CompanyDashboard() {
           value={auditMetrics.exportsCount}
           description="CSV, Excel y PDF"
           icon={FileDown}
+          href="/reports"
         />
 
         <DashboardCard
@@ -462,6 +484,7 @@ function CompanyDashboard() {
           value={auditMetrics.attachmentEvents}
           description="Subidas y eliminaciones"
           icon={Paperclip}
+          href="/maintenance-orders"
         />
 
         <DashboardCard
@@ -469,6 +492,7 @@ function CompanyDashboard() {
           value={auditMetrics.equipmentEvents + auditMetrics.maintenanceEvents}
           description="Equipos + órdenes auditadas"
           icon={Activity}
+          href="/audit-logs"
         />
       </div>
 

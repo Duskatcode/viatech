@@ -214,9 +214,9 @@ export type CompanyWhereInput = {
   isActive?: Prisma.BoolFilter<"Company"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
-  users?: Prisma.UserListRelationFilter
-  sites?: Prisma.SiteListRelationFilter
   equipment?: Prisma.EquipmentListRelationFilter
+  sites?: Prisma.SiteListRelationFilter
+  users?: Prisma.UserListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -229,9 +229,9 @@ export type CompanyOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  users?: Prisma.UserOrderByRelationAggregateInput
-  sites?: Prisma.SiteOrderByRelationAggregateInput
   equipment?: Prisma.EquipmentOrderByRelationAggregateInput
+  sites?: Prisma.SiteOrderByRelationAggregateInput
+  users?: Prisma.UserOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -247,9 +247,9 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"Company"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
-  users?: Prisma.UserListRelationFilter
-  sites?: Prisma.SiteListRelationFilter
   equipment?: Prisma.EquipmentListRelationFilter
+  sites?: Prisma.SiteListRelationFilter
+  users?: Prisma.UserListRelationFilter
 }, "id" | "nit">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -292,9 +292,9 @@ export type CompanyCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
-  sites?: Prisma.SiteCreateNestedManyWithoutCompanyInput
   equipment?: Prisma.EquipmentCreateNestedManyWithoutCompanyInput
+  sites?: Prisma.SiteCreateNestedManyWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -307,9 +307,9 @@ export type CompanyUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
-  sites?: Prisma.SiteUncheckedCreateNestedManyWithoutCompanyInput
   equipment?: Prisma.EquipmentUncheckedCreateNestedManyWithoutCompanyInput
+  sites?: Prisma.SiteUncheckedCreateNestedManyWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -322,9 +322,9 @@ export type CompanyUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
-  sites?: Prisma.SiteUpdateManyWithoutCompanyNestedInput
   equipment?: Prisma.EquipmentUpdateManyWithoutCompanyNestedInput
+  sites?: Prisma.SiteUpdateManyWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -337,9 +337,9 @@ export type CompanyUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
-  sites?: Prisma.SiteUncheckedUpdateManyWithoutCompanyNestedInput
   equipment?: Prisma.EquipmentUncheckedUpdateManyWithoutCompanyNestedInput
+  sites?: Prisma.SiteUncheckedUpdateManyWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -478,8 +478,8 @@ export type CompanyCreateWithoutUsersInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  sites?: Prisma.SiteCreateNestedManyWithoutCompanyInput
   equipment?: Prisma.EquipmentCreateNestedManyWithoutCompanyInput
+  sites?: Prisma.SiteCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -492,8 +492,8 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  sites?: Prisma.SiteUncheckedCreateNestedManyWithoutCompanyInput
   equipment?: Prisma.EquipmentUncheckedCreateNestedManyWithoutCompanyInput
+  sites?: Prisma.SiteUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -522,8 +522,8 @@ export type CompanyUpdateWithoutUsersInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sites?: Prisma.SiteUpdateManyWithoutCompanyNestedInput
   equipment?: Prisma.EquipmentUpdateManyWithoutCompanyNestedInput
+  sites?: Prisma.SiteUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -536,8 +536,8 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sites?: Prisma.SiteUncheckedUpdateManyWithoutCompanyNestedInput
   equipment?: Prisma.EquipmentUncheckedUpdateManyWithoutCompanyNestedInput
+  sites?: Prisma.SiteUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutSitesInput = {
@@ -550,8 +550,8 @@ export type CompanyCreateWithoutSitesInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   equipment?: Prisma.EquipmentCreateNestedManyWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutSitesInput = {
@@ -564,8 +564,8 @@ export type CompanyUncheckedCreateWithoutSitesInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   equipment?: Prisma.EquipmentUncheckedCreateNestedManyWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutSitesInput = {
@@ -594,8 +594,8 @@ export type CompanyUpdateWithoutSitesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   equipment?: Prisma.EquipmentUpdateManyWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutSitesInput = {
@@ -608,8 +608,8 @@ export type CompanyUncheckedUpdateWithoutSitesInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   equipment?: Prisma.EquipmentUncheckedUpdateManyWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutEquipmentInput = {
@@ -622,8 +622,8 @@ export type CompanyCreateWithoutEquipmentInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   sites?: Prisma.SiteCreateNestedManyWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutEquipmentInput = {
@@ -636,8 +636,8 @@ export type CompanyUncheckedCreateWithoutEquipmentInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   sites?: Prisma.SiteUncheckedCreateNestedManyWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutEquipmentInput = {
@@ -666,8 +666,8 @@ export type CompanyUpdateWithoutEquipmentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   sites?: Prisma.SiteUpdateManyWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutEquipmentInput = {
@@ -680,8 +680,8 @@ export type CompanyUncheckedUpdateWithoutEquipmentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   sites?: Prisma.SiteUncheckedUpdateManyWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -690,15 +690,15 @@ export type CompanyUncheckedUpdateWithoutEquipmentInput = {
  */
 
 export type CompanyCountOutputType = {
-  users: number
-  sites: number
   equipment: number
+  sites: number
+  users: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  users?: boolean | CompanyCountOutputTypeCountUsersArgs
-  sites?: boolean | CompanyCountOutputTypeCountSitesArgs
   equipment?: boolean | CompanyCountOutputTypeCountEquipmentArgs
+  sites?: boolean | CompanyCountOutputTypeCountSitesArgs
+  users?: boolean | CompanyCountOutputTypeCountUsersArgs
 }
 
 /**
@@ -714,8 +714,8 @@ export type CompanyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * CompanyCountOutputType without action
  */
-export type CompanyCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserWhereInput
+export type CompanyCountOutputTypeCountEquipmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EquipmentWhereInput
 }
 
 /**
@@ -728,8 +728,8 @@ export type CompanyCountOutputTypeCountSitesArgs<ExtArgs extends runtime.Types.E
 /**
  * CompanyCountOutputType without action
  */
-export type CompanyCountOutputTypeCountEquipmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EquipmentWhereInput
+export type CompanyCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
 }
 
 
@@ -743,9 +743,9 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  users?: boolean | Prisma.Company$usersArgs<ExtArgs>
-  sites?: boolean | Prisma.Company$sitesArgs<ExtArgs>
   equipment?: boolean | Prisma.Company$equipmentArgs<ExtArgs>
+  sites?: boolean | Prisma.Company$sitesArgs<ExtArgs>
+  users?: boolean | Prisma.Company$usersArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -787,9 +787,9 @@ export type CompanySelectScalar = {
 
 export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "nit" | "phone" | "email" | "address" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  users?: boolean | Prisma.Company$usersArgs<ExtArgs>
-  sites?: boolean | Prisma.Company$sitesArgs<ExtArgs>
   equipment?: boolean | Prisma.Company$equipmentArgs<ExtArgs>
+  sites?: boolean | Prisma.Company$sitesArgs<ExtArgs>
+  users?: boolean | Prisma.Company$usersArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -798,9 +798,9 @@ export type CompanyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Company"
   objects: {
-    users: Prisma.$UserPayload<ExtArgs>[]
-    sites: Prisma.$SitePayload<ExtArgs>[]
     equipment: Prisma.$EquipmentPayload<ExtArgs>[]
+    sites: Prisma.$SitePayload<ExtArgs>[]
+    users: Prisma.$UserPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1206,9 +1206,9 @@ readonly fields: CompanyFieldRefs;
  */
 export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  users<T extends Prisma.Company$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  sites<T extends Prisma.Company$sitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$sitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   equipment<T extends Prisma.Company$equipmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$equipmentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EquipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sites<T extends Prisma.Company$sitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$sitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  users<T extends Prisma.Company$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1640,27 +1640,27 @@ export type CompanyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Company.users
+ * Company.equipment
  */
-export type Company$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Company$equipmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the Equipment
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.EquipmentSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the Equipment
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.EquipmentOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
-  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
-  cursor?: Prisma.UserWhereUniqueInput
+  include?: Prisma.EquipmentInclude<ExtArgs> | null
+  where?: Prisma.EquipmentWhereInput
+  orderBy?: Prisma.EquipmentOrderByWithRelationInput | Prisma.EquipmentOrderByWithRelationInput[]
+  cursor?: Prisma.EquipmentWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
+  distinct?: Prisma.EquipmentScalarFieldEnum | Prisma.EquipmentScalarFieldEnum[]
 }
 
 /**
@@ -1688,27 +1688,27 @@ export type Company$sitesArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Company.equipment
+ * Company.users
  */
-export type Company$equipmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Company$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Equipment
+   * Select specific fields to fetch from the User
    */
-  select?: Prisma.EquipmentSelect<ExtArgs> | null
+  select?: Prisma.UserSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Equipment
+   * Omit specific fields from the User
    */
-  omit?: Prisma.EquipmentOmit<ExtArgs> | null
+  omit?: Prisma.UserOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.EquipmentInclude<ExtArgs> | null
-  where?: Prisma.EquipmentWhereInput
-  orderBy?: Prisma.EquipmentOrderByWithRelationInput | Prisma.EquipmentOrderByWithRelationInput[]
-  cursor?: Prisma.EquipmentWhereUniqueInput
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.EquipmentScalarFieldEnum | Prisma.EquipmentScalarFieldEnum[]
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
 }
 
 /**

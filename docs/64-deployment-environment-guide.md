@@ -156,10 +156,10 @@ The domains and credentials above are placeholders.
 From the repository root:
 
 ```bash
-pnpm --filter @biomed/api exec prisma generate
-pnpm --filter @biomed/api build
-pnpm --filter @biomed/api exec prisma migrate deploy
-pnpm --filter @biomed/api start:prod
+pnpm --filter @vitatech/api exec prisma generate
+pnpm --filter @vitatech/api build
+pnpm --filter @vitatech/api exec prisma migrate deploy
+pnpm --filter @vitatech/api start:prod
 ```
 
 Run migrations as a release or pre-deploy job before starting new API
@@ -172,7 +172,7 @@ startup. The operator must first verify that `DATABASE_URL` targets the
 dedicated demo database, then run:
 
 ```bash
-pnpm --filter @biomed/api run prisma:seed
+pnpm --filter @vitatech/api run prisma:seed
 ```
 
 Production deployments must omit this step. A future deployment pipeline may

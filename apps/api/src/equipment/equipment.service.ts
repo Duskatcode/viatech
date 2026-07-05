@@ -14,7 +14,7 @@ import {
   EquipmentStatus,
   Prisma,
 } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { QueryEquipmentDto } from './dto/query-equipment.dto';
 import { UpdateEquipmentStatusDto } from './dto/update-equipment-status.dto';

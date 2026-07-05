@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 
 export const ROLES_KEY = 'roles';
 

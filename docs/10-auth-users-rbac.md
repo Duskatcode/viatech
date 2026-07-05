@@ -31,7 +31,7 @@ GET  /api/v1/users/me
 GET  /api/v1/users
 GET  /api/v1/users/:id
 Usuario demo
-email: admin@biomed.local
+email: admin@vitatech.local
 password: Admin12345!
 Roles iniciales
 SUPER_ADMIN

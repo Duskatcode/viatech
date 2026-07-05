@@ -37,7 +37,7 @@ inputs
 
 Validación:
 
-pnpm --filter @biomed/web build
+pnpm --filter @vitatech/web build
 pnpm check:phase38
 Fase 41 — Login + Dashboard parity
 

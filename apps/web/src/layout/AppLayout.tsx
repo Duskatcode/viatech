@@ -4,6 +4,7 @@ import {
   Bell,
   Building2,
   ClipboardList,
+  FileText,
   HelpCircle,
   LayoutDashboard,
   LogOut,
@@ -12,10 +13,17 @@ import {
   Stethoscope,
   UsersRound,
   Wrench,
+  CircleQuestionMark,
+  LifeBuoy,
+  Keyboard,
+  BookOpen,
+  ChevronRight,
+  CheckCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
 import { organizationService } from '../services/organization.service';
@@ -81,6 +89,10 @@ function getInitials(name?: string | null, email?: string | null) {
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const companyQuery = useQuery({
     queryKey: ['layout-company', user?.companyId],
     queryFn: organizationService.companies,
@@ -94,6 +106,73 @@ export function AppLayout() {
     user?.role === 'SUPER_ADMIN'
       ? 'Resumen general de todas las empresas'
       : 'Plataforma de mantenimiento biomédico';
+
+  const recentNotifications = useMemo(
+    () => [
+      {
+        id: '1',
+        title: 'Orden próxima a vencer',
+        description: 'ORD-204 vence hoy a las 14:00.',
+        read: false,
+      },
+      {
+        id: '2',
+        title: 'Equipo fuera de servicio',
+        description: 'EQ-104 requiere intervención técnica.',
+        read: true,
+      },
+    ],
+    [],
+  );
+
+  const helpItems = [
+    { label: 'Manual', icon: BookOpen, description: 'Guía operativa de uso' },
+    { label: 'Documentación', icon: FileText, description: 'Procedimientos institucionales' },
+    { label: 'Soporte', icon: LifeBuoy, description: 'Contacto con el equipo de soporte' },
+    { label: 'Atajos', icon: Keyboard, description: 'Teclas rápidas del sistema' },
+  ];
+
+  const filteredResults = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) {
+      return [];
+    }
+
+    const items = [
+      {
+        id: 'equipment-1',
+        label: 'Equipos',
+        title: 'Bomba de Infusión',
+        description: 'EQ-104 · UTI · En mantenimiento',
+        path: '/equipment',
+      },
+      {
+        id: 'orders-1',
+        label: 'Órdenes',
+        title: 'ORD-204',
+        description: 'Mantenimiento preventivo · Pendiente',
+        path: '/maintenance-orders',
+      },
+      {
+        id: 'reports-1',
+        label: 'Reportes',
+        title: 'Reporte mensual',
+        description: 'Exportación consolidada · Disponible',
+        path: '/reports',
+      },
+    ];
+
+    return items.filter((item) => {
+      const haystack = `${item.title} ${item.description} ${item.label}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [searchQuery]);
+
+  function handleSelectSearch(path: string) {
+    setSearchQuery('');
+    navigate(path);
+  }
 
   return (
     <div className="stitch-app-shell">
@@ -185,33 +264,135 @@ export function AppLayout() {
 
             <div className="hidden h-8 w-px bg-[var(--stitch-outline-variant)] lg:block" />
 
-            <label className="hidden items-center gap-2 rounded-lg border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] px-3 py-2 lg:flex">
-              <Search size={17} className="text-[var(--stitch-outline)]" />
-              <input
-                className="w-72 border-0 bg-transparent p-0 text-sm text-[var(--stitch-on-surface)] placeholder:text-[var(--stitch-outline)] focus:ring-0"
-                placeholder="Buscar equipos, órdenes o reportes..."
-                type="search"
-              />
-            </label>
+            <div className="relative hidden lg:block">
+              <label className="flex items-center gap-2 rounded-lg border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] px-3 py-2">
+                <Search size={17} className="text-[var(--stitch-outline)]" />
+                <input
+                  className="w-72 border-0 bg-transparent p-0 text-sm text-[var(--stitch-on-surface)] placeholder:text-[var(--stitch-outline)] focus:outline-none focus:ring-0"
+                  placeholder="Buscar equipos, órdenes o reportes..."
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  aria-label="Buscar equipos, órdenes o reportes"
+                />
+              </label>
+
+              {searchQuery.trim() ? (
+                <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-2 shadow-xl">
+                  {filteredResults.length > 0 ? (
+                    filteredResults.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => handleSelectSearch(item.path)}
+                        className="flex w-full items-start justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-[var(--stitch-surface-low)]"
+                      >
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">{item.title}</p>
+                          <p className="mt-1 text-xs text-[var(--stitch-on-surface-variant)]">{item.description}</p>
+                        </div>
+                        <span className="rounded-full bg-[rgb(0_63_135_/_0.08)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--stitch-primary)]">
+                          {item.label}
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="rounded-xl bg-[var(--stitch-surface-low)] px-3 py-4 text-sm text-[var(--stitch-on-surface-variant)]">
+                      No hay coincidencias para esta búsqueda.
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-[var(--stitch-on-surface-variant)] transition-colors hover:bg-[var(--stitch-surface-container)] hover:text-[var(--stitch-primary)]"
-              aria-label="Notificaciones"
-            >
-              <Bell size={19} />
-              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[var(--stitch-error)]" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                className="relative flex h-10 w-10 items-center justify-center rounded-full text-[var(--stitch-on-surface-variant)] transition-colors hover:bg-[var(--stitch-surface-container)] hover:text-[var(--stitch-primary)]"
+                aria-label="Notificaciones"
+                aria-expanded={showNotifications}
+                onClick={() => setShowNotifications((current) => !current)}
+              >
+                <Bell size={19} />
+                <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--stitch-error)] text-[10px] font-bold text-white">
+                  {recentNotifications.filter((item) => !item.read).length}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--stitch-on-surface-variant)] transition-colors hover:bg-[var(--stitch-surface-container)] hover:text-[var(--stitch-primary)]"
-              aria-label="Ayuda"
-            >
-              <HelpCircle size={19} />
-            </button>
+              {showNotifications ? (
+                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[320px] rounded-2xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-3 shadow-xl">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">Notificaciones recientes</p>
+                    <span className="text-xs text-[var(--stitch-outline)]">{recentNotifications.filter((item) => !item.read).length} nuevas</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {recentNotifications.map((notification) => (
+                      <button
+                        key={notification.id}
+                        type="button"
+                        className="flex w-full items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 text-left transition hover:border-[var(--stitch-outline-variant)] hover:bg-[var(--stitch-surface-low)]"
+                      >
+                        <div className={`mt-0.5 h-2.5 w-2.5 rounded-full ${notification.read ? 'bg-[var(--stitch-outline)]' : 'bg-[var(--stitch-primary)]'}`} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">{notification.title}</p>
+                          <p className="mt-1 text-xs text-[var(--stitch-on-surface-variant)]">{notification.description}</p>
+                        </div>
+                        {!notification.read ? <CheckCheck size={16} className="text-[var(--stitch-primary)]" /> : null}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="relative">
+              <button
+                type="button"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--stitch-on-surface-variant)] transition-colors hover:bg-[var(--stitch-surface-container)] hover:text-[var(--stitch-primary)]"
+                aria-label="Ayuda"
+                aria-expanded={showHelp}
+                onClick={() => setShowHelp((current) => !current)}
+              >
+                <HelpCircle size={19} />
+              </button>
+
+              {showHelp ? (
+                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[260px] rounded-2xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-3 shadow-xl">
+                  <div className="mb-2 flex items-center gap-2">
+                    <CircleQuestionMark size={16} className="text-[var(--stitch-primary)]" />
+                    <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">Ayuda institucional</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    {helpItems.map((item) => {
+                      const Icon = item.icon;
+
+                      return (
+                        <button
+                          key={item.label}
+                          type="button"
+                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition hover:bg-[var(--stitch-surface-low)]"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Icon size={16} className="text-[var(--stitch-primary)]" />
+                            <span className="text-sm text-[var(--stitch-on-surface)]">{item.label}</span>
+                          </span>
+                          <ChevronRight size={16} className="text-[var(--stitch-outline)]" />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-3 rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] px-3 py-2 text-xs text-[var(--stitch-on-surface-variant)]">
+                    <p className="font-semibold text-[var(--stitch-on-surface)]">Versión del sistema</p>
+                    <p className="mt-1">BioMed Control v0.2.0 · Modo institucional</p>
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
             <div className="mx-2 hidden h-8 w-px bg-[var(--stitch-outline-variant)] sm:block" />
 

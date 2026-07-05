@@ -21,7 +21,7 @@ web: http://localhost:8081
 api: http://localhost:3001/api/v1
 db:  localhost:5434
 Credenciales demo
-Email: admin@biomed.local
+Email: admin@vitatech.local
 Password: Admin12345!
 Flujos funcionales mínimos
 Login

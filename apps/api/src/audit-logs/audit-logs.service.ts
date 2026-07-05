@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { QueryAuditLogsDto } from './dto/query-audit-logs.dto';
 
 interface CreateAuditLogInput {

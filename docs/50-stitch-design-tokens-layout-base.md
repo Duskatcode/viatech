@@ -37,6 +37,6 @@ Topbar clara.
 Cards/tablas/badges con estilo base común.
 Pantallas existentes siguen funcionando.
 Validación
-pnpm --filter @biomed/web build
+pnpm --filter @vitatech/web build
 pnpm check:phase39
 

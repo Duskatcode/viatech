@@ -6,7 +6,7 @@ import {
 
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 

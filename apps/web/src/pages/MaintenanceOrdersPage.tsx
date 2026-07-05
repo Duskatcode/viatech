@@ -24,7 +24,7 @@ import { FilterBar } from '../ui/FilterBar';
 import { PageHeader } from '../ui/PageHeader';
 import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { StatusPill } from '../ui/StatusPill';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 
 const statusOptions: Array<MaintenanceStatus | ''> = [
   '',

@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 
 export class UpdateUserDto {
   @ApiPropertyOptional()

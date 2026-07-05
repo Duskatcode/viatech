@@ -1,5 +1,5 @@
 {
-  "name": "@biomed/api",
+  "name": "@vitatech/api",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -27,7 +27,7 @@
     "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@biomed/shared": "workspace:*",
+    "@vitatech/shared": "workspace:*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",

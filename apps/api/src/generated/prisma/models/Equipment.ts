@@ -286,11 +286,11 @@ export type EquipmentWhereInput = {
   areaId?: Prisma.StringFilter<"Equipment"> | string
   createdAt?: Prisma.DateTimeFilter<"Equipment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Equipment"> | Date | string
+  attachments?: Prisma.AttachmentListRelationFilter
+  area?: Prisma.XOR<Prisma.AreaScalarRelationFilter, Prisma.AreaWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   site?: Prisma.XOR<Prisma.SiteScalarRelationFilter, Prisma.SiteWhereInput>
-  area?: Prisma.XOR<Prisma.AreaScalarRelationFilter, Prisma.AreaWhereInput>
   maintenanceOrders?: Prisma.MaintenanceOrderListRelationFilter
-  attachments?: Prisma.AttachmentListRelationFilter
 }
 
 export type EquipmentOrderByWithRelationInput = {
@@ -312,11 +312,11 @@ export type EquipmentOrderByWithRelationInput = {
   areaId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  attachments?: Prisma.AttachmentOrderByRelationAggregateInput
+  area?: Prisma.AreaOrderByWithRelationInput
   company?: Prisma.CompanyOrderByWithRelationInput
   site?: Prisma.SiteOrderByWithRelationInput
-  area?: Prisma.AreaOrderByWithRelationInput
   maintenanceOrders?: Prisma.MaintenanceOrderOrderByRelationAggregateInput
-  attachments?: Prisma.AttachmentOrderByRelationAggregateInput
 }
 
 export type EquipmentWhereUniqueInput = Prisma.AtLeast<{
@@ -342,11 +342,11 @@ export type EquipmentWhereUniqueInput = Prisma.AtLeast<{
   areaId?: Prisma.StringFilter<"Equipment"> | string
   createdAt?: Prisma.DateTimeFilter<"Equipment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Equipment"> | Date | string
+  attachments?: Prisma.AttachmentListRelationFilter
+  area?: Prisma.XOR<Prisma.AreaScalarRelationFilter, Prisma.AreaWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   site?: Prisma.XOR<Prisma.SiteScalarRelationFilter, Prisma.SiteWhereInput>
-  area?: Prisma.XOR<Prisma.AreaScalarRelationFilter, Prisma.AreaWhereInput>
   maintenanceOrders?: Prisma.MaintenanceOrderListRelationFilter
-  attachments?: Prisma.AttachmentListRelationFilter
 }, "id" | "companyId_internalCode">
 
 export type EquipmentOrderByWithAggregationInput = {
@@ -413,11 +413,11 @@ export type EquipmentCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
+  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
   company: Prisma.CompanyCreateNestedOneWithoutEquipmentInput
   site: Prisma.SiteCreateNestedOneWithoutEquipmentInput
-  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
   maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
-  attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentUncheckedCreateInput = {
@@ -439,8 +439,8 @@ export type EquipmentUncheckedCreateInput = {
   areaId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutEquipmentInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentUpdateInput = {
@@ -459,11 +459,11 @@ export type EquipmentUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
+  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutEquipmentNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutEquipmentNestedInput
-  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
   maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
-  attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateInput = {
@@ -485,8 +485,8 @@ export type EquipmentUncheckedUpdateInput = {
   areaId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutEquipmentNestedInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentCreateManyInput = {
@@ -817,10 +817,10 @@ export type EquipmentCreateWithoutCompanyInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  site: Prisma.SiteCreateNestedOneWithoutEquipmentInput
-  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
-  maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
   attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
+  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
+  site: Prisma.SiteCreateNestedOneWithoutEquipmentInput
+  maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentUncheckedCreateWithoutCompanyInput = {
@@ -841,8 +841,8 @@ export type EquipmentUncheckedCreateWithoutCompanyInput = {
   areaId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutEquipmentInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentCreateOrConnectWithoutCompanyInput = {
@@ -911,10 +911,10 @@ export type EquipmentCreateWithoutSiteInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutEquipmentInput
-  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
-  maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
   attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
+  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
+  company: Prisma.CompanyCreateNestedOneWithoutEquipmentInput
+  maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentUncheckedCreateWithoutSiteInput = {
@@ -935,8 +935,8 @@ export type EquipmentUncheckedCreateWithoutSiteInput = {
   areaId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutEquipmentInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentCreateOrConnectWithoutSiteInput = {
@@ -981,10 +981,10 @@ export type EquipmentCreateWithoutAreaInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
   company: Prisma.CompanyCreateNestedOneWithoutEquipmentInput
   site: Prisma.SiteCreateNestedOneWithoutEquipmentInput
   maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
-  attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentUncheckedCreateWithoutAreaInput = {
@@ -1005,8 +1005,8 @@ export type EquipmentUncheckedCreateWithoutAreaInput = {
   siteId: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
   attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutEquipmentInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentCreateOrConnectWithoutAreaInput = {
@@ -1051,10 +1051,10 @@ export type EquipmentCreateWithoutMaintenanceOrdersInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
+  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
   company: Prisma.CompanyCreateNestedOneWithoutEquipmentInput
   site: Prisma.SiteCreateNestedOneWithoutEquipmentInput
-  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
-  attachments?: Prisma.AttachmentCreateNestedManyWithoutEquipmentInput
 }
 
 export type EquipmentUncheckedCreateWithoutMaintenanceOrdersInput = {
@@ -1111,10 +1111,10 @@ export type EquipmentUpdateWithoutMaintenanceOrdersInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
+  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutEquipmentNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutEquipmentNestedInput
-  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
-  attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateWithoutMaintenanceOrdersInput = {
@@ -1155,9 +1155,9 @@ export type EquipmentCreateWithoutAttachmentsInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
   company: Prisma.CompanyCreateNestedOneWithoutEquipmentInput
   site: Prisma.SiteCreateNestedOneWithoutEquipmentInput
-  area: Prisma.AreaCreateNestedOneWithoutEquipmentInput
   maintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutEquipmentInput
 }
 
@@ -1215,9 +1215,9 @@ export type EquipmentUpdateWithoutAttachmentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutEquipmentNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutEquipmentNestedInput
-  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
   maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
 }
 
@@ -1279,10 +1279,10 @@ export type EquipmentUpdateWithoutCompanyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  site?: Prisma.SiteUpdateOneRequiredWithoutEquipmentNestedInput
-  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
-  maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
   attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
+  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
+  site?: Prisma.SiteUpdateOneRequiredWithoutEquipmentNestedInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateWithoutCompanyInput = {
@@ -1303,8 +1303,8 @@ export type EquipmentUncheckedUpdateWithoutCompanyInput = {
   areaId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutEquipmentNestedInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateManyWithoutCompanyInput = {
@@ -1363,10 +1363,10 @@ export type EquipmentUpdateWithoutSiteInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutEquipmentNestedInput
-  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
-  maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
   attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
+  area?: Prisma.AreaUpdateOneRequiredWithoutEquipmentNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutEquipmentNestedInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateWithoutSiteInput = {
@@ -1387,8 +1387,8 @@ export type EquipmentUncheckedUpdateWithoutSiteInput = {
   areaId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutEquipmentNestedInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateManyWithoutSiteInput = {
@@ -1447,10 +1447,10 @@ export type EquipmentUpdateWithoutAreaInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutEquipmentNestedInput
   site?: Prisma.SiteUpdateOneRequiredWithoutEquipmentNestedInput
   maintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutEquipmentNestedInput
-  attachments?: Prisma.AttachmentUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateWithoutAreaInput = {
@@ -1471,8 +1471,8 @@ export type EquipmentUncheckedUpdateWithoutAreaInput = {
   siteId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
   attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutEquipmentNestedInput
+  maintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutEquipmentNestedInput
 }
 
 export type EquipmentUncheckedUpdateManyWithoutAreaInput = {
@@ -1501,13 +1501,13 @@ export type EquipmentUncheckedUpdateManyWithoutAreaInput = {
  */
 
 export type EquipmentCountOutputType = {
-  maintenanceOrders: number
   attachments: number
+  maintenanceOrders: number
 }
 
 export type EquipmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  maintenanceOrders?: boolean | EquipmentCountOutputTypeCountMaintenanceOrdersArgs
   attachments?: boolean | EquipmentCountOutputTypeCountAttachmentsArgs
+  maintenanceOrders?: boolean | EquipmentCountOutputTypeCountMaintenanceOrdersArgs
 }
 
 /**
@@ -1523,15 +1523,15 @@ export type EquipmentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
 /**
  * EquipmentCountOutputType without action
  */
-export type EquipmentCountOutputTypeCountMaintenanceOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaintenanceOrderWhereInput
+export type EquipmentCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AttachmentWhereInput
 }
 
 /**
  * EquipmentCountOutputType without action
  */
-export type EquipmentCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AttachmentWhereInput
+export type EquipmentCountOutputTypeCountMaintenanceOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MaintenanceOrderWhereInput
 }
 
 
@@ -1554,11 +1554,11 @@ export type EquipmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   areaId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  attachments?: boolean | Prisma.Equipment$attachmentsArgs<ExtArgs>
+  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   maintenanceOrders?: boolean | Prisma.Equipment$maintenanceOrdersArgs<ExtArgs>
-  attachments?: boolean | Prisma.Equipment$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.EquipmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["equipment"]>
 
@@ -1581,9 +1581,9 @@ export type EquipmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   areaId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["equipment"]>
 
 export type EquipmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1605,9 +1605,9 @@ export type EquipmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   areaId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["equipment"]>
 
 export type EquipmentSelectScalar = {
@@ -1633,32 +1633,32 @@ export type EquipmentSelectScalar = {
 
 export type EquipmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "internalCode" | "name" | "brand" | "model" | "serialNumber" | "equipmentType" | "riskLevel" | "status" | "purchaseDate" | "installationDate" | "warrantyUntil" | "notes" | "companyId" | "siteId" | "areaId" | "createdAt" | "updatedAt", ExtArgs["result"]["equipment"]>
 export type EquipmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  attachments?: boolean | Prisma.Equipment$attachmentsArgs<ExtArgs>
+  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   maintenanceOrders?: boolean | Prisma.Equipment$maintenanceOrdersArgs<ExtArgs>
-  attachments?: boolean | Prisma.Equipment$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.EquipmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EquipmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
 }
 export type EquipmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   site?: boolean | Prisma.SiteDefaultArgs<ExtArgs>
-  area?: boolean | Prisma.AreaDefaultArgs<ExtArgs>
 }
 
 export type $EquipmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Equipment"
   objects: {
+    attachments: Prisma.$AttachmentPayload<ExtArgs>[]
+    area: Prisma.$AreaPayload<ExtArgs>
     company: Prisma.$CompanyPayload<ExtArgs>
     site: Prisma.$SitePayload<ExtArgs>
-    area: Prisma.$AreaPayload<ExtArgs>
     maintenanceOrders: Prisma.$MaintenanceOrderPayload<ExtArgs>[]
-    attachments: Prisma.$AttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2073,11 +2073,11 @@ readonly fields: EquipmentFieldRefs;
  */
 export interface Prisma__EquipmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  attachments<T extends Prisma.Equipment$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipment$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  area<T extends Prisma.AreaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AreaDefaultArgs<ExtArgs>>): Prisma.Prisma__AreaClient<runtime.Types.Result.GetResult<Prisma.$AreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   site<T extends Prisma.SiteDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SiteDefaultArgs<ExtArgs>>): Prisma.Prisma__SiteClient<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  area<T extends Prisma.AreaDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AreaDefaultArgs<ExtArgs>>): Prisma.Prisma__AreaClient<runtime.Types.Result.GetResult<Prisma.$AreaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   maintenanceOrders<T extends Prisma.Equipment$maintenanceOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipment$maintenanceOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaintenanceOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  attachments<T extends Prisma.Equipment$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipment$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2526,30 +2526,6 @@ export type EquipmentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * Equipment.maintenanceOrders
- */
-export type Equipment$maintenanceOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the MaintenanceOrder
-   */
-  select?: Prisma.MaintenanceOrderSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the MaintenanceOrder
-   */
-  omit?: Prisma.MaintenanceOrderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.MaintenanceOrderInclude<ExtArgs> | null
-  where?: Prisma.MaintenanceOrderWhereInput
-  orderBy?: Prisma.MaintenanceOrderOrderByWithRelationInput | Prisma.MaintenanceOrderOrderByWithRelationInput[]
-  cursor?: Prisma.MaintenanceOrderWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.MaintenanceOrderScalarFieldEnum | Prisma.MaintenanceOrderScalarFieldEnum[]
-}
-
-/**
  * Equipment.attachments
  */
 export type Equipment$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2571,6 +2547,30 @@ export type Equipment$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.AttachmentScalarFieldEnum | Prisma.AttachmentScalarFieldEnum[]
+}
+
+/**
+ * Equipment.maintenanceOrders
+ */
+export type Equipment$maintenanceOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaintenanceOrder
+   */
+  select?: Prisma.MaintenanceOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MaintenanceOrder
+   */
+  omit?: Prisma.MaintenanceOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaintenanceOrderInclude<ExtArgs> | null
+  where?: Prisma.MaintenanceOrderWhereInput
+  orderBy?: Prisma.MaintenanceOrderOrderByWithRelationInput | Prisma.MaintenanceOrderOrderByWithRelationInput[]
+  cursor?: Prisma.MaintenanceOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MaintenanceOrderScalarFieldEnum | Prisma.MaintenanceOrderScalarFieldEnum[]
 }
 
 /**

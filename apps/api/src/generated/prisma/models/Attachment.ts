@@ -256,8 +256,8 @@ export type AttachmentWhereInput = {
   orderId?: Prisma.StringNullableFilter<"Attachment"> | string | null
   equipmentId?: Prisma.StringNullableFilter<"Attachment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Attachment"> | Date | string
-  order?: Prisma.XOR<Prisma.MaintenanceOrderNullableScalarRelationFilter, Prisma.MaintenanceOrderWhereInput> | null
   equipment?: Prisma.XOR<Prisma.EquipmentNullableScalarRelationFilter, Prisma.EquipmentWhereInput> | null
+  order?: Prisma.XOR<Prisma.MaintenanceOrderNullableScalarRelationFilter, Prisma.MaintenanceOrderWhereInput> | null
 }
 
 export type AttachmentOrderByWithRelationInput = {
@@ -271,8 +271,8 @@ export type AttachmentOrderByWithRelationInput = {
   orderId?: Prisma.SortOrderInput | Prisma.SortOrder
   equipmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  order?: Prisma.MaintenanceOrderOrderByWithRelationInput
   equipment?: Prisma.EquipmentOrderByWithRelationInput
+  order?: Prisma.MaintenanceOrderOrderByWithRelationInput
 }
 
 export type AttachmentWhereUniqueInput = Prisma.AtLeast<{
@@ -289,8 +289,8 @@ export type AttachmentWhereUniqueInput = Prisma.AtLeast<{
   orderId?: Prisma.StringNullableFilter<"Attachment"> | string | null
   equipmentId?: Prisma.StringNullableFilter<"Attachment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Attachment"> | Date | string
-  order?: Prisma.XOR<Prisma.MaintenanceOrderNullableScalarRelationFilter, Prisma.MaintenanceOrderWhereInput> | null
   equipment?: Prisma.XOR<Prisma.EquipmentNullableScalarRelationFilter, Prisma.EquipmentWhereInput> | null
+  order?: Prisma.XOR<Prisma.MaintenanceOrderNullableScalarRelationFilter, Prisma.MaintenanceOrderWhereInput> | null
 }, "id">
 
 export type AttachmentOrderByWithAggregationInput = {
@@ -336,8 +336,8 @@ export type AttachmentCreateInput = {
   size: number
   url: string
   createdAt?: Date | string
-  order?: Prisma.MaintenanceOrderCreateNestedOneWithoutAttachmentsInput
   equipment?: Prisma.EquipmentCreateNestedOneWithoutAttachmentsInput
+  order?: Prisma.MaintenanceOrderCreateNestedOneWithoutAttachmentsInput
 }
 
 export type AttachmentUncheckedCreateInput = {
@@ -362,8 +362,8 @@ export type AttachmentUpdateInput = {
   size?: Prisma.IntFieldUpdateOperationsInput | number
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  order?: Prisma.MaintenanceOrderUpdateOneWithoutAttachmentsNestedInput
   equipment?: Prisma.EquipmentUpdateOneWithoutAttachmentsNestedInput
+  order?: Prisma.MaintenanceOrderUpdateOneWithoutAttachmentsNestedInput
 }
 
 export type AttachmentUncheckedUpdateInput = {
@@ -794,8 +794,8 @@ export type AttachmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   orderId?: boolean
   equipmentId?: boolean
   createdAt?: boolean
-  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
   equipment?: boolean | Prisma.Attachment$equipmentArgs<ExtArgs>
+  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
 }, ExtArgs["result"]["attachment"]>
 
 export type AttachmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -809,8 +809,8 @@ export type AttachmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   orderId?: boolean
   equipmentId?: boolean
   createdAt?: boolean
-  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
   equipment?: boolean | Prisma.Attachment$equipmentArgs<ExtArgs>
+  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
 }, ExtArgs["result"]["attachment"]>
 
 export type AttachmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -824,8 +824,8 @@ export type AttachmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   orderId?: boolean
   equipmentId?: boolean
   createdAt?: boolean
-  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
   equipment?: boolean | Prisma.Attachment$equipmentArgs<ExtArgs>
+  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
 }, ExtArgs["result"]["attachment"]>
 
 export type AttachmentSelectScalar = {
@@ -843,23 +843,23 @@ export type AttachmentSelectScalar = {
 
 export type AttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "filename" | "originalName" | "mimeType" | "size" | "url" | "orderId" | "equipmentId" | "createdAt", ExtArgs["result"]["attachment"]>
 export type AttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
   equipment?: boolean | Prisma.Attachment$equipmentArgs<ExtArgs>
+  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
 }
 export type AttachmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
   equipment?: boolean | Prisma.Attachment$equipmentArgs<ExtArgs>
+  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
 }
 export type AttachmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
   equipment?: boolean | Prisma.Attachment$equipmentArgs<ExtArgs>
+  order?: boolean | Prisma.Attachment$orderArgs<ExtArgs>
 }
 
 export type $AttachmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Attachment"
   objects: {
-    order: Prisma.$MaintenanceOrderPayload<ExtArgs> | null
     equipment: Prisma.$EquipmentPayload<ExtArgs> | null
+    order: Prisma.$MaintenanceOrderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1266,8 +1266,8 @@ readonly fields: AttachmentFieldRefs;
  */
 export interface Prisma__AttachmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  order<T extends Prisma.Attachment$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Attachment$orderArgs<ExtArgs>>): Prisma.Prisma__MaintenanceOrderClient<runtime.Types.Result.GetResult<Prisma.$MaintenanceOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   equipment<T extends Prisma.Attachment$equipmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Attachment$equipmentArgs<ExtArgs>>): Prisma.Prisma__EquipmentClient<runtime.Types.Result.GetResult<Prisma.$EquipmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  order<T extends Prisma.Attachment$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Attachment$orderArgs<ExtArgs>>): Prisma.Prisma__MaintenanceOrderClient<runtime.Types.Result.GetResult<Prisma.$MaintenanceOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1708,25 +1708,6 @@ export type AttachmentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * Attachment.order
- */
-export type Attachment$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the MaintenanceOrder
-   */
-  select?: Prisma.MaintenanceOrderSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the MaintenanceOrder
-   */
-  omit?: Prisma.MaintenanceOrderOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.MaintenanceOrderInclude<ExtArgs> | null
-  where?: Prisma.MaintenanceOrderWhereInput
-}
-
-/**
  * Attachment.equipment
  */
 export type Attachment$equipmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1743,6 +1724,25 @@ export type Attachment$equipmentArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.EquipmentInclude<ExtArgs> | null
   where?: Prisma.EquipmentWhereInput
+}
+
+/**
+ * Attachment.order
+ */
+export type Attachment$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaintenanceOrder
+   */
+  select?: Prisma.MaintenanceOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MaintenanceOrder
+   */
+  omit?: Prisma.MaintenanceOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaintenanceOrderInclude<ExtArgs> | null
+  where?: Prisma.MaintenanceOrderWhereInput
 }
 
 /**

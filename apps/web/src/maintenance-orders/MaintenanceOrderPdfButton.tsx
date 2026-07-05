@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { getErrorMessage } from '../lib/error-message';
 import { reportsService } from '../services/reports.service';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 
 interface MaintenanceOrderPdfButtonProps {
   orderId: string;

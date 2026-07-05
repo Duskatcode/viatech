@@ -20,7 +20,7 @@ API: http://localhost:3001/api/v1
 Swagger: http://localhost:3001/api/docs
 PostgreSQL: localhost:5434
 Credenciales demo
-Email: admin@biomed.local
+Email: admin@vitatech.local
 Password: Admin12345!
 Validación
 API_BASE_URL=http://localhost:3001/api/v1 pnpm test:api:smoke

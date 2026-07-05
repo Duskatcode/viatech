@@ -23,7 +23,7 @@ import { ConfirmModal } from '../ui/ConfirmModal';
 import { FilterBar } from '../ui/FilterBar';
 import { PageHeader } from '../ui/PageHeader';
 import { ResponsiveTable } from '../ui/ResponsiveTable';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 
 const statusOptions: Array<EquipmentStatus | ''> = [
   '',

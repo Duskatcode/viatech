@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Activity, Eye, Lock, LogIn, Mail, ShieldCheck } from 'lucide-react';
+import { Activity, Eye, EyeOff, Lock, LogIn, Mail, ShieldCheck } from 'lucide-react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
 import { getErrorMessage } from '../lib/error-message';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 
 export function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@biomed.local');
+  const [email, setEmail] = useState('admin@vitatech.local');
   const [password, setPassword] = useState('Admin12345!');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -167,16 +168,20 @@ export function LoginPage() {
                     className="stitch-input py-3 pl-10 pr-11"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     autoComplete="current-password"
                     placeholder="••••••••"
                     required
                     minLength={8}
                   />
-                  <Eye
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--stitch-outline)]"
-                    size={18}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((current) => !current)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-[var(--stitch-outline)] transition hover:bg-[var(--stitch-surface-container)] hover:text-[var(--stitch-primary)]"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </label>
 

@@ -1,14 +1,8 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { CheckCircle2, Info, X, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react';
 
-type ToastType = 'success' | 'error' | 'info';
+import { ToastContext, type ToastType } from './toast-context';
 
 interface Toast {
   id: string;
@@ -17,29 +11,18 @@ interface Toast {
   description?: string;
 }
 
-interface AddToastPayload {
-  type: ToastType;
-  title: string;
-  description?: string;
-}
-
-interface ToastContextValue {
-  addToast: (toast: AddToastPayload) => void;
-  removeToast: (id: string) => void;
-}
-
-const ToastContext = createContext<ToastContextValue | undefined>(undefined);
-
 const toastStyles: Record<ToastType, string> = {
-  success: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100',
-  error: 'border-red-400/30 bg-red-400/10 text-red-100',
-  info: 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100',
+  success: 'border-emerald-700/40 bg-emerald-50 text-emerald-950 shadow-emerald-950/10',
+  error: 'border-red-700/40 bg-red-50 text-red-950 shadow-red-950/10',
+  info: 'border-cyan-700/40 bg-cyan-50 text-cyan-950 shadow-cyan-950/10',
+  warning: 'border-amber-700/40 bg-amber-50 text-amber-950 shadow-amber-950/10',
 };
 
 const icons = {
   success: CheckCircle2,
   error: XCircle,
   info: Info,
+  warning: AlertTriangle,
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -50,7 +33,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addToast = useCallback(
-    (toast: AddToastPayload) => {
+    (toast: { type: ToastType; title: string; description?: string }) => {
       const id =
         typeof crypto !== 'undefined' && 'randomUUID' in crypto
           ? crypto.randomUUID()
@@ -65,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
       window.setTimeout(() => {
         removeToast(id);
-      }, 4500);
+      }, 5000);
     },
     [removeToast],
   );
@@ -90,25 +73,28 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={toast.id}
               className={[
-                'rounded-2xl border p-4 shadow-2xl backdrop-blur',
+                'rounded-2xl border p-4 shadow-2xl backdrop-blur-sm',
                 toastStyles[toast.type],
               ].join(' ')}
             >
               <div className="flex items-start gap-3">
-                <Icon className="mt-0.5 shrink-0" size={18} />
+                <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/10">
+                  <Icon className="shrink-0" size={18} />
+                </div>
 
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">{toast.title}</p>
 
                   {toast.description ? (
-                    <p className="mt-1 text-sm opacity-80">{toast.description}</p>
+                    <p className="mt-1 text-sm leading-6 opacity-90">{toast.description}</p>
                   ) : null}
                 </div>
 
                 <button
                   type="button"
                   onClick={() => removeToast(toast.id)}
-                  className="rounded-lg p-1 opacity-70 transition hover:bg-white/10 hover:opacity-100"
+                  className="rounded-lg p-1 text-current/70 transition hover:bg-black/10 hover:text-current"
+                  aria-label="Cerrar notificación"
                 >
                   <X size={15} />
                 </button>
@@ -121,12 +107,3 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useToast() {
-  const context = useContext(ToastContext);
-
-  if (!context) {
-    throw new Error('useToast must be used inside ToastProvider');
-  }
-
-  return context;
-}

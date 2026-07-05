@@ -19,7 +19,7 @@ import {
   Prisma,
   UserRole as PrismaUserRole,
 } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { AssignMaintenanceOrderDto } from './dto/assign-maintenance-order.dto';
 import { CancelMaintenanceOrderDto } from './dto/cancel-maintenance-order.dto';
 import { CompleteMaintenanceOrderDto } from './dto/complete-maintenance-order.dto';

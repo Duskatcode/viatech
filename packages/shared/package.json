@@ -1,5 +1,5 @@
 {
-  "name": "@biomed/shared",
+  "name": "@vitatech/shared",
   "version": "0.0.1",
   "private": true,
   "description": "Contratos, tipos y constantes compartidas entre API y Web.",

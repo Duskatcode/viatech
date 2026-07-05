@@ -59,18 +59,18 @@ login falla aunque API esté arriba
 
 Solución:
 
-docker compose --env-file .env.docker exec -T api pnpm --filter @biomed/api prisma:migrate:deploy
-docker compose --env-file .env.docker exec -T api pnpm --filter @biomed/api prisma:seed
+docker compose --env-file .env.docker exec -T api pnpm --filter @vitatech/api prisma:migrate:deploy
+docker compose --env-file .env.docker exec -T api pnpm --filter @vitatech/api prisma:seed
 Smoke test falla login
 
 Validar credenciales seed:
 
-Email: admin@biomed.local
+Email: admin@vitatech.local
 Password: Admin12345!
 
 Ejecutar seed:
 
-docker compose --env-file .env.docker exec -T api pnpm --filter @biomed/api prisma:seed
+docker compose --env-file .env.docker exec -T api pnpm --filter @vitatech/api prisma:seed
 No comitear archivos locales
 
 Antes de commit:

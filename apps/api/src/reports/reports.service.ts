@@ -10,7 +10,7 @@ import {
   MaintenanceStatus,
   Prisma,
 } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { QueryEquipmentReportDto } from './dto/query-equipment-report.dto';
 import { QueryMaintenanceReportDto } from './dto/query-maintenance-report.dto';
 import { formatDate, toCsv } from './reports-csv.util';

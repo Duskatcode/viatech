@@ -1,28 +1,10 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { api } from '../lib/api';
 import { clearTokens, getAccessToken, setTokens } from '../lib/auth-storage';
 import type { AuthResponse, AuthUser, LoginPayload } from '../types/auth';
 
-interface AuthContextValue {
-  user: AuthUser | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (payload: LoginPayload) => Promise<void>;
-  logout: () => Promise<void>;
-  reloadUser: () => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined,
-);
+import { AuthContext } from './auth-context';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -53,7 +35,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   useEffect(() => {
-    void reloadUser();
+    const timeoutId = window.setTimeout(() => {
+      void reloadUser();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [reloadUser]);
 
   async function login(payload: LoginPayload) {

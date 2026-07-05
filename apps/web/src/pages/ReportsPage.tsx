@@ -18,7 +18,7 @@ import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { SectionCard } from '../ui/SectionCard';
 import { ErrorState, LoadingState } from '../ui/StateMessage';
 import { StatusPill } from '../ui/StatusPill';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 
 const equipmentStatusOptions: Array<EquipmentStatus | ''> = [
   '',

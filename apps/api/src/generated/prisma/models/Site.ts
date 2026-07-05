@@ -206,9 +206,9 @@ export type SiteWhereInput = {
   companyId?: Prisma.StringFilter<"Site"> | string
   createdAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Site"> | Date | string
-  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   areas?: Prisma.AreaListRelationFilter
   equipment?: Prisma.EquipmentListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }
 
 export type SiteOrderByWithRelationInput = {
@@ -220,9 +220,9 @@ export type SiteOrderByWithRelationInput = {
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  company?: Prisma.CompanyOrderByWithRelationInput
   areas?: Prisma.AreaOrderByRelationAggregateInput
   equipment?: Prisma.EquipmentOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type SiteWhereUniqueInput = Prisma.AtLeast<{
@@ -237,9 +237,9 @@ export type SiteWhereUniqueInput = Prisma.AtLeast<{
   companyId?: Prisma.StringFilter<"Site"> | string
   createdAt?: Prisma.DateTimeFilter<"Site"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Site"> | Date | string
-  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   areas?: Prisma.AreaListRelationFilter
   equipment?: Prisma.EquipmentListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }, "id">
 
 export type SiteOrderByWithAggregationInput = {
@@ -278,9 +278,9 @@ export type SiteCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutSitesInput
   areas?: Prisma.AreaCreateNestedManyWithoutSiteInput
   equipment?: Prisma.EquipmentCreateNestedManyWithoutSiteInput
+  company: Prisma.CompanyCreateNestedOneWithoutSitesInput
 }
 
 export type SiteUncheckedCreateInput = {
@@ -304,9 +304,9 @@ export type SiteUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutSitesNestedInput
   areas?: Prisma.AreaUpdateManyWithoutSiteNestedInput
   equipment?: Prisma.EquipmentUpdateManyWithoutSiteNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutSitesNestedInput
 }
 
 export type SiteUncheckedUpdateInput = {
@@ -544,8 +544,8 @@ export type SiteCreateWithoutAreasInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutSitesInput
   equipment?: Prisma.EquipmentCreateNestedManyWithoutSiteInput
+  company: Prisma.CompanyCreateNestedOneWithoutSitesInput
 }
 
 export type SiteUncheckedCreateWithoutAreasInput = {
@@ -584,8 +584,8 @@ export type SiteUpdateWithoutAreasInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutSitesNestedInput
   equipment?: Prisma.EquipmentUpdateManyWithoutSiteNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutSitesNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutAreasInput = {
@@ -608,8 +608,8 @@ export type SiteCreateWithoutEquipmentInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  company: Prisma.CompanyCreateNestedOneWithoutSitesInput
   areas?: Prisma.AreaCreateNestedManyWithoutSiteInput
+  company: Prisma.CompanyCreateNestedOneWithoutSitesInput
 }
 
 export type SiteUncheckedCreateWithoutEquipmentInput = {
@@ -648,8 +648,8 @@ export type SiteUpdateWithoutEquipmentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  company?: Prisma.CompanyUpdateOneRequiredWithoutSitesNestedInput
   areas?: Prisma.AreaUpdateManyWithoutSiteNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutSitesNestedInput
 }
 
 export type SiteUncheckedUpdateWithoutEquipmentInput = {
@@ -757,9 +757,9 @@ export type SiteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   companyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   areas?: boolean | Prisma.Site$areasArgs<ExtArgs>
   equipment?: boolean | Prisma.Site$equipmentArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.SiteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["site"]>
 
@@ -800,9 +800,9 @@ export type SiteSelectScalar = {
 
 export type SiteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "city" | "isActive" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["site"]>
 export type SiteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   areas?: boolean | Prisma.Site$areasArgs<ExtArgs>
   equipment?: boolean | Prisma.Site$equipmentArgs<ExtArgs>
+  company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.SiteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SiteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -815,9 +815,9 @@ export type SiteIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $SitePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Site"
   objects: {
-    company: Prisma.$CompanyPayload<ExtArgs>
     areas: Prisma.$AreaPayload<ExtArgs>[]
     equipment: Prisma.$EquipmentPayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1222,9 +1222,9 @@ readonly fields: SiteFieldRefs;
  */
 export interface Prisma__SiteClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   areas<T extends Prisma.Site$areasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$areasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   equipment<T extends Prisma.Site$equipmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Site$equipmentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EquipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

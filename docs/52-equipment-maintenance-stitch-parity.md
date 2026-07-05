@@ -33,6 +33,6 @@ No copiar HTML directo de Stitch.
 No agregar CDN.
 No romper responsive.
 Validación
-pnpm --filter @biomed/web build
+pnpm --filter @vitatech/web build
 pnpm check:phase41
 pnpm check:phase40

@@ -8,6 +8,183 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id                        String             @id @default(cuid())
+  name                      String
+  email                     String             @unique
+  passwordHash              String
+  role                      UserRole           @default(VIEWER)
+  isActive                  Boolean            @default(true)
+  companyId                 String?
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime           @updatedAt
+  refreshTokenHash          String?
+  auditLogs                 AuditLog[]
+  assignedMaintenanceOrders MaintenanceOrder[] @relation("AssignedMaintenanceOrders")
+  createdMaintenanceOrders  MaintenanceOrder[] @relation("CreatedMaintenanceOrders")
+  company                   Company?           @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([role])
+}
+
+model Company {
+  id        String      @id @default(cuid())
+  name      String
+  nit       String?     @unique
+  phone     String?
+  email     String?
+  address   String?
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  equipment Equipment[]
+  sites     Site[]
+  users     User[]
+}
+
+model Site {
+  id        String      @id @default(cuid())
+  name      String
+  address   String?
+  city      String?
+  isActive  Boolean     @default(true)
+  companyId String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  areas     Area[]
+  equipment Equipment[]
+  company   Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model Area {
+  id          String      @id @default(cuid())
+  name        String
+  floor       String?
+  description String?
+  isActive    Boolean     @default(true)
+  siteId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  site        Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  equipment   Equipment[]
+
+  @@index([siteId])
+}
+
+model Equipment {
+  id                String             @id @default(cuid())
+  internalCode      String
+  name              String
+  brand             String?
+  model             String?
+  serialNumber      String?
+  equipmentType     String?
+  riskLevel         String?
+  status            EquipmentStatus    @default(ACTIVE)
+  purchaseDate      DateTime?
+  installationDate  DateTime?
+  warrantyUntil     DateTime?
+  notes             String?
+  companyId         String
+  siteId            String
+  areaId            String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  attachments       Attachment[]
+  area              Area               @relation(fields: [areaId], references: [id])
+  company           Company            @relation(fields: [companyId], references: [id])
+  site              Site               @relation(fields: [siteId], references: [id])
+  maintenanceOrders MaintenanceOrder[]
+
+  @@unique([companyId, internalCode])
+  @@index([companyId])
+  @@index([siteId])
+  @@index([areaId])
+  @@index([status])
+}
+
+model MaintenanceOrder {
+  id                   String            @id @default(cuid())
+  code                 String            @unique
+  type                 MaintenanceType
+  status               MaintenanceStatus @default(PENDING)
+  scheduledDate        DateTime?
+  startedAt            DateTime?
+  completedAt          DateTime?
+  description          String?
+  diagnosis            String?
+  actionsPerformed     String?
+  recommendations      String?
+  finalEquipmentStatus EquipmentStatus?
+  equipmentId          String
+  assignedToId         String?
+  createdById          String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  attachments          Attachment[]
+  assignedTo           User?             @relation("AssignedMaintenanceOrders", fields: [assignedToId], references: [id])
+  createdBy            User?             @relation("CreatedMaintenanceOrders", fields: [createdById], references: [id])
+  equipment            Equipment         @relation(fields: [equipmentId], references: [id])
+  tasks                MaintenanceTask[]
+
+  @@index([equipmentId])
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([status])
+  @@index([type])
+}
+
+model MaintenanceTask {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  isCompleted Boolean          @default(false)
+  completedAt DateTime?
+  orderId     String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  order       MaintenanceOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Attachment {
+  id           String            @id @default(cuid())
+  type         AttachmentType    @default(OTHER)
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  orderId      String?
+  equipmentId  String?
+  createdAt    DateTime          @default(now())
+  equipment    Equipment?        @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  order        MaintenanceOrder? @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([equipmentId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String
+  oldValue  Json?
+  newValue  Json?
+  userId    String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
@@ -40,211 +217,4 @@ enum AttachmentType {
   DOCUMENT
   SIGNATURE
   OTHER
-}
-
-model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  refreshTokenHash String?
-  role         UserRole @default(VIEWER)
-  isActive     Boolean  @default(true)
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
-
-  createdMaintenanceOrders  MaintenanceOrder[] @relation("CreatedMaintenanceOrders")
-  assignedMaintenanceOrders MaintenanceOrder[] @relation("AssignedMaintenanceOrders")
-  auditLogs                 AuditLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-  @@index([role])
-}
-
-model Company {
-  id       String  @id @default(cuid())
-  name     String
-  nit      String? @unique
-  phone    String?
-  email    String?
-  address  String?
-  isActive Boolean @default(true)
-
-  users     User[]
-  sites     Site[]
-  equipment Equipment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Site {
-  id       String  @id @default(cuid())
-  name     String
-  address  String?
-  city     String?
-  isActive Boolean @default(true)
-
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  areas     Area[]
-  equipment Equipment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([companyId])
-}
-
-model Area {
-  id          String  @id @default(cuid())
-  name        String
-  floor       String?
-  description String?
-  isActive    Boolean @default(true)
-
-  siteId String
-  site   Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
-
-  equipment Equipment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([siteId])
-}
-
-model Equipment {
-  id               String          @id @default(cuid())
-  internalCode     String
-  name             String
-  brand            String?
-  model            String?
-  serialNumber     String?
-  equipmentType    String?
-  riskLevel        String?
-  status           EquipmentStatus @default(ACTIVE)
-  purchaseDate     DateTime?
-  installationDate DateTime?
-  warrantyUntil    DateTime?
-  notes            String?
-
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-
-  siteId String
-  site   Site @relation(fields: [siteId], references: [id], onDelete: Restrict)
-
-  areaId String
-  area   Area @relation(fields: [areaId], references: [id], onDelete: Restrict)
-
-  maintenanceOrders MaintenanceOrder[]
-  attachments       Attachment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([companyId, internalCode])
-  @@index([companyId])
-  @@index([siteId])
-  @@index([areaId])
-  @@index([status])
-}
-
-model MaintenanceOrder {
-  id          String            @id @default(cuid())
-  code        String            @unique
-  type        MaintenanceType
-  status      MaintenanceStatus @default(PENDING)
-
-  scheduledDate DateTime?
-  startedAt     DateTime?
-  completedAt   DateTime?
-
-  description          String?
-  diagnosis            String?
-  actionsPerformed     String?
-  recommendations      String?
-  finalEquipmentStatus EquipmentStatus?
-
-  equipmentId String
-  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Restrict)
-
-  assignedToId String?
-  assignedTo   User? @relation("AssignedMaintenanceOrders", fields: [assignedToId], references: [id], onDelete: SetNull)
-
-  createdById String?
-  createdBy   User? @relation("CreatedMaintenanceOrders", fields: [createdById], references: [id], onDelete: SetNull)
-
-  tasks       MaintenanceTask[]
-  attachments Attachment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([equipmentId])
-  @@index([assignedToId])
-  @@index([createdById])
-  @@index([status])
-  @@index([type])
-}
-
-model MaintenanceTask {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  isCompleted Boolean   @default(false)
-  completedAt DateTime?
-
-  orderId String
-  order   MaintenanceOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([orderId])
-}
-
-model Attachment {
-  id           String         @id @default(cuid())
-  type         AttachmentType @default(OTHER)
-  filename     String
-  originalName String
-  mimeType     String
-  size         Int
-  url          String
-
-  orderId String?
-  order   MaintenanceOrder? @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  equipmentId String?
-  equipment   Equipment? @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@index([orderId])
-  @@index([equipmentId])
-}
-
-model AuditLog {
-  id       String  @id @default(cuid())
-  action   String
-  entity   String
-  entityId String
-  oldValue Json?
-  newValue Json?
-
-  userId String?
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([entity])
-  @@index([entityId])
 }

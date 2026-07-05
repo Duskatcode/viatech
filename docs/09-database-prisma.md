@@ -19,7 +19,7 @@ Configurar PostgreSQL con Prisma ORM para el backend NestJS.
 
 ```bash
 pnpm db:up
-pnpm --filter @biomed/api prisma:generate
+pnpm --filter @vitatech/api prisma:generate
 cd apps/api && pnpm prisma:migrate:init
 cd apps/api && pnpm prisma:seed
 cd apps/api && pnpm prisma:studio

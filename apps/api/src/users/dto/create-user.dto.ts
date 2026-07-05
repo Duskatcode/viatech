@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -18,7 +18,7 @@ export class CreateUserDto {
   name!: string;
 
   @ApiProperty({
-    example: 'tecnico@biomed.local',
+    example: 'tecnico@vitatech.local',
   })
   @IsEmail()
   email!: string;

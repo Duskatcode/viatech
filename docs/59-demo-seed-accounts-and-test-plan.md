@@ -22,14 +22,14 @@ Estas credenciales son exclusivamente para entornos locales y demostraciones con
 
 | Rol         | Empresa                  | Nombre                        | Email                       | Password            | Debe poder                                                         | No debe poder                                       |
 | ----------- | ------------------------ | ----------------------------- | --------------------------- | ------------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
-| SUPER_ADMIN | Global                   | Super Admin Demo              | superadmin@biomed.local     | `SuperAdmin123!`    | Ver panel global, ambas empresas y administrar usuarios permitidos | Crear otro SUPER_ADMIN por API                      |
-| ADMIN       | Clínica Metropolitana    | Admin Demo                    | admin@biomed.local          | `Admin12345!`       | Administrar datos y usuarios TECHNICIAN/VIEWER de su empresa       | Ver otra empresa o crear ADMIN/SUPER_ADMIN          |
-| ADMIN       | Clínica Metropolitana    | Admin Clínica Metropolitana   | admin.metro@biomed.local    | `AdminMetro123!`    | Administrar datos y usuarios TECHNICIAN/VIEWER de su empresa       | Ver otra empresa o crear ADMIN/SUPER_ADMIN          |
-| TECHNICIAN  | Clínica Metropolitana    | Técnico Biomédico Demo        | tecnico@biomed.local        | `Tecnico123!`       | Consultar y ejecutar órdenes permitidas de su empresa              | Administrar empresas o usuarios                     |
-| VIEWER      | Clínica Metropolitana    | Auditor Clínica Metropolitana | auditor.metro@biomed.local  | `AuditorMetro123!`  | Consultar dashboard, reportes y auditoría de su empresa            | Crear, editar o eliminar información                |
-| ADMIN       | Hospital San Rafael Demo | Admin Hospital San Rafael     | admin.rafael@biomed.local   | `AdminRafael123!`   | Administrar datos y usuarios TECHNICIAN/VIEWER de su empresa       | Ver Clínica Metropolitana o crear ADMIN/SUPER_ADMIN |
-| TECHNICIAN  | Hospital San Rafael Demo | Técnico Hospital San Rafael   | tecnico.rafael@biomed.local | `TecnicoRafael123!` | Consultar y ejecutar órdenes permitidas de su empresa              | Administrar empresas o usuarios                     |
-| VIEWER      | Hospital San Rafael Demo | Auditor Hospital San Rafael   | auditor.rafael@biomed.local | `AuditorRafael123!` | Consultar datos de Hospital San Rafael Demo                        | Crear, editar o eliminar información                |
+| SUPER_ADMIN | Global                   | Super Admin Demo              | superadmin@vitatech.local     | `SuperAdmin123!`    | Ver panel global, ambas empresas y administrar usuarios permitidos | Crear otro SUPER_ADMIN por API                      |
+| ADMIN       | Clínica Metropolitana    | Admin Demo                    | admin@vitatech.local          | `Admin12345!`       | Administrar datos y usuarios TECHNICIAN/VIEWER de su empresa       | Ver otra empresa o crear ADMIN/SUPER_ADMIN          |
+| ADMIN       | Clínica Metropolitana    | Admin Clínica Metropolitana   | admin.metro@vitatech.local    | `AdminMetro123!`    | Administrar datos y usuarios TECHNICIAN/VIEWER de su empresa       | Ver otra empresa o crear ADMIN/SUPER_ADMIN          |
+| TECHNICIAN  | Clínica Metropolitana    | Técnico Biomédico Demo        | tecnico@vitatech.local        | `Tecnico123!`       | Consultar y ejecutar órdenes permitidas de su empresa              | Administrar empresas o usuarios                     |
+| VIEWER      | Clínica Metropolitana    | Auditor Clínica Metropolitana | auditor.metro@vitatech.local  | `AuditorMetro123!`  | Consultar dashboard, reportes y auditoría de su empresa            | Crear, editar o eliminar información                |
+| ADMIN       | Hospital San Rafael Demo | Admin Hospital San Rafael     | admin.rafael@vitatech.local   | `AdminRafael123!`   | Administrar datos y usuarios TECHNICIAN/VIEWER de su empresa       | Ver Clínica Metropolitana o crear ADMIN/SUPER_ADMIN |
+| TECHNICIAN  | Hospital San Rafael Demo | Técnico Hospital San Rafael   | tecnico.rafael@vitatech.local | `TecnicoRafael123!` | Consultar y ejecutar órdenes permitidas de su empresa              | Administrar empresas o usuarios                     |
+| VIEWER      | Hospital San Rafael Demo | Auditor Hospital San Rafael   | auditor.rafael@vitatech.local | `AuditorRafael123!` | Consultar datos de Hospital San Rafael Demo                        | Crear, editar o eliminar información                |
 
 VIEWER representa el perfil auditor de solo lectura.
 
@@ -66,18 +66,18 @@ Las fechas son relativas al momento de ejecutar el seed para mantener vigentes l
 
 | Código       | Empresa                  | Equipo     | Tipo       | Estado      | Técnico asignado            | Fecha programada | Uso recomendado                       |
 | ------------ | ------------------------ | ---------- | ---------- | ----------- | --------------------------- | ---------------- | ------------------------------------- |
-| MTTO-MET-001 | Clínica Metropolitana    | EQ-MET-001 | PREVENTIVE | PENDING     | tecnico@biomed.local        | +7 días          | Iniciar y completar mantenimiento     |
-| MTTO-MET-002 | Clínica Metropolitana    | EQ-MET-003 | CORRECTIVE | IN_PROGRESS | tecnico@biomed.local        | -2 días          | Continuar orden en progreso           |
-| MTTO-MET-003 | Clínica Metropolitana    | EQ-MET-002 | PREVENTIVE | COMPLETED   | tecnico@biomed.local        | -18 días         | Descargar PDF                         |
-| MTTO-MET-004 | Clínica Metropolitana    | EQ-MET-005 | CORRECTIVE | PENDING     | tecnico@biomed.local        | -8 días          | Alerta crítica vencida                |
-| MTTO-MET-005 | Clínica Metropolitana    | EQ-MET-004 | PREVENTIVE | PENDING     | tecnico@biomed.local        | +14 días         | Preventivo próximo                    |
-| MTTO-MET-006 | Clínica Metropolitana    | EQ-MET-007 | CORRECTIVE | COMPLETED   | tecnico@biomed.local        | -35 días         | Revisar diagnóstico y recomendaciones |
-| MTTO-MET-007 | Clínica Metropolitana    | EQ-MET-006 | CORRECTIVE | CANCELLED   | tecnico@biomed.local        | -12 días         | Revisar caso cancelado                |
-| MTTO-MET-008 | Clínica Metropolitana    | EQ-MET-010 | PREVENTIVE | PENDING     | tecnico@biomed.local        | +21 días         | Garantía y preventivo próximos        |
-| MTTO-RAF-001 | Hospital San Rafael Demo | EQ-RAF-001 | PREVENTIVE | PENDING     | tecnico.rafael@biomed.local | +10 días         | Preventivo empresa B                  |
-| MTTO-RAF-002 | Hospital San Rafael Demo | EQ-RAF-003 | CORRECTIVE | PENDING     | tecnico.rafael@biomed.local | -6 días          | Alerta vencida empresa B              |
-| MTTO-RAF-003 | Hospital San Rafael Demo | EQ-RAF-002 | PREVENTIVE | COMPLETED   | tecnico.rafael@biomed.local | -20 días         | Orden cerrada empresa B               |
-| MTTO-RAF-004 | Hospital San Rafael Demo | EQ-RAF-004 | CORRECTIVE | IN_PROGRESS | tecnico.rafael@biomed.local | -1 día           | Ejecución técnica empresa B           |
+| MTTO-MET-001 | Clínica Metropolitana    | EQ-MET-001 | PREVENTIVE | PENDING     | tecnico@vitatech.local        | +7 días          | Iniciar y completar mantenimiento     |
+| MTTO-MET-002 | Clínica Metropolitana    | EQ-MET-003 | CORRECTIVE | IN_PROGRESS | tecnico@vitatech.local        | -2 días          | Continuar orden en progreso           |
+| MTTO-MET-003 | Clínica Metropolitana    | EQ-MET-002 | PREVENTIVE | COMPLETED   | tecnico@vitatech.local        | -18 días         | Descargar PDF                         |
+| MTTO-MET-004 | Clínica Metropolitana    | EQ-MET-005 | CORRECTIVE | PENDING     | tecnico@vitatech.local        | -8 días          | Alerta crítica vencida                |
+| MTTO-MET-005 | Clínica Metropolitana    | EQ-MET-004 | PREVENTIVE | PENDING     | tecnico@vitatech.local        | +14 días         | Preventivo próximo                    |
+| MTTO-MET-006 | Clínica Metropolitana    | EQ-MET-007 | CORRECTIVE | COMPLETED   | tecnico@vitatech.local        | -35 días         | Revisar diagnóstico y recomendaciones |
+| MTTO-MET-007 | Clínica Metropolitana    | EQ-MET-006 | CORRECTIVE | CANCELLED   | tecnico@vitatech.local        | -12 días         | Revisar caso cancelado                |
+| MTTO-MET-008 | Clínica Metropolitana    | EQ-MET-010 | PREVENTIVE | PENDING     | tecnico@vitatech.local        | +21 días         | Garantía y preventivo próximos        |
+| MTTO-RAF-001 | Hospital San Rafael Demo | EQ-RAF-001 | PREVENTIVE | PENDING     | tecnico.rafael@vitatech.local | +10 días         | Preventivo empresa B                  |
+| MTTO-RAF-002 | Hospital San Rafael Demo | EQ-RAF-003 | CORRECTIVE | PENDING     | tecnico.rafael@vitatech.local | -6 días          | Alerta vencida empresa B              |
+| MTTO-RAF-003 | Hospital San Rafael Demo | EQ-RAF-002 | PREVENTIVE | COMPLETED   | tecnico.rafael@vitatech.local | -20 días         | Orden cerrada empresa B               |
+| MTTO-RAF-004 | Hospital San Rafael Demo | EQ-RAF-004 | CORRECTIVE | IN_PROGRESS | tecnico.rafael@vitatech.local | -1 día           | Ejecución técnica empresa B           |
 
 Cada orden incluye un checklist preventivo o correctivo. La orden crítica `MTTO-MET-004` incluye pruebas eléctricas, alarmas, módulo de flujo, presión y registro de salida de servicio.
 
@@ -94,12 +94,12 @@ Cada orden incluye un checklist preventivo o correctivo. La orden crítica `MTTO
 
 - [ ] Iniciar sesión como ADMIN.
 - [ ] Crear una orden para `EQ-MET-001`.
-- [ ] Asignar `tecnico@biomed.local`.
+- [ ] Asignar `tecnico@vitatech.local`.
 - [ ] Resultado esperado: la orden aparece en la lista de Clínica Metropolitana y queda disponible para el técnico.
 
 ### Prueba física 3 - Técnico ejecuta orden
 
-- [ ] Iniciar sesión como `tecnico@biomed.local`.
+- [ ] Iniciar sesión como `tecnico@vitatech.local`.
 - [ ] Abrir la orden asignada.
 - [ ] Iniciar la orden, completar tareas y completar la orden.
 - [ ] Resultado esperado: cambia a `COMPLETED`, conserva el checklist y registra la actividad.
@@ -121,14 +121,14 @@ El seed no inserta adjuntos falsos ni archivos binarios.
 
 ### Prueba física 6 - Auditor VIEWER
 
-- [ ] Iniciar sesión como `auditor.metro@biomed.local`.
+- [ ] Iniciar sesión como `auditor.metro@vitatech.local`.
 - [ ] Confirmar que puede consultar dashboard, equipos, órdenes, reportes y auditoría.
 - [ ] Confirmar que no puede crear, editar ni eliminar.
 - [ ] Resultado esperado: acceso de lectura limitado a Clínica Metropolitana.
 
 ### Prueba física 7 - Aislamiento multiempresa
 
-- [ ] Iniciar sesión como `admin.rafael@biomed.local`.
+- [ ] Iniciar sesión como `admin.rafael@vitatech.local`.
 - [ ] Confirmar que no aparecen equipos `EQ-MET-*`.
 - [ ] Confirmar que solo aparecen equipos `EQ-RAF-*`.
 - [ ] Intentar abrir por URL o ID un equipo de Clínica Metropolitana.
@@ -136,7 +136,7 @@ El seed no inserta adjuntos falsos ni archivos binarios.
 
 ### Prueba física 8 - SUPER_ADMIN global
 
-- [ ] Iniciar sesión como `superadmin@biomed.local`.
+- [ ] Iniciar sesión como `superadmin@vitatech.local`.
 - [ ] Confirmar que aparece el panel global.
 - [ ] Confirmar usuarios globales y resumen por empresa.
 - [ ] Resultado esperado: ve ambas empresas sin quedar limitado por `companyId`.
@@ -173,7 +173,7 @@ API_BASE_URL=http://localhost:3001/api/v1 node scripts/api-smoke-tests.mjs
 ```
 
 ```bash
-DATABASE_URL="postgresql://biomed:biomed_password@localhost:5434/biomed?schema=public" pnpm --filter @biomed/api run prisma:seed
+DATABASE_URL="postgresql://biomed:biomed_password@localhost:5434/biomed?schema=public" pnpm --filter @vitatech/api run prisma:seed
 ```
 
 El seed es idempotente para empresas, usuarios, sedes, áreas, equipos, órdenes y auditorías. Las tareas se regeneran únicamente para las órdenes demo descritas en este documento.

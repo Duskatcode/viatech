@@ -37,7 +37,7 @@ services:
       ATTACHMENTS_STORAGE_DIR: ${ATTACHMENTS_STORAGE_DIR:-/app/storage/attachments}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8081}
     ports:
-      - "${API_PORT:-3001}:3000"
+      - "${HOST_API_PORT:-3001}:3000"
     volumes:
       - biomed_uploads:/app/storage/attachments
       - biomed_reports:/app/apps/api/reports

@@ -7,7 +7,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { QueryEquipmentReportDto } from './dto/query-equipment-report.dto';
 import { QueryMaintenanceReportDto } from './dto/query-maintenance-report.dto';
 import { withUtf8Bom } from './reports-csv.util';

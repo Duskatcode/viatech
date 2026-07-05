@@ -20,11 +20,11 @@ Smoke tests
 pnpm test:api:smoke
 API_BASE_URL=http://localhost:3001/api/v1 pnpm test:api:smoke
 Backend
-pnpm --filter @biomed/api build
-pnpm --filter @biomed/api prisma:migrate:deploy
-pnpm --filter @biomed/api prisma:seed
+pnpm --filter @vitatech/api build
+pnpm --filter @vitatech/api prisma:migrate:deploy
+pnpm --filter @vitatech/api prisma:seed
 Frontend
-pnpm --filter @biomed/web build
+pnpm --filter @vitatech/web build
 URLs
 Docker web: http://localhost:8081
 Docker API: http://localhost:3001/api/v1

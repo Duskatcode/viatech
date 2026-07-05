@@ -14,7 +14,7 @@ import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { SubmitButton } from '../ui/SubmitButton';
 import { EmptyState, ErrorState, LoadingState } from '../ui/StateMessage';
 import { StatusPill } from '../ui/StatusPill';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 
 type AttachmentOwnerType = 'equipment' | 'maintenance-order';
 

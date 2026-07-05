@@ -13,7 +13,7 @@ import type { RequestWithUser } from '../../auth/types/request-with-user.type';
 import { PrismaService } from '../../database/prisma.service';
 
 /**
- * Prisma's generated UserRole enum and @biomed/shared's UserRole enum share
+ * Prisma's generated UserRole enum and @vitatech/shared's UserRole enum share
  * identical string values by design, but TypeScript enums are nominally
  * typed, so they are not directly assignable to one another. This helper
  * documents and centralizes the conversion at the boundary where a raw

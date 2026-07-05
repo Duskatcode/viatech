@@ -7,7 +7,7 @@ import {
   MaintenanceStatus,
   Prisma,
 } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { QueryAlertsSummaryDto } from './dto/query-alerts-summary.dto';
 
 @Injectable()

@@ -30,7 +30,7 @@ Riesgos críticos
 No deben usarse en producción:
 
 Admin12345!
-admin@biomed.local
+admin@vitatech.local
 JWT demo secrets
 biomed_password
 2. Archivos .env

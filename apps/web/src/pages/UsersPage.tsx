@@ -19,7 +19,7 @@ import { PageHeader } from '../ui/PageHeader';
 import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { EmptyState, ErrorState, LoadingState } from '../ui/StateMessage';
 import { StatusPill } from '../ui/StatusPill';
-import { useToast } from '../ui/ToastProvider';
+import { useToast } from '../ui/useToast';
 import { UserFormModal, type UserFormValues } from '../users/UserFormModal';
 
 const roleLabels: Record<UserRole, string> = {

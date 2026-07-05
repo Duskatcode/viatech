@@ -202,7 +202,7 @@ export interface CreateEquipmentPayload {
   notes?: string;
 }
 
-export interface UpdateEquipmentPayload extends Partial<CreateEquipmentPayload> {}
+export type UpdateEquipmentPayload = Partial<CreateEquipmentPayload>;
 
 export interface QueryEquipmentParams {
   siteId?: string;
@@ -281,7 +281,7 @@ export interface CreateSitePayload {
   address?: string;
 }
 
-export interface UpdateSitePayload extends Partial<CreateSitePayload> {}
+export type UpdateSitePayload = Partial<CreateSitePayload>;
 
 export interface CreateAreaPayload {
   siteId: string;
@@ -290,4 +290,4 @@ export interface CreateAreaPayload {
   description?: string;
 }
 
-export interface UpdateAreaPayload extends Partial<CreateAreaPayload> {}
+export type UpdateAreaPayload = Partial<CreateAreaPayload>;

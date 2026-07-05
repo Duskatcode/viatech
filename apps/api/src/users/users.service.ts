@@ -10,7 +10,7 @@ import * as bcrypt from 'bcryptjs';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma, UserRole as PrismaUserRole } from '../generated/prisma/client';
-import { UserRole } from '@biomed/shared';
+import { UserRole } from '@vitatech/shared';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
@@ -22,7 +22,7 @@ function toPrismaRole(role: UserRole): PrismaUserRole {
 
 /**
  * Inverse of toPrismaRole(): converts a raw Prisma role value (e.g. read
- * via findManageableUser's `select: { role: true }`) into @biomed/shared's
+ * via findManageableUser's `select: { role: true }`) into @vitatech/shared's
  * UserRole, so it can be mixed safely with DTO-provided role values.
  */
 function toSharedRole(role: PrismaUserRole): UserRole {

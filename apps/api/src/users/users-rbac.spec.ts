@@ -38,14 +38,14 @@ describe('UsersService RBAC', () => {
   const currentUser = (role: UserRole, companyId: string | null): AuthUser => ({
     id: `${role.toLowerCase()}-user`,
     name: `${role} Demo`,
-    email: `${role.toLowerCase()}@biomed.local`,
+    email: `${role.toLowerCase()}@vitatech.local`,
     role,
     companyId,
   });
 
   const publicUser = {
     id: 'user-1',
-    email: 'user@biomed.local',
+    email: 'user@vitatech.local',
     name: 'Demo User',
     role: UserRole.TECHNICIAN,
     companyId: companyAId,
@@ -100,7 +100,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.ADMIN, companyAId), {
         name: 'Company Admin',
-        email: 'admin2@biomed.local',
+        email: 'admin2@vitatech.local',
         password: 'Admin12345!',
         role: UserRole.ADMIN,
       }),
@@ -115,7 +115,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.ADMIN, companyAId), {
         name: 'Demo Technician',
-        email: 'tech@biomed.local',
+        email: 'tech@vitatech.local',
         password: 'Tech12345!',
         role: UserRole.TECHNICIAN,
       }),
@@ -141,7 +141,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.ADMIN, companyAId), {
         name: 'Demo Viewer',
-        email: 'viewer@biomed.local',
+        email: 'viewer@vitatech.local',
         password: 'Viewer12345!',
         role: UserRole.VIEWER,
       }),
@@ -154,7 +154,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.ADMIN, companyAId), {
         name: 'External Technician',
-        email: 'external@biomed.local',
+        email: 'external@vitatech.local',
         password: 'Tech12345!',
         role: UserRole.TECHNICIAN,
         companyId: companyBId,
@@ -168,7 +168,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.TECHNICIAN, companyAId), {
         name: 'Demo Viewer',
-        email: 'viewer@biomed.local',
+        email: 'viewer@vitatech.local',
         password: 'Viewer12345!',
         role: UserRole.VIEWER,
       }),
@@ -181,7 +181,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.VIEWER, companyAId), {
         name: 'Demo Technician',
-        email: 'tech@biomed.local',
+        email: 'tech@vitatech.local',
         password: 'Tech12345!',
         role: UserRole.TECHNICIAN,
       }),
@@ -197,7 +197,7 @@ describe('UsersService RBAC', () => {
       currentUser(UserRole.ADMIN, companyAId),
       {
         name: 'Demo Technician',
-        email: 'tech@biomed.local',
+        email: 'tech@vitatech.local',
         password: 'Tech12345!',
         role: UserRole.TECHNICIAN,
       },
@@ -223,7 +223,7 @@ describe('UsersService RBAC', () => {
     await expect(
       service.create(currentUser(UserRole.ADMIN, companyAId), {
         name: 'Duplicate Technician',
-        email: 'duplicate@biomed.local',
+        email: 'duplicate@vitatech.local',
         password: 'Tech12345!',
         role: UserRole.TECHNICIAN,
       }),
