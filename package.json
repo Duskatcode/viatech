@@ -10,8 +10,6 @@
     "build:web": "pnpm --filter @biomed/web build",
     "build:shared": "pnpm --filter @biomed/shared build",
     "build": "pnpm build:shared && pnpm build:api && pnpm build:web",
-    "check:phase0": "bash scripts/check-phase-0.sh",
-    "check:phase1": "bash scripts/check-phase-1.sh",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres" 
