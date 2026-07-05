@@ -2,7 +2,7 @@ import { X } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 
-import type { UserRole } from '../types/auth';
+import { UserRole } from '../types/auth';
 import type { Company, UserSummary } from '../types/domain';
 import { FieldError, RequiredMark } from '../ui/FieldFeedback';
 
@@ -48,20 +48,20 @@ export function UserFormModal({
   onSubmit,
 }: UserFormModalProps) {
   const isEditing = Boolean(user);
-  const isSuperAdmin = currentUserRole === 'SUPER_ADMIN';
-  const isSuperAdminTarget = user?.role === 'SUPER_ADMIN';
+  const isSuperAdmin = currentUserRole === UserRole.SUPER_ADMIN;
+  const isSuperAdminTarget = user?.role === UserRole.SUPER_ADMIN;
   const allowedRoles: UserRole[] = isSuperAdmin
-    ? ['ADMIN', 'TECHNICIAN', 'VIEWER']
-    : ['TECHNICIAN', 'VIEWER'];
+    ? [UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER]
+    : [UserRole.TECHNICIAN, UserRole.VIEWER];
   const selectableRoles = isSuperAdminTarget
-    ? (['SUPER_ADMIN'] as UserRole[])
+    ? [UserRole.SUPER_ADMIN]
     : allowedRoles;
 
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>(
-    user?.role ?? allowedRoles[0] ?? 'VIEWER',
+    user?.role ?? allowedRoles[0] ?? UserRole.VIEWER,
   );
   const [companyId, setCompanyId] = useState(
     user?.companyId ?? companies[0]?.id ?? '',

@@ -1,4 +1,5 @@
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'TECHNICIAN' | 'VIEWER';
+export { UserRole } from '@biomed/shared';
+import type { UserRole } from '@biomed/shared';
 
 export interface AuthUser {
   id: string;

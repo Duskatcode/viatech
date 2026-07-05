@@ -19,7 +19,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
 import { organizationService } from '../services/organization.service';
-import type { UserRole } from '../types/auth';
+import { UserRole } from '../types/auth';
 
 interface NavigationItem {
   label: string;
@@ -48,13 +48,13 @@ const navigationItems: NavigationItem[] = [
     label: 'Organización',
     href: '/organization',
     icon: Building2,
-    roles: ['SUPER_ADMIN', 'ADMIN'],
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
     label: 'Usuarios',
     href: '/users',
     icon: UsersRound,
-    roles: ['SUPER_ADMIN', 'ADMIN'],
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
     label: 'Reportes',
@@ -65,7 +65,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Auditoría',
     href: '/audit-logs',
     icon: ShieldCheck,
-    roles: ['SUPER_ADMIN', 'ADMIN', 'VIEWER'],
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.VIEWER],
   },
 ];
 
