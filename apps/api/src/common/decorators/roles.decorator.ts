@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common';
 
-import { UserRole } from '../../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 
 export const ROLES_KEY = 'roles';
 

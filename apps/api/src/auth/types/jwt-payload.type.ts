@@ -1,4 +1,4 @@
-import { UserRole } from '../../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 
 export interface JwtPayload {
   sub: string;

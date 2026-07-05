@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { UserRole } from '../../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 
 export class UpdateUserDto {
   @ApiPropertyOptional()

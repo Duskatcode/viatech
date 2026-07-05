@@ -20,8 +20,8 @@ import { PrismaService } from '../database/prisma.service';
 import {
   AttachmentType,
   MaintenanceStatus,
-  UserRole,
 } from '../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 import {
   ALLOWED_ATTACHMENT_MIME_TYPES,
   ATTACHMENTS_STORAGE_DIR,

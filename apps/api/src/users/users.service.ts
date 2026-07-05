@@ -9,11 +9,25 @@ import * as bcrypt from 'bcryptjs';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
-import { Prisma, UserRole } from '../generated/prisma/client';
+import { Prisma, UserRole as PrismaUserRole } from '../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
+function toPrismaRole(role: UserRole): PrismaUserRole {
+  return role as unknown as PrismaUserRole;
+}
+
+/**
+ * Inverse of toPrismaRole(): converts a raw Prisma role value (e.g. read
+ * via findManageableUser's `select: { role: true }`) into @biomed/shared's
+ * UserRole, so it can be mixed safely with DTO-provided role values.
+ */
+function toSharedRole(role: PrismaUserRole): UserRole {
+  return role as unknown as UserRole;
+}
 
 @Injectable()
 export class UsersService {
@@ -145,7 +159,7 @@ export class UsersService {
           name: dto.name,
           email: dto.email.toLowerCase(),
           passwordHash,
-          role: dto.role,
+          role: toPrismaRole(dto.role),
           companyId,
           isActive: true,
         },
@@ -158,7 +172,7 @@ export class UsersService {
 
   async update(currentUser: AuthUser, id: string, dto: UpdateUserDto) {
     const target = await this.findManageableUser(currentUser, id);
-    const role = dto.role ?? target.role;
+    const role = dto.role ?? toSharedRole(target.role);
 
     if (dto.role) {
       this.assertRoleCanBeAssigned(currentUser, dto.role);
@@ -181,7 +195,7 @@ export class UsersService {
           name: dto.name,
           email: dto.email?.toLowerCase(),
           passwordHash,
-          role,
+          role: toPrismaRole(role),
           companyId,
           isActive: dto.isActive,
           refreshTokenHash: dto.isActive === false ? null : undefined,
@@ -206,7 +220,7 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id: target.id },
       data: {
-        role: dto.role,
+        role: toPrismaRole(dto.role),
       },
       select: this.publicSelect(),
     });
@@ -250,7 +264,7 @@ export class UsersService {
               id,
               companyId: currentUser.companyId ?? '',
               role: {
-                in: [UserRole.TECHNICIAN, UserRole.VIEWER],
+                in: [PrismaUserRole.TECHNICIAN, PrismaUserRole.VIEWER],
               },
             },
       select: {

@@ -17,8 +17,9 @@ import {
   EquipmentStatus,
   MaintenanceStatus,
   Prisma,
-  UserRole,
+  UserRole as PrismaUserRole,
 } from '../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 import { AssignMaintenanceOrderDto } from './dto/assign-maintenance-order.dto';
 import { CancelMaintenanceOrderDto } from './dto/cancel-maintenance-order.dto';
 import { CompleteMaintenanceOrderDto } from './dto/complete-maintenance-order.dto';
@@ -495,7 +496,7 @@ export class MaintenanceOrdersService {
         isActive: true,
         companyId,
         role: {
-          in: [UserRole.ADMIN, UserRole.TECHNICIAN],
+          in: [PrismaUserRole.ADMIN, PrismaUserRole.TECHNICIAN],
         },
       },
       select: {

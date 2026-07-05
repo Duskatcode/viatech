@@ -13,8 +13,8 @@ import { PrismaService } from '../database/prisma.service';
 import {
   EquipmentStatus,
   Prisma,
-  UserRole,
 } from '../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { QueryEquipmentDto } from './dto/query-equipment.dto';
 import { UpdateEquipmentStatusDto } from './dto/update-equipment-status.dto';

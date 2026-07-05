@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { UserRole } from '../../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 import type { RequestWithUser } from '../../auth/types/request-with-user.type';
 
 @Injectable()

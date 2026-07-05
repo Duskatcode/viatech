@@ -10,6 +10,17 @@ import type { AuthUser } from './types/auth-user.type';
 import type { JwtPayload } from './types/jwt-payload.type';
 import { UsersService } from '../users/users.service';
 
+/**
+ * Prisma's generated UserRole enum and @biomed/shared's UserRole enum share
+ * identical string values by design, but TypeScript enums are nominally
+ * typed, so they are not directly assignable to one another. This helper
+ * documents and centralizes the conversion at the single boundary where a
+ * raw Prisma user record becomes an AuthUser.
+ */
+function toSharedRole(role: { toString(): string }): AuthUser['role'] {
+  return role as unknown as AuthUser['role'];
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -35,7 +46,7 @@ export class AuthService {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: toSharedRole(user.role),
       companyId: user.companyId,
     };
 
@@ -90,7 +101,7 @@ export class AuthService {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: toSharedRole(user.role),
       companyId: user.companyId,
     };
 

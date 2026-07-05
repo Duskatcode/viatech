@@ -7,7 +7,7 @@ import {
 
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole } from '../generated/prisma/client';
+import { UserRole } from '@biomed/shared';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
 
