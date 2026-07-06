@@ -69,10 +69,11 @@ export default function App() {
         }
       />
 
+      {/* Rutas para ADMIN y SUPER_ADMIN */}
       <Route
         element={
           <AuthProvider>
-            <ProtectedRoute />
+            <ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />
           </AuthProvider>
         }
       >
@@ -89,6 +90,26 @@ export default function App() {
           <Route path="/users" element={<UsersPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/audit-logs" element={<AuditLogsPage />} />
+        </Route>
+      </Route>
+
+      {/* Rutas para TECHNICIAN (solo acceso limitado) */}
+      <Route
+        element={
+          <AuthProvider>
+            <ProtectedRoute allowedRoles={['TECHNICIAN']} redirectTo="/maintenance-orders?assignedToMe=true" />
+          </AuthProvider>
+        }
+      >
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} /> {/* Redirige a órdenes */}
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/maintenance-orders" element={<MaintenanceOrdersPage />} />
+          <Route
+            path="/maintenance-orders/:id"
+            element={<MaintenanceOrderDetailPage />}
+          />
+          {/* Otras rutas no incluidas intencionalmente */}
         </Route>
       </Route>
     </Routes>

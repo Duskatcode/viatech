@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { api } from '../lib/api';
 import { clearTokens, getAccessToken, setTokens } from '../lib/auth-storage';
@@ -13,6 +14,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const reloadUser = useCallback(async () => {
     const token = getAccessToken();
@@ -57,6 +59,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       clearTokens();
       setUser(null);
+      // Limpiar toda la caché de React Query para evitar datos cruzados entre sesiones
+      queryClient.clear();
     }
   }
 

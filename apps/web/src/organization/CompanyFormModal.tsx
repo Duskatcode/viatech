@@ -1,14 +1,14 @@
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 
-import type { Company, UpdateCompanyPayload } from '../types/domain';
+import type { Company, CreateCompanyPayload, UpdateCompanyPayload } from '../types/domain';
 
 interface CompanyFormModalProps {
-  company: Company;
+  company?: Company | null;
   isSubmitting: boolean;
   onClose: () => void;
-  onSubmit: (payload: UpdateCompanyPayload) => Promise<void>;
+  onSubmit: (payload: CreateCompanyPayload | UpdateCompanyPayload) => Promise<void>;
 }
 
 export function CompanyFormModal({
@@ -17,22 +17,41 @@ export function CompanyFormModal({
   onClose,
   onSubmit,
 }: CompanyFormModalProps) {
-  const [name, setName] = useState(company.name ?? '');
-  const [nit, setNit] = useState(company.nit ?? '');
-  const [phone, setPhone] = useState(company.phone ?? '');
-  const [email, setEmail] = useState(company.email ?? '');
-  const [address, setAddress] = useState(company.address ?? '');
+  const isEdit = !!company;
+  const [name, setName] = useState('');
+  const [nit, setNit] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [address, setAddress] = useState('');
+
+  useEffect(() => {
+    if (company) {
+      setName(company.name ?? '');
+      setNit(company.nit ?? '');
+      setPhone(company.phone ?? '');
+      setEmail(company.email ?? '');
+      setAddress(company.address ?? '');
+    } else {
+      setName('');
+      setNit('');
+      setPhone('');
+      setEmail('');
+      setAddress('');
+    }
+  }, [company]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    await onSubmit({
+    const payload = {
       name,
       nit: nit || undefined,
       phone: phone || undefined,
       email: email || undefined,
       address: address || undefined,
-    });
+    };
+
+    await onSubmit(payload);
   }
 
   return (
@@ -40,9 +59,13 @@ export function CompanyFormModal({
       <section className="w-full max-w-2xl rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-white">Editar empresa</h2>
+            <h2 className="text-xl font-semibold text-white">
+              {isEdit ? 'Editar empresa' : 'Crear empresa'}
+            </h2>
             <p className="mt-1 text-sm text-slate-400">
-              Actualiza la información base de la institución.
+              {isEdit
+                ? 'Actualiza la información base de la institución.'
+                : 'Registra una nueva empresa en el sistema.'}
             </p>
           </div>
 
@@ -81,7 +104,7 @@ export function CompanyFormModal({
               disabled={isSubmitting}
               className="rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:opacity-60"
             >
-              {isSubmitting ? 'Guardando...' : 'Guardar'}
+              {isSubmitting ? 'Guardando...' : isEdit ? 'Actualizar' : 'Crear empresa'}
             </button>
           </div>
         </form>

@@ -3,6 +3,7 @@ import type {
   Area,
   Company,
   CreateAreaPayload,
+  CreateCompanyPayload,
   CreateSitePayload,
   Site,
   UpdateAreaPayload,
@@ -13,6 +14,11 @@ import type {
 export const organizationService = {
   async companies() {
     const response = await api.get<Company[]>('/companies');
+    return response.data;
+  },
+
+  async createCompany(payload: CreateCompanyPayload) {
+    const response = await api.post<Company>('/companies', payload);
     return response.data;
   },
 

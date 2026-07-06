@@ -12,6 +12,7 @@ import type {
   Area,
   Company,
   CreateAreaPayload,
+  CreateCompanyPayload,
   CreateSitePayload,
   Site,
   UpdateAreaPayload,
@@ -29,8 +30,10 @@ export function OrganizationPage() {
   const canManageOrganization =
     user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
   const canEditCompany = user?.role === 'SUPER_ADMIN';
+  const canCreateCompany = user?.role === 'SUPER_ADMIN';
 
   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null);
+  const [isCreatingCompany, setIsCreatingCompany] = useState(false);
   const [siteForm, setSiteForm] = useState<Site | null | undefined>();
   const [areaForm, setAreaForm] = useState<Area | null | undefined>();
 
@@ -50,6 +53,15 @@ export function OrganizationPage() {
     queryKey: ['areas'],
     queryFn: organizationService.areas,
     enabled: canManageOrganization,
+  });
+
+  const createCompanyMutation = useMutation({
+    mutationFn: (payload: CreateCompanyPayload) =>
+      organizationService.createCompany(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['companies'] });
+      setIsCreatingCompany(false);
+    },
   });
 
   const updateCompanyMutation = useMutation({
@@ -130,13 +142,17 @@ export function OrganizationPage() {
     }, {});
   }, [areas]);
 
-  async function handleCompanySubmit(payload: UpdateCompanyPayload) {
-    if (!companyToEdit) return;
-
-    await updateCompanyMutation.mutateAsync({
-      id: companyToEdit.id,
-      payload,
-    });
+  async function handleCompanySubmit(
+    payload: CreateCompanyPayload | UpdateCompanyPayload,
+  ) {
+    if (isCreatingCompany) {
+      await createCompanyMutation.mutateAsync(payload as CreateCompanyPayload);
+    } else if (companyToEdit) {
+      await updateCompanyMutation.mutateAsync({
+        id: companyToEdit.id,
+        payload,
+      });
+    }
   }
 
   async function handleSiteSubmit(
@@ -211,6 +227,16 @@ export function OrganizationPage() {
         description="Administra empresas, sedes y áreas para ubicar equipos biomédicos y segmentar operaciones."
         actions={
           <>
+            {canCreateCompany && (
+              <ActionButton
+                type="button"
+                icon={<Plus size={18} />}
+                onClick={() => setIsCreatingCompany(true)}
+              >
+                Nueva empresa
+              </ActionButton>
+            )}
+
             <ActionButton
               type="button"
               icon={<Plus size={18} />}
@@ -358,14 +384,19 @@ export function OrganizationPage() {
         })}
       </div>
 
-      {companyToEdit ? (
+      {(companyToEdit || isCreatingCompany) && (
         <CompanyFormModal
           company={companyToEdit}
-          isSubmitting={updateCompanyMutation.isPending}
-          onClose={() => setCompanyToEdit(null)}
+          isSubmitting={
+            createCompanyMutation.isPending || updateCompanyMutation.isPending
+          }
+          onClose={() => {
+            setCompanyToEdit(null);
+            setIsCreatingCompany(false);
+          }}
           onSubmit={handleCompanySubmit}
         />
-      ) : null}
+      )}
 
       {siteForm !== undefined ? (
         <SiteFormModal

@@ -47,11 +47,13 @@ const navigationItems: NavigationItem[] = [
     label: 'Equipos',
     href: '/equipment',
     icon: Stethoscope,
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
     label: 'Órdenes de trabajo',
     href: '/maintenance-orders',
     icon: ClipboardList,
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
     label: 'Organización',

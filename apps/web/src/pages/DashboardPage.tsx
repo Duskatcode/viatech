@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   Wrench,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
 import { GlobalDashboard } from '../dashboard/GlobalDashboard';
@@ -243,6 +243,11 @@ function EquipmentAlertItem({
 
 export function DashboardPage() {
   const { user } = useAuth();
+
+  // Redirige a técnicos a sus órdenes asignadas
+  if (user?.role === 'TECHNICIAN') {
+    return <Navigate to="/maintenance-orders?assignedToMe=true" replace />;
+  }
 
   if (user?.role === 'SUPER_ADMIN') {
     return <GlobalDashboard />;

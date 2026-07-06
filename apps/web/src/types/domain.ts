@@ -66,14 +66,14 @@ export interface QueryUsersParams {
   companyId?: string;
 }
 
-export interface CreateUserPayload {
-  name: string;
-  email: string;
-  password: string;
-  role: UserRole;
-  companyId?: string;
-}
 
+export interface CreateCompanyPayload {
+  name: string;
+  nit?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+}
 export interface UpdateUserPayload {
   name?: string;
   email?: string;

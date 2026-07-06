@@ -2,8 +2,16 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import { useAuth } from './useAuth';
 
-export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+interface ProtectedRouteProps {
+  allowedRoles?: string[];
+  redirectTo?: string;
+}
+
+export function ProtectedRoute({ 
+  allowedRoles, 
+  redirectTo = '/dashboard' 
+}: ProtectedRouteProps = {}) {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -17,6 +25,13 @@ export function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Si se especifican roles, verificar que el usuario los tenga
+  if (allowedRoles) {
+    if (!user || !allowedRoles.includes(user.role)) {
+      return <Navigate to={redirectTo} replace />;
+    }
   }
 
   return <Outlet />;
