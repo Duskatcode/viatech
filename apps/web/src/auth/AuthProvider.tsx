@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { api } from '../lib/api';
+import { api, setForcedLogoutHandler } from '../lib/api';
 import { clearTokens, getAccessToken, setTokens } from '../lib/auth-storage';
 import type { AuthResponse, AuthUser, LoginPayload } from '../types/auth';
 
@@ -43,6 +43,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return () => window.clearTimeout(timeoutId);
   }, [reloadUser]);
+
+  useEffect(() => {
+    // Si lib/api.ts fuerza un logout (token invalido/expirado fuera de
+    // una llamada explicita a logout()), limpiamos igual el usuario y
+    // la cache de React Query para no arrastrar datos de la sesion anterior.
+    setForcedLogoutHandler(() => {
+      setUser(null);
+      queryClient.clear();
+    });
+
+    return () => setForcedLogoutHandler(null);
+  }, [queryClient]);
 
   async function login(payload: LoginPayload) {
     const response = await api.post<AuthResponse>('/auth/login', payload);

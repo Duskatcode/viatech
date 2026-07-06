@@ -74,6 +74,14 @@ export interface CreateCompanyPayload {
   email?: string;
   address?: string;
 }
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  companyId?: string;
+}
+
 export interface UpdateUserPayload {
   name?: string;
   email?: string;

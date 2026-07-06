@@ -29,6 +29,20 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
 
 let refreshRequest: Promise<string> | null = null;
 
+// Permite que AuthProvider se entere cuando este modulo (fuera de React)
+// fuerza un logout por token invalido/expirado, para limpiar tanto el
+// estado de usuario como la cache de React Query.
+let forcedLogoutHandler: (() => void) | null = null;
+
+export function setForcedLogoutHandler(handler: (() => void) | null) {
+  forcedLogoutHandler = handler;
+}
+
+function handleForcedLogout() {
+  clearTokens();
+  forcedLogoutHandler?.();
+}
+
 function isAuthEndpoint(url: string | undefined) {
   return url === '/auth/login' || url === '/auth/refresh';
 }
@@ -38,7 +52,7 @@ function refreshAccessToken() {
     const refreshToken = getRefreshToken();
 
     if (!refreshToken) {
-      clearTokens();
+      handleForcedLogout();
       return Promise.reject(new Error('No refresh token available'));
     }
 
@@ -49,7 +63,7 @@ function refreshAccessToken() {
         return data.accessToken;
       })
       .catch((error: unknown) => {
-        clearTokens();
+        handleForcedLogout();
         throw error;
       })
       .finally(() => {
@@ -82,7 +96,7 @@ api.interceptors.response.use(
       isAuthEndpoint(originalRequest.url)
     ) {
       if (error.response?.status === 401) {
-        clearTokens();
+        handleForcedLogout();
       }
 
       return Promise.reject(error);
@@ -96,7 +110,7 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch {
-      clearTokens();
+      handleForcedLogout();
       return Promise.reject(error);
     }
   },
