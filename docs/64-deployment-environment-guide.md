@@ -112,7 +112,7 @@ argument, but new deployments should use `VITE_API_BASE_URL`.
 ```dotenv
 NODE_ENV=development
 API_PORT=3000
-DATABASE_URL=postgresql://USER:PASSWORD@localhost:5434/biomed?schema=public
+DATABASE_URL="postgresql://postgres.fwuyorsdspgdoxmcbrav:Nf6X3UszBEtmJlul@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
 JWT_ACCESS_SECRET=LOCAL_ONLY_ACCESS_SECRET
 JWT_REFRESH_SECRET=LOCAL_ONLY_REFRESH_SECRET
 CORS_ORIGINS=http://localhost:5173
@@ -126,7 +126,7 @@ VITE_FEEDBACK_EMAIL=
 ```dotenv
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://USER:PASSWORD@DATABASE_HOST:5432/biomed?schema=public
+DATABASE_URL="postgresql://postgres.fwuyorsdspgdoxmcbrav:Nf6X3UszBEtmJlul@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
 JWT_ACCESS_SECRET=GENERATE_IN_SECRET_MANAGER
 JWT_REFRESH_SECRET=GENERATE_A_DIFFERENT_SECRET
 CORS_ORIGINS=https://demo.example.com
@@ -140,7 +140,7 @@ VITE_FEEDBACK_EMAIL=
 ```dotenv
 NODE_ENV=production
 PORT=3000
-DATABASE_URL=postgresql://USER:PASSWORD@DATABASE_HOST:5432/biomed?schema=public
+DATABASE_URL="postgresql://postgres.fwuyorsdspgdoxmcbrav:Nf6X3UszBEtmJlul@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
 JWT_ACCESS_SECRET=GENERATE_AND_ROTATE_SECURELY
 JWT_REFRESH_SECRET=GENERATE_AND_ROTATE_SEPARATELY
 CORS_ORIGINS=https://app.example.com

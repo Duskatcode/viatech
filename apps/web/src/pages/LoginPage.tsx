@@ -34,7 +34,7 @@ export function LoginPage() {
       addToast({
         type: 'success',
         title: 'Sesión iniciada',
-        description: 'Bienvenido a BioMed Control.',
+        description: 'Bienvenido a Vitatech.',
       });
 
       navigate('/dashboard', { replace: true });
@@ -70,7 +70,7 @@ export function LoginPage() {
               </div>
 
               <div>
-                <h1 className="text-xl font-bold leading-none">BioMed Control</h1>
+                <h1 className="text-xl font-bold leading-none">Vitatech</h1>
                 <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-white/55">
                   Institutional Precision
                 </p>
@@ -111,7 +111,7 @@ export function LoginPage() {
                 <Activity size={30} />
               </div>
 
-              <p className="text-xl font-bold">BioMed Control</p>
+              <p className="text-xl font-bold">Vitatech</p>
               <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--stitch-on-surface-variant)]">
                 Institutional Precision
               </p>
@@ -202,7 +202,7 @@ export function LoginPage() {
             </form>
 
             <footer className="mt-10 text-center text-xs text-[var(--stitch-outline)]">
-              <p>© 2026 BioMed Control. Plataforma de mantenimiento biomédico.</p>
+              <p>© 2026 Vitatech. Plataforma de mantenimiento biomédico.</p>
               <div className="mt-3 flex justify-center gap-3">
                 <span>Soporte</span>
                 <span>•</span>

@@ -184,7 +184,7 @@ export function AppLayout() {
 
           <div className="min-w-0">
             <p className="text-xl font-bold leading-none text-white">
-              BioMed Control
+              Vitatech
             </p>
             <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/45">
               Institutional Precision
@@ -388,7 +388,7 @@ export function AppLayout() {
 
                   <div className="mt-3 rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-low)] px-3 py-2 text-xs text-[var(--stitch-on-surface-variant)]">
                     <p className="font-semibold text-[var(--stitch-on-surface)]">Versión del sistema</p>
-                    <p className="mt-1">BioMed Control v0.2.0 · Modo institucional</p>
+                    <p className="mt-1">Vitatech v0.2.0 · Modo institucional</p>
                   </div>
                 </div>
               ) : null}

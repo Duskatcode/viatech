@@ -412,11 +412,11 @@ export function FeedbackPage() {
           <Link
             to="/"
             className="landing-focus inline-flex items-center gap-2.5 rounded-lg"
-            aria-label="BioMed Control, volver a la landing"
+            aria-label="Vitatech, volver a la landing"
           >
             <BrandMark />
             <span className="hidden text-[15px] font-bold tracking-[-0.02em] sm:inline">
-              BioMed Control
+              Vitatech
             </span>
           </Link>
 
@@ -780,7 +780,7 @@ export function FeedbackPage() {
             className="landing-focus inline-flex items-center gap-2.5 rounded-lg font-semibold text-[#344054]"
           >
             <BrandMark compact />
-            BioMed Control
+            Vitatech
           </Link>
           <div className="flex flex-wrap gap-4">
             <Link className="landing-nav-link landing-focus rounded" to="/demo">

@@ -128,11 +128,11 @@ export function LandingPage() {
           <Link
             to="/"
             className="landing-focus inline-flex items-center gap-2.5 rounded-lg"
-            aria-label="BioMed Control, inicio"
+            aria-label="Vitatech, inicio"
           >
             <BrandMark />
             <span className="text-[15px] font-bold tracking-[-0.02em]">
-              BioMed Control
+              Vitatech
             </span>
           </Link>
 
@@ -554,10 +554,10 @@ export function LandingPage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 text-xs text-[#667085] sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10">
           <div className="flex items-center gap-2.5">
             <BrandMark compact />
-            <span className="font-semibold text-[#344054]">BioMed Control</span>
+            <span className="font-semibold text-[#344054]">Vitatech</span>
           </div>
           <p>Plataforma de gestión de mantenimiento biomédico.</p>
-          <p>© 2026 BioMed Control</p>
+          <p>© 2026 Vitatech</p>
         </div>
       </footer>
     </div>
@@ -662,7 +662,7 @@ function ProductPreview() {
             <div className="flex items-center gap-2">
               <BrandMark compact />
               <span className="hidden text-[10px] font-bold text-white sm:block">
-                BioMed Control
+                Vitatech
               </span>
             </div>
             <div className="mt-7 space-y-2">

@@ -24,8 +24,8 @@ FROM deps AS build
 
 COPY . .
 
-RUN pnpm --filter @biomed/shared build \
- && pnpm --filter @biomed/api build
+RUN pnpm --filter @vitatech/shared build \
+ && pnpm --filter @vitatech/api build
 
 FROM base AS runner
 

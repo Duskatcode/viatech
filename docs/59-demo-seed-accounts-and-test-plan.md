@@ -173,7 +173,7 @@ API_BASE_URL=http://localhost:3001/api/v1 node scripts/api-smoke-tests.mjs
 ```
 
 ```bash
-DATABASE_URL="postgresql://biomed:biomed_password@localhost:5434/biomed?schema=public" pnpm --filter @vitatech/api run prisma:seed
+DATABASE_URL="postgresql://postgres.fwuyorsdspgdoxmcbrav:Nf6X3UszBEtmJlul@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
 ```
 
 El seed es idempotente para empresas, usuarios, sedes, áreas, equipos, órdenes y auditorías. Las tareas se regeneran únicamente para las órdenes demo descritas en este documento.

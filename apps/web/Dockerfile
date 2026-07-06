@@ -8,7 +8,6 @@ RUN corepack enable
 RUN pnpm config set store-dir /pnpm/store
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
@@ -18,11 +17,11 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store,sharing=locked \
 
 COPY . .
 
-RUN pnpm --filter @biomed/shared build
+RUN pnpm --filter @vitatech/shared build
 
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm --filter @biomed/web build
+RUN pnpm --filter @vitatech/web build
 
 FROM nginx:1.27-alpine
 
