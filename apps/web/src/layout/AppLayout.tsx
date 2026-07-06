@@ -12,20 +12,21 @@ import {
   ShieldCheck,
   Stethoscope,
   UsersRound,
-  Wrench,
   CircleQuestionMark,
   LifeBuoy,
   Keyboard,
   BookOpen,
   ChevronRight,
-  CheckCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../auth/useAuth';
+import { alertsService } from '../services/alerts.service';
+import { equipmentService } from '../services/equipment.service';
+import { maintenanceOrdersService } from '../services/maintenance-orders.service';
 import { organizationService } from '../services/organization.service';
 import { UserRole } from '../types/auth';
 
@@ -107,67 +108,126 @@ export function AppLayout() {
       ? 'Resumen general de todas las empresas'
       : 'Plataforma de mantenimiento biomédico';
 
-  const recentNotifications = useMemo(
-    () => [
-      {
-        id: '1',
-        title: 'Orden próxima a vencer',
-        description: 'ORD-204 vence hoy a las 14:00.',
-        read: false,
-      },
-      {
-        id: '2',
-        title: 'Equipo fuera de servicio',
-        description: 'EQ-104 requiere intervención técnica.',
-        read: true,
-      },
-    ],
-    [],
-  );
+  const alertsQuery = useQuery({
+    queryKey: ['header-alerts-summary'],
+    queryFn: () => alertsService.summary(30),
+    staleTime: 60_000,
+  });
 
-  const helpItems = [
-    { label: 'Manual', icon: BookOpen, description: 'Guía operativa de uso' },
-    { label: 'Documentación', icon: FileText, description: 'Procedimientos institucionales' },
-    { label: 'Soporte', icon: LifeBuoy, description: 'Contacto con el equipo de soporte' },
-    { label: 'Atajos', icon: Keyboard, description: 'Teclas rápidas del sistema' },
+  const unreadCount = alertsQuery.data?.counts.total ?? 0;
+
+  const recentNotifications = useMemo(() => {
+    const summary = alertsQuery.data;
+    if (!summary) return [];
+
+    const items: { id: string; title: string; description: string; path: string }[] = [];
+
+    summary.overdueOrders.slice(0, 3).forEach((order) => {
+      items.push({
+        id: `overdue-${order.id}`,
+        title: `Orden vencida: ${order.code}`,
+        description: order.equipment?.name ?? 'Equipo sin asignar',
+        path: `/maintenance-orders/${order.id}`,
+      });
+    });
+
+    summary.upcomingOrders.slice(0, 2).forEach((order) => {
+      items.push({
+        id: `upcoming-${order.id}`,
+        title: `Orden próxima a vencer: ${order.code}`,
+        description: order.scheduledDate
+          ? new Date(order.scheduledDate).toLocaleDateString()
+          : 'Sin fecha programada',
+        path: `/maintenance-orders/${order.id}`,
+      });
+    });
+
+    summary.warrantyExpiringEquipment.slice(0, 2).forEach((eq) => {
+      items.push({
+        id: `warranty-${eq.id}`,
+        title: `Garantía por vencer: ${eq.name}`,
+        description: eq.internalCode,
+        path: `/equipment/${eq.id}`,
+      });
+    });
+
+    return items;
+  }, [alertsQuery.data]);
+
+  const helpItems: {
+    label: string;
+    icon: LucideIcon;
+    description: string;
+    path?: string;
+  }[] = [
+    { label: 'Manual', icon: BookOpen, description: 'Guía operativa de uso', path: '/demo' },
+    {
+      label: 'Documentación',
+      icon: FileText,
+      description: 'Procedimientos institucionales',
+      path: '/demo',
+    },
+    {
+      label: 'Soporte',
+      icon: LifeBuoy,
+      description: 'Contacto con el equipo de soporte',
+      path: '/feedback',
+    },
+    {
+      label: 'Atajos',
+      icon: Keyboard,
+      description: 'Próximamente',
+    },
   ];
 
-  const filteredResults = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
-    if (!query) {
-      return [];
-    }
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 300);
 
-    const items = [
-      {
-        id: 'equipment-1',
-        label: 'Equipos',
-        title: 'Bomba de Infusión',
-        description: 'EQ-104 · UTI · En mantenimiento',
-        path: '/equipment',
-      },
-      {
-        id: 'orders-1',
-        label: 'Órdenes',
-        title: 'ORD-204',
-        description: 'Mantenimiento preventivo · Pendiente',
-        path: '/maintenance-orders',
-      },
-      {
-        id: 'reports-1',
-        label: 'Reportes',
-        title: 'Reporte mensual',
-        description: 'Exportación consolidada · Disponible',
-        path: '/reports',
-      },
-    ];
-
-    return items.filter((item) => {
-      const haystack = `${item.title} ${item.description} ${item.label}`.toLowerCase();
-      return haystack.includes(query);
-    });
+    return () => clearTimeout(handle);
   }, [searchQuery]);
+
+  const canSearch = debouncedSearch.length >= 2;
+
+  const equipmentSearchQuery = useQuery({
+    queryKey: ['header-search-equipment', debouncedSearch],
+    queryFn: () => equipmentService.findAll({ search: debouncedSearch }),
+    enabled: canSearch,
+  });
+
+  const ordersSearchQuery = useQuery({
+    queryKey: ['header-search-orders', debouncedSearch],
+    queryFn: () => maintenanceOrdersService.findAll({ search: debouncedSearch }),
+    enabled: canSearch,
+  });
+
+  const isSearching =
+    canSearch && (equipmentSearchQuery.isFetching || ordersSearchQuery.isFetching);
+
+  const filteredResults = useMemo(() => {
+    if (!canSearch) return [];
+
+    const equipmentResults = (equipmentSearchQuery.data ?? []).slice(0, 5).map((eq) => ({
+      id: `equipment-${eq.id}`,
+      label: 'Equipos',
+      title: eq.name,
+      description: `${eq.internalCode} · ${eq.site?.name ?? 'Sin sede'}`,
+      path: `/equipment/${eq.id}`,
+    }));
+
+    const orderResults = (ordersSearchQuery.data ?? []).slice(0, 5).map((order) => ({
+      id: `order-${order.id}`,
+      label: 'Órdenes',
+      title: order.code,
+      description: `${order.type} · ${order.status}`,
+      path: `/maintenance-orders/${order.id}`,
+    }));
+
+    return [...equipmentResults, ...orderResults];
+  }, [canSearch, equipmentSearchQuery.data, ordersSearchQuery.data]);
 
   function handleSelectSearch(path: string) {
     setSearchQuery('');
@@ -279,7 +339,11 @@ export function AppLayout() {
 
               {searchQuery.trim() ? (
                 <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-2 shadow-xl">
-                  {filteredResults.length > 0 ? (
+                  {isSearching ? (
+                    <div className="rounded-xl bg-[var(--stitch-surface-low)] px-3 py-4 text-sm text-[var(--stitch-on-surface-variant)]">
+                      Buscando...
+                    </div>
+                  ) : filteredResults.length > 0 ? (
                     filteredResults.map((item) => (
                       <button
                         key={item.id}
@@ -317,7 +381,7 @@ export function AppLayout() {
               >
                 <Bell size={19} />
                 <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--stitch-error)] text-[10px] font-bold text-white">
-                  {recentNotifications.filter((item) => !item.read).length}
+                  {unreadCount}
                 </span>
               </button>
 
@@ -325,24 +389,33 @@ export function AppLayout() {
                 <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-[320px] rounded-2xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] p-3 shadow-xl">
                   <div className="mb-2 flex items-center justify-between">
                     <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">Notificaciones recientes</p>
-                    <span className="text-xs text-[var(--stitch-outline)]">{recentNotifications.filter((item) => !item.read).length} nuevas</span>
+                    <span className="text-xs text-[var(--stitch-outline)]">{unreadCount} activas</span>
                   </div>
 
                   <div className="space-y-2">
-                    {recentNotifications.map((notification) => (
-                      <button
-                        key={notification.id}
-                        type="button"
-                        className="flex w-full items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 text-left transition hover:border-[var(--stitch-outline-variant)] hover:bg-[var(--stitch-surface-low)]"
-                      >
-                        <div className={`mt-0.5 h-2.5 w-2.5 rounded-full ${notification.read ? 'bg-[var(--stitch-outline)]' : 'bg-[var(--stitch-primary)]'}`} />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">{notification.title}</p>
-                          <p className="mt-1 text-xs text-[var(--stitch-on-surface-variant)]">{notification.description}</p>
-                        </div>
-                        {!notification.read ? <CheckCheck size={16} className="text-[var(--stitch-primary)]" /> : null}
-                      </button>
-                    ))}
+                    {recentNotifications.length > 0 ? (
+                      recentNotifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          type="button"
+                          onClick={() => {
+                            setShowNotifications(false);
+                            navigate(notification.path);
+                          }}
+                          className="flex w-full items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 text-left transition hover:border-[var(--stitch-outline-variant)] hover:bg-[var(--stitch-surface-low)]"
+                        >
+                          <div className="mt-0.5 h-2.5 w-2.5 rounded-full bg-[var(--stitch-primary)]" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-[var(--stitch-on-surface)]">{notification.title}</p>
+                            <p className="mt-1 text-xs text-[var(--stitch-on-surface-variant)]">{notification.description}</p>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="rounded-xl bg-[var(--stitch-surface-low)] px-3 py-4 text-sm text-[var(--stitch-on-surface-variant)]">
+                        Sin novedades por ahora.
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : null}
@@ -369,18 +442,36 @@ export function AppLayout() {
                   <div className="space-y-1">
                     {helpItems.map((item) => {
                       const Icon = item.icon;
+                      const disabled = !item.path;
 
                       return (
                         <button
                           key={item.label}
                           type="button"
-                          className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition hover:bg-[var(--stitch-surface-low)]"
+                          disabled={disabled}
+                          onClick={() => {
+                            if (!item.path) return;
+                            setShowHelp(false);
+                            navigate(item.path);
+                          }}
+                          className={[
+                            'flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition',
+                            disabled
+                              ? 'cursor-not-allowed opacity-50'
+                              : 'hover:bg-[var(--stitch-surface-low)]',
+                          ].join(' ')}
                         >
                           <span className="flex items-center gap-2">
                             <Icon size={16} className="text-[var(--stitch-primary)]" />
                             <span className="text-sm text-[var(--stitch-on-surface)]">{item.label}</span>
                           </span>
-                          <ChevronRight size={16} className="text-[var(--stitch-outline)]" />
+                          {disabled ? (
+                            <span className="text-[10px] uppercase tracking-[0.1em] text-[var(--stitch-outline)]">
+                              {item.description}
+                            </span>
+                          ) : (
+                            <ChevronRight size={16} className="text-[var(--stitch-outline)]" />
+                          )}
                         </button>
                       );
                     })}
@@ -417,15 +508,6 @@ export function AppLayout() {
           <Outlet />
         </div>
       </main>
-
-      <button
-        type="button"
-        className="fixed bottom-8 right-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-[var(--stitch-primary)] text-white shadow-2xl transition-transform hover:scale-105 active:scale-95 lg:flex"
-        aria-label="Acción rápida"
-        title="Acción rápida"
-      >
-        <Wrench size={23} />
-      </button>
     </div>
   );
 }
