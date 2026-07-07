@@ -2,7 +2,7 @@
 
 ## Nombre temporal
 
-Biomed Maintenance Platform
+Vitatech Maintenance Platform
 
 ## Objetivo
 

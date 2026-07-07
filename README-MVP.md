@@ -1,4 +1,4 @@
-# Biomed Maintenance Platform — MVP
+# Vitatech Maintenance Platform — MVP
 
 Plataforma para gestión de mantenimiento biomédico.
 

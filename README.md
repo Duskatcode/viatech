@@ -1,4 +1,4 @@
-# Biomed Maintenance Platform
+# Vitatech Maintenance Platform
 
 Plataforma web para gestionar equipos biomédicos, hojas de vida, mantenimientos preventivos/correctivos, evidencias y reportes.
 

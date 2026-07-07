@@ -8,14 +8,14 @@ Aplicar paridad visual con Stitch en las dos pantallas más visibles del MVP:
 LoginPage
 DashboardPage
 Referencias Stitch
-Login - BioMed Control
+Login - Vitatech
 Dashboard de Clínica
 Dashboard Admin Principal
 Criterios visuales
 Login
 Layout 2 columnas en desktop
 Panel izquierdo oscuro institucional
-Logo BioMed Control
+Logo Vitatech
 Mensaje de seguridad
 Formulario claro con inputs institucionales
 Botón primario azul

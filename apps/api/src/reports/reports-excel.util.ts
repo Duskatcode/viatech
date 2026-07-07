@@ -25,7 +25,7 @@ export async function buildReportWorkbook({
 }: BuildReportWorkbookParams) {
   const workbook = new ExcelJS.Workbook();
 
-  workbook.creator = 'Biomed Maintenance Platform';
+  workbook.creator = 'Vitatech Maintenance Platform';
   workbook.created = new Date();
   workbook.modified = new Date();
 

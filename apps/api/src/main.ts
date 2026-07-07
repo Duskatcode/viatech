@@ -39,7 +39,7 @@ async function bootstrap() {
   const corsOrigins =
     configService.get<string>('cors.origins') ?? 'http://localhost:5173';
   const appName =
-    configService.get<string>('app.name') ?? 'Biomed Maintenance API';
+    configService.get<string>('app.name') ?? 'Vitatech Maintenance API';
   const appVersion = configService.get<string>('app.version') ?? '0.0.1';
 
   app.use(helmet());

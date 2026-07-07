@@ -15,7 +15,7 @@ export class HealthController {
     schema: {
       example: {
         status: 'ok',
-        service: 'Biomed Maintenance API',
+        service: 'Vitatech Maintenance API',
         version: '0.0.1',
         uptime: 12.34,
         timestamp: '2026-05-24T22:00:00.000Z',

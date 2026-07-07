@@ -47,13 +47,13 @@ const navigationItems: NavigationItem[] = [
     label: 'Equipos',
     href: '/equipment',
     icon: Stethoscope,
-    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+    roles: [UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER],
   },
   {
     label: 'Órdenes de trabajo',
     href: '/maintenance-orders',
     icon: ClipboardList,
-    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+    roles: [UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER],
   },
   {
     label: 'Organización',
@@ -71,6 +71,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Reportes',
     href: '/reports',
     icon: BarChart3,
+    roles: [UserRole.ADMIN, UserRole.TECHNICIAN, UserRole.VIEWER],
   },
   {
     label: 'Auditoría',

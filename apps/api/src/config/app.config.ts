@@ -19,7 +19,7 @@ function getCorsOrigins(): string {
 export const appConfig = () => ({
   app: {
     nodeEnv: process.env.NODE_ENV ?? 'development',
-    name: process.env.APP_NAME ?? 'Biomed Maintenance API',
+    name: process.env.APP_NAME ?? 'Vitatech Maintenance API',
     version: process.env.APP_VERSION ?? '0.0.1',
     port: parseNumber(process.env.PORT ?? process.env.API_PORT, 3000),
     apiPrefix: process.env.API_PREFIX ?? 'api/v1',

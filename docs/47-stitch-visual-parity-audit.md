@@ -6,12 +6,12 @@ Definir cómo acercar el frontend actual al diseño exportado desde Stitch sin r
 
 ## Fuente visual
 
-Referencia: export de Stitch para `BioMed Control`.
+Referencia: export de Stitch para `Vitatech`.
 
 El diseño exportado usa una identidad clínica institucional:
 
 ```txt
-Nombre visual: BioMed Control
+Nombre visual: Vitatech
 Estilo: Institutional Precision
 Fuente principal: Inter
 Fuente técnica: JetBrains Mono
@@ -45,7 +45,7 @@ patrones de tablas
 patrones de formularios
 patrones de sidebar/topbar
 Pantallas detectadas en Stitch
-Login - BioMed Control
+Login - Vitatech
 Dashboard Admin Principal
 Dashboard de Clínica
 Hoja de Vida de Equipo Profesional
@@ -58,7 +58,7 @@ Migración Manual de Datos
 Mantenimiento Externo
 Mapeo contra app actual
 Prioridad	Pantalla app actual	Referencia Stitch	Acción
-Alta	LoginPage	Login - BioMed Control	Rehacer visual usando layout 2 columnas
+Alta	LoginPage	Login - Vitatech	Rehacer visual usando layout 2 columnas
 Alta	AppLayout	Todas las pantallas internas	Ajustar sidebar, topbar, spacing y colores
 Alta	DashboardPage	Dashboard de Clínica / Admin Principal	Adaptar cards, bento grid y tablas
 Alta	EquipmentProfilePage	Hoja de Vida de Equipo Profesional	Adaptar identity card, specs, tablas y documentos

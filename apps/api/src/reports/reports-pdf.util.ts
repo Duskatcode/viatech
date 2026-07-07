@@ -173,7 +173,7 @@ export async function buildMaintenanceOrderPdf({
       bufferPages: true,
       info: {
         Title: `Orden de mantenimiento ${order.code}`,
-        Author: 'BioMed Control',
+        Author: 'Vitatech',
         Subject: 'Hoja imprimible de mantenimiento',
       },
     });
@@ -185,7 +185,7 @@ export async function buildMaintenanceOrderPdf({
     doc.on('error', reject);
 
     doc.rect(0, 0, doc.page.width, 78).fill('#0f172a');
-    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(18).text('BioMed Control', 40, 24);
+    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(18).text('Vitatech', 40, 24);
     doc.font('Helvetica').fontSize(10).fillColor('#cbd5e1').text('Hoja institucional de orden de mantenimiento', 40, 49);
     doc.font('Helvetica-Bold').fontSize(12).fillColor('#ffffff').text(order.code, 420, 27, {
       width: 135,
@@ -259,7 +259,7 @@ export async function buildMaintenanceOrderPdf({
     for (let i = range.start; i < range.start + range.count; i += 1) {
       doc.switchToPage(i);
       doc.font('Helvetica').fontSize(8).fillColor('#64748b').text(
-        `Página ${i + 1} de ${range.count} - Generado por BioMed Control`,
+        `Página ${i + 1} de ${range.count} - Generado por Vitatech`,
         40,
         doc.page.height - 32,
         {

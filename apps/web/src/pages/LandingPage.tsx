@@ -652,7 +652,7 @@ function ProductPreview() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#d4d8de]" />
           </div>
           <div className="rounded-md border border-[#e0e4e9] bg-white px-3 py-1 text-[9px] font-medium text-[#7a8494]">
-            app.biomedcontrol.co/dashboard
+            app.vitatech.co/dashboard
           </div>
           <div className="w-[38px]" />
         </div>

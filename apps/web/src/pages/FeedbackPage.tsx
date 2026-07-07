@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const DRAFT_KEY = 'biomed-demo-feedback-draft';
+const DRAFT_KEY = 'vitatech-demo-feedback-draft';
 
 const profileOptions = [
   'Profesional biomédico',
@@ -343,7 +343,7 @@ export function FeedbackPage() {
     const link = document.createElement('a');
 
     link.href = url;
-    link.download = `feedback-biomed-${form.date || getToday()}.md`;
+    link.download = `feedback-vitatech-${form.date || getToday()}.md`;
     document.body.appendChild(link);
     link.click();
     link.remove();

@@ -69,7 +69,46 @@ export default function App() {
         }
       />
 
-      {/* Rutas para ADMIN y SUPER_ADMIN */}
+      {/* Rutas compartidas por los 4 roles autenticados: cada pagina */}
+      {/* resuelve internamente sus diferencias por rol (ej. el redirect */}
+      {/* de TECHNICIAN dentro de DashboardPage). Declaradas UNA sola vez */}
+      {/* para evitar rutas duplicadas ambiguas en React Router. */}
+      <Route
+        element={
+          <AuthProvider>
+            <ProtectedRoute
+              allowedRoles={['SUPER_ADMIN', 'ADMIN', 'TECHNICIAN', 'VIEWER']}
+            />
+          </AuthProvider>
+        }
+      >
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
+      </Route>
+
+      {/* Equipos, Ordenes y Reportes: todos menos SUPER_ADMIN (Super Admin */}
+      {/* entra a esta informacion via el catalogo de empresas/sedes) */}
+      <Route
+        element={
+          <AuthProvider>
+            <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN', 'VIEWER']} />
+          </AuthProvider>
+        }
+      >
+        <Route element={<AppLayout />}>
+          <Route path="/equipment" element={<EquipmentPage />} />
+          <Route path="/equipment/:id" element={<EquipmentProfilePage />} />
+          <Route path="/maintenance-orders" element={<MaintenanceOrdersPage />} />
+          <Route
+            path="/maintenance-orders/:id"
+            element={<MaintenanceOrderDetailPage />}
+          />
+          <Route path="/reports" element={<ReportsPage />} />
+        </Route>
+      </Route>
+
+      {/* Rutas exclusivas de gestion: solo ADMIN y SUPER_ADMIN */}
       <Route
         element={
           <AuthProvider>
@@ -78,38 +117,23 @@ export default function App() {
         }
       >
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/equipment" element={<EquipmentPage />} />
-          <Route path="/equipment/:id" element={<EquipmentProfilePage />} />
-          <Route path="/maintenance-orders" element={<MaintenanceOrdersPage />} />
-          <Route
-            path="/maintenance-orders/:id"
-            element={<MaintenanceOrderDetailPage />}
-          />
           <Route path="/organization" element={<OrganizationPage />} />
           <Route path="/users" element={<UsersPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/audit-logs" element={<AuditLogsPage />} />
         </Route>
       </Route>
 
-      {/* Rutas para TECHNICIAN (solo acceso limitado) */}
+      {/* Auditoria: SUPER_ADMIN, ADMIN y VIEWER (igual que el menu lateral) */}
       <Route
         element={
           <AuthProvider>
-            <ProtectedRoute allowedRoles={['TECHNICIAN']} redirectTo="/maintenance-orders?assignedToMe=true" />
+            <ProtectedRoute
+              allowedRoles={['SUPER_ADMIN', 'ADMIN', 'VIEWER']}
+            />
           </AuthProvider>
         }
       >
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} /> {/* Redirige a órdenes */}
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/maintenance-orders" element={<MaintenanceOrdersPage />} />
-          <Route
-            path="/maintenance-orders/:id"
-            element={<MaintenanceOrderDetailPage />}
-          />
-          {/* Otras rutas no incluidas intencionalmente */}
+          <Route path="/audit-logs" element={<AuditLogsPage />} />
         </Route>
       </Route>
     </Routes>

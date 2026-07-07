@@ -74,7 +74,7 @@ export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
     CORS_ORIGINS: parseCorsOrigins(
       config.CORS_ORIGINS ?? config.FRONTEND_ORIGIN,
     ),
-    APP_NAME: String(config.APP_NAME ?? 'Biomed Maintenance API'),
+    APP_NAME: String(config.APP_NAME ?? 'Vitatech Maintenance API'),
     APP_VERSION: String(config.APP_VERSION ?? '0.0.1'),
     ATTACHMENTS_STORAGE_DIR: String(
       config.ATTACHMENTS_STORAGE_DIR ?? 'storage/attachments',

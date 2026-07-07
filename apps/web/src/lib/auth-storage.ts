@@ -1,5 +1,5 @@
-const ACCESS_TOKEN_KEY = 'biomed_access_token';
-const REFRESH_TOKEN_KEY = 'biomed_refresh_token';
+const ACCESS_TOKEN_KEY = 'vitatech_access_token';
+const REFRESH_TOKEN_KEY = 'vitatech_refresh_token';
 
 export function getAccessToken() {
   return window.localStorage.getItem(ACCESS_TOKEN_KEY);

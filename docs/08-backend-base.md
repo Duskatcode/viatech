@@ -26,7 +26,7 @@ Respuesta esperada:
 ```json
 {
   "status": "ok",
-  "service": "Biomed Maintenance API",
+  "service": "Vitatech Maintenance API",
   "version": "0.0.1",
   "uptime": 12.34,
   "timestamp": "2026-05-24T22:00:00.000Z"
@@ -37,7 +37,7 @@ GET /api/docs
 
 Variables principales
 NODE_ENV=development
-APP_NAME="Biomed Maintenance API"
+APP_NAME="Vitatech Maintenance API"
 APP_VERSION=0.0.1
 API_PORT=3000
 API_PREFIX=api/v1
