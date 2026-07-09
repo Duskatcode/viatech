@@ -70,6 +70,7 @@ function authUser(
     email: 'test@example.com',
     role,
     companyId,
+    companyIds: [],
   };
 }
 
@@ -103,6 +104,9 @@ describe('RBAC and tenant isolation', () => {
           role: UserRole.ADMIN,
           companyId: 'company-a',
         }),
+      },
+      companyMembership: {
+        findMany: jest.fn().mockResolvedValue([]),
       },
     };
     const context = {

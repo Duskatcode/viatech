@@ -7,6 +7,7 @@ import { AlertsModule } from './alerts/alerts.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
+import { CompanyMembershipsModule } from './company-memberships/company-memberships.module';
 import { appConfig } from './config/app.config';
 import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
     CompaniesModule,
+    CompanyMembershipsModule,
     SitesModule,
     AreasModule,
     EquipmentModule,

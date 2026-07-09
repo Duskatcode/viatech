@@ -23,6 +23,8 @@ model User {
   assignedMaintenanceOrders MaintenanceOrder[] @relation("AssignedMaintenanceOrders")
   createdMaintenanceOrders  MaintenanceOrder[] @relation("CreatedMaintenanceOrders")
   company                   Company?           @relation(fields: [companyId], references: [id])
+  memberships               CompanyMembership[] @relation("UserMemberships")
+  assignedMemberships       CompanyMembership[] @relation("MembershipAssignedBy")
 
   @@index([companyId])
   @@index([role])
@@ -41,6 +43,7 @@ model Company {
   equipment Equipment[]
   sites     Site[]
   users     User[]
+  memberships CompanyMembership[]
 }
 
 model Site {
@@ -55,6 +58,7 @@ model Site {
   areas     Area[]
   equipment Equipment[]
   company   Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  memberships CompanyMembership[]
 
   @@index([companyId])
 }
@@ -185,11 +189,41 @@ model AuditLog {
   @@index([entityId])
 }
 
+// Vincula un usuario (tipicamente TECHNICIAN) a una empresa y, opcionalmente,
+// a una sede especifica de esa empresa. Un mismo usuario puede tener varias
+// membresias activas simultaneas (distintas empresas/sedes). No se borra al
+// revocar: se marca INACTIVE + revokedAt, para conservar el historial de
+// ordenes de mantenimiento que el usuario ya completo bajo esa membresia.
+model CompanyMembership {
+  id           String           @id @default(cuid())
+  userId       String
+  companyId    String
+  siteId       String?
+  status       MembershipStatus @default(ACTIVE)
+  assignedById String?
+  assignedAt   DateTime         @default(now())
+  revokedAt    DateTime?
+  user         User             @relation("UserMemberships", fields: [userId], references: [id], onDelete: Cascade)
+  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  site         Site?            @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  assignedBy   User?            @relation("MembershipAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([siteId])
+  @@index([status])
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
   TECHNICIAN
   VIEWER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
 }
 
 enum EquipmentStatus {

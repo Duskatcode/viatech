@@ -41,6 +41,7 @@ describe('UsersService RBAC', () => {
     email: `${role.toLowerCase()}@vitatech.local`,
     role,
     companyId,
+    companyIds: [],
   });
 
   const publicUser = {

@@ -68,12 +68,20 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('Invalid or inactive user');
       }
 
+      const memberships = await this.prisma.companyMembership.findMany({
+        where: { userId: currentUser.id, status: 'ACTIVE' },
+        select: { companyId: true },
+      });
+
       const user: AuthUser = {
         id: currentUser.id,
         name: currentUser.name,
         email: currentUser.email,
         role: toSharedRole(currentUser.role),
         companyId: currentUser.companyId,
+        companyIds: [
+          ...new Set(memberships.map((membership: { companyId: string }) => membership.companyId)),
+        ],
       };
 
       request.user = user;

@@ -43,20 +43,6 @@ function handleForcedLogout() {
   forcedLogoutHandler?.();
 }
 
-// Permite que AuthProvider se entere cuando este modulo (fuera de React)
-// fuerza un logout por token invalido/expirado, para limpiar tanto el
-// estado de usuario como la cache de React Query.
-let forcedLogoutHandler: (() => void) | null = null;
-
-export function setForcedLogoutHandler(handler: (() => void) | null) {
-  forcedLogoutHandler = handler;
-}
-
-function handleForcedLogout() {
-  clearTokens();
-  forcedLogoutHandler?.();
-}
-
 function isAuthEndpoint(url: string | undefined) {
   return url === '/auth/login' || url === '/auth/refresh';
 }

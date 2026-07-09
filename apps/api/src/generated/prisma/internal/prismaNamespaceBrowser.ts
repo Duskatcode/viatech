@@ -59,7 +59,8 @@ export const ModelName = {
   MaintenanceOrder: 'MaintenanceOrder',
   MaintenanceTask: 'MaintenanceTask',
   Attachment: 'Attachment',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  CompanyMembership: 'CompanyMembership'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -226,6 +227,20 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const CompanyMembershipScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  companyId: 'companyId',
+  siteId: 'siteId',
+  status: 'status',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type CompanyMembershipScalarFieldEnum = (typeof CompanyMembershipScalarFieldEnum)[keyof typeof CompanyMembershipScalarFieldEnum]
 
 
 export const SortOrder = {

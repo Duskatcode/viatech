@@ -226,6 +226,8 @@ export type UserWhereInput = {
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderListRelationFilter
   createdMaintenanceOrders?: Prisma.MaintenanceOrderListRelationFilter
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  memberships?: Prisma.CompanyMembershipListRelationFilter
+  assignedMemberships?: Prisma.CompanyMembershipListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -243,6 +245,8 @@ export type UserOrderByWithRelationInput = {
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderOrderByRelationAggregateInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderOrderByRelationAggregateInput
   company?: Prisma.CompanyOrderByWithRelationInput
+  memberships?: Prisma.CompanyMembershipOrderByRelationAggregateInput
+  assignedMemberships?: Prisma.CompanyMembershipOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -263,6 +267,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderListRelationFilter
   createdMaintenanceOrders?: Prisma.MaintenanceOrderListRelationFilter
   company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  memberships?: Prisma.CompanyMembershipListRelationFilter
+  assignedMemberships?: Prisma.CompanyMembershipListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -311,6 +317,8 @@ export type UserCreateInput = {
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutAssignedToInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutCreatedByInput
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  memberships?: Prisma.CompanyMembershipCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -327,6 +335,8 @@ export type UserUncheckedCreateInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutAssignedToInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  memberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserUpdateInput = {
@@ -343,6 +353,8 @@ export type UserUpdateInput = {
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutAssignedToNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutCreatedByNestedInput
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  memberships?: Prisma.CompanyMembershipUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -359,6 +371,8 @@ export type UserUncheckedUpdateInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutAssignedToNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  memberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -451,6 +465,11 @@ export type UserOrderByRelationAggregateInput = {
 export type UserNullableScalarRelationFilter = {
   is?: Prisma.UserWhereInput | null
   isNot?: Prisma.UserWhereInput | null
+}
+
+export type UserScalarRelationFilter = {
+  is?: Prisma.UserWhereInput
+  isNot?: Prisma.UserWhereInput
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -563,6 +582,36 @@ export type UserUpdateOneWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.UserUpdateWithoutAuditLogsInput>, Prisma.UserUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type UserCreateNestedOneWithoutMembershipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMembershipsInput, Prisma.UserUncheckedCreateWithoutMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutAssignedMembershipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedMembershipsInput, Prisma.UserUncheckedCreateWithoutAssignedMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMembershipsInput, Prisma.UserUncheckedCreateWithoutMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMembershipsInput
+  upsert?: Prisma.UserUpsertWithoutMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMembershipsInput, Prisma.UserUpdateWithoutMembershipsInput>, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
+}
+
+export type UserUpdateOneWithoutAssignedMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedMembershipsInput, Prisma.UserUncheckedCreateWithoutAssignedMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedMembershipsInput
+  upsert?: Prisma.UserUpsertWithoutAssignedMembershipsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedMembershipsInput, Prisma.UserUpdateWithoutAssignedMembershipsInput>, Prisma.UserUncheckedUpdateWithoutAssignedMembershipsInput>
+}
+
 export type UserCreateWithoutCompanyInput = {
   id?: string
   name: string
@@ -576,6 +625,8 @@ export type UserCreateWithoutCompanyInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutAssignedToInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutCreatedByInput
+  memberships?: Prisma.CompanyMembershipCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserUncheckedCreateWithoutCompanyInput = {
@@ -591,6 +642,8 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutAssignedToInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  memberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserCreateOrConnectWithoutCompanyInput = {
@@ -648,6 +701,8 @@ export type UserCreateWithoutAssignedMaintenanceOrdersInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutCreatedByInput
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  memberships?: Prisma.CompanyMembershipCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserUncheckedCreateWithoutAssignedMaintenanceOrdersInput = {
@@ -663,6 +718,8 @@ export type UserUncheckedCreateWithoutAssignedMaintenanceOrdersInput = {
   refreshTokenHash?: string | null
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  memberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserCreateOrConnectWithoutAssignedMaintenanceOrdersInput = {
@@ -683,6 +740,8 @@ export type UserCreateWithoutCreatedMaintenanceOrdersInput = {
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutAssignedToInput
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  memberships?: Prisma.CompanyMembershipCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserUncheckedCreateWithoutCreatedMaintenanceOrdersInput = {
@@ -698,6 +757,8 @@ export type UserUncheckedCreateWithoutCreatedMaintenanceOrdersInput = {
   refreshTokenHash?: string | null
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutAssignedToInput
+  memberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserCreateOrConnectWithoutCreatedMaintenanceOrdersInput = {
@@ -729,6 +790,8 @@ export type UserUpdateWithoutAssignedMaintenanceOrdersInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutCreatedByNestedInput
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  memberships?: Prisma.CompanyMembershipUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedMaintenanceOrdersInput = {
@@ -744,6 +807,8 @@ export type UserUncheckedUpdateWithoutAssignedMaintenanceOrdersInput = {
   refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  memberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUpsertWithoutCreatedMaintenanceOrdersInput = {
@@ -770,6 +835,8 @@ export type UserUpdateWithoutCreatedMaintenanceOrdersInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutAssignedToNestedInput
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  memberships?: Prisma.CompanyMembershipUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedMaintenanceOrdersInput = {
@@ -785,6 +852,8 @@ export type UserUncheckedUpdateWithoutCreatedMaintenanceOrdersInput = {
   refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutAssignedToNestedInput
+  memberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserCreateWithoutAuditLogsInput = {
@@ -800,6 +869,8 @@ export type UserCreateWithoutAuditLogsInput = {
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutAssignedToInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutCreatedByInput
   company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  memberships?: Prisma.CompanyMembershipCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -815,6 +886,8 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   refreshTokenHash?: string | null
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutAssignedToInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  memberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutUserInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutAssignedByInput
 }
 
 export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -846,6 +919,8 @@ export type UserUpdateWithoutAuditLogsInput = {
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutAssignedToNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutCreatedByNestedInput
   company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  memberships?: Prisma.CompanyMembershipUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -861,6 +936,176 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutAssignedToNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  memberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutAssignedByNestedInput
+}
+
+export type UserCreateWithoutMembershipsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokenHash?: string | null
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutAssignedToInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutCreatedByInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  assignedMemberships?: Prisma.CompanyMembershipCreateNestedManyWithoutAssignedByInput
+}
+
+export type UserUncheckedCreateWithoutMembershipsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  isActive?: boolean
+  companyId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokenHash?: string | null
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutAssignedToInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutAssignedByInput
+}
+
+export type UserCreateOrConnectWithoutMembershipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMembershipsInput, Prisma.UserUncheckedCreateWithoutMembershipsInput>
+}
+
+export type UserCreateWithoutAssignedMembershipsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokenHash?: string | null
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutUserInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutAssignedToInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderCreateNestedManyWithoutCreatedByInput
+  company?: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  memberships?: Prisma.CompanyMembershipCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAssignedMembershipsInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  role?: $Enums.UserRole
+  isActive?: boolean
+  companyId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  refreshTokenHash?: string | null
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutUserInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutAssignedToInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedCreateNestedManyWithoutCreatedByInput
+  memberships?: Prisma.CompanyMembershipUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAssignedMembershipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedMembershipsInput, Prisma.UserUncheckedCreateWithoutAssignedMembershipsInput>
+}
+
+export type UserUpsertWithoutMembershipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMembershipsInput, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMembershipsInput, Prisma.UserUncheckedCreateWithoutMembershipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMembershipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMembershipsInput, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
+}
+
+export type UserUpdateWithoutMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutAssignedToNestedInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutCreatedByNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUpdateManyWithoutAssignedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutAssignedByNestedInput
+}
+
+export type UserUpsertWithoutAssignedMembershipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignedMembershipsInput, Prisma.UserUncheckedUpdateWithoutAssignedMembershipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedMembershipsInput, Prisma.UserUncheckedCreateWithoutAssignedMembershipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssignedMembershipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignedMembershipsInput, Prisma.UserUncheckedUpdateWithoutAssignedMembershipsInput>
+}
+
+export type UserUpdateWithoutAssignedMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutAssignedToNestedInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutCreatedByNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutUsersNestedInput
+  memberships?: Prisma.CompanyMembershipUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssignedMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  refreshTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
+  assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutAssignedToNestedInput
+  createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  memberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyCompanyInput = {
@@ -888,6 +1133,8 @@ export type UserUpdateWithoutCompanyInput = {
   auditLogs?: Prisma.AuditLogUpdateManyWithoutUserNestedInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutAssignedToNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUpdateManyWithoutCreatedByNestedInput
+  memberships?: Prisma.CompanyMembershipUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -903,6 +1150,8 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutUserNestedInput
   assignedMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutAssignedToNestedInput
   createdMaintenanceOrders?: Prisma.MaintenanceOrderUncheckedUpdateManyWithoutCreatedByNestedInput
+  memberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutUserNestedInput
+  assignedMemberships?: Prisma.CompanyMembershipUncheckedUpdateManyWithoutAssignedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -926,12 +1175,16 @@ export type UserCountOutputType = {
   auditLogs: number
   assignedMaintenanceOrders: number
   createdMaintenanceOrders: number
+  memberships: number
+  assignedMemberships: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
   assignedMaintenanceOrders?: boolean | UserCountOutputTypeCountAssignedMaintenanceOrdersArgs
   createdMaintenanceOrders?: boolean | UserCountOutputTypeCountCreatedMaintenanceOrdersArgs
+  memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
+  assignedMemberships?: boolean | UserCountOutputTypeCountAssignedMembershipsArgs
 }
 
 /**
@@ -965,6 +1218,20 @@ export type UserCountOutputTypeCountCreatedMaintenanceOrdersArgs<ExtArgs extends
   where?: Prisma.MaintenanceOrderWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompanyMembershipWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAssignedMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CompanyMembershipWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -981,6 +1248,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   assignedMaintenanceOrders?: boolean | Prisma.User$assignedMaintenanceOrdersArgs<ExtArgs>
   createdMaintenanceOrders?: boolean | Prisma.User$createdMaintenanceOrdersArgs<ExtArgs>
   company?: boolean | Prisma.User$companyArgs<ExtArgs>
+  memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
+  assignedMemberships?: boolean | Prisma.User$assignedMembershipsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1031,6 +1300,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   assignedMaintenanceOrders?: boolean | Prisma.User$assignedMaintenanceOrdersArgs<ExtArgs>
   createdMaintenanceOrders?: boolean | Prisma.User$createdMaintenanceOrdersArgs<ExtArgs>
   company?: boolean | Prisma.User$companyArgs<ExtArgs>
+  memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
+  assignedMemberships?: boolean | Prisma.User$assignedMembershipsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1047,6 +1318,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     assignedMaintenanceOrders: Prisma.$MaintenanceOrderPayload<ExtArgs>[]
     createdMaintenanceOrders: Prisma.$MaintenanceOrderPayload<ExtArgs>[]
     company: Prisma.$CompanyPayload<ExtArgs> | null
+    memberships: Prisma.$CompanyMembershipPayload<ExtArgs>[]
+    assignedMemberships: Prisma.$CompanyMembershipPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1457,6 +1730,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   assignedMaintenanceOrders<T extends Prisma.User$assignedMaintenanceOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedMaintenanceOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaintenanceOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdMaintenanceOrders<T extends Prisma.User$createdMaintenanceOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdMaintenanceOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaintenanceOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   company<T extends Prisma.User$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  memberships<T extends Prisma.User$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedMemberships<T extends Prisma.User$assignedMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1985,6 +2260,54 @@ export type User$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.CompanyInclude<ExtArgs> | null
   where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * User.memberships
+ */
+export type User$membershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CompanyMembership
+   */
+  select?: Prisma.CompanyMembershipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CompanyMembership
+   */
+  omit?: Prisma.CompanyMembershipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyMembershipInclude<ExtArgs> | null
+  where?: Prisma.CompanyMembershipWhereInput
+  orderBy?: Prisma.CompanyMembershipOrderByWithRelationInput | Prisma.CompanyMembershipOrderByWithRelationInput[]
+  cursor?: Prisma.CompanyMembershipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompanyMembershipScalarFieldEnum | Prisma.CompanyMembershipScalarFieldEnum[]
+}
+
+/**
+ * User.assignedMemberships
+ */
+export type User$assignedMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CompanyMembership
+   */
+  select?: Prisma.CompanyMembershipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CompanyMembership
+   */
+  omit?: Prisma.CompanyMembershipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyMembershipInclude<ExtArgs> | null
+  where?: Prisma.CompanyMembershipWhereInput
+  orderBy?: Prisma.CompanyMembershipOrderByWithRelationInput | Prisma.CompanyMembershipOrderByWithRelationInput[]
+  cursor?: Prisma.CompanyMembershipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CompanyMembershipScalarFieldEnum | Prisma.CompanyMembershipScalarFieldEnum[]
 }
 
 /**

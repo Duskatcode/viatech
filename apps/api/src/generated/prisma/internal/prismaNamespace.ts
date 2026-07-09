@@ -392,7 +392,8 @@ export const ModelName = {
   MaintenanceOrder: 'MaintenanceOrder',
   MaintenanceTask: 'MaintenanceTask',
   Attachment: 'Attachment',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  CompanyMembership: 'CompanyMembership'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "company" | "site" | "area" | "equipment" | "maintenanceOrder" | "maintenanceTask" | "attachment" | "auditLog"
+    modelProps: "user" | "company" | "site" | "area" | "equipment" | "maintenanceOrder" | "maintenanceTask" | "attachment" | "auditLog" | "companyMembership"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1078,6 +1079,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CompanyMembership: {
+      payload: Prisma.$CompanyMembershipPayload<ExtArgs>
+      fields: Prisma.CompanyMembershipFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyMembershipFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyMembershipFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyMembershipFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyMembershipFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyMembershipFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyMembershipCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyMembershipCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyMembershipCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyMembershipDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>
+        }
+        update: {
+          args: Prisma.CompanyMembershipUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyMembershipDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyMembershipUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyMembershipUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyMembershipUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyMembershipPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyMembershipAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyMembership>
+        }
+        groupBy: {
+          args: Prisma.CompanyMembershipGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyMembershipGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyMembershipCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyMembershipCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1267,6 +1342,20 @@ export const AuditLogScalarFieldEnum = {
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+export const CompanyMembershipScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  companyId: 'companyId',
+  siteId: 'siteId',
+  status: 'status',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type CompanyMembershipScalarFieldEnum = (typeof CompanyMembershipScalarFieldEnum)[keyof typeof CompanyMembershipScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1448,6 +1537,20 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'MembershipStatus'
+ */
+export type EnumMembershipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'MembershipStatus[]'
+ */
+export type ListEnumMembershipStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1579,6 +1682,7 @@ export type GlobalOmitConfig = {
   maintenanceTask?: Prisma.MaintenanceTaskOmit
   attachment?: Prisma.AttachmentOmit
   auditLog?: Prisma.AuditLogOmit
+  companyMembership?: Prisma.CompanyMembershipOmit
 }
 
 /* Types for Logging */

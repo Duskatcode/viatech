@@ -33,6 +33,23 @@ function toSharedRole(role: PrismaUserRole): UserRole {
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Empresas a las que este usuario tiene una CompanyMembership ACTIVE.
+   * Usado para poblar AuthUser.companyIds en login/refresh (y de forma
+   * independiente en JwtAuthGuard, que consulta Prisma directamente por
+   * cada request para que una revocacion sea efectiva de inmediato).
+   */
+  async getActiveCompanyIds(userId: string): Promise<string[]> {
+    const memberships = await this.prisma.companyMembership.findMany({
+      where: { userId, status: 'ACTIVE' },
+      select: { companyId: true },
+    });
+
+    return [
+      ...new Set(memberships.map((membership: { companyId: string }) => membership.companyId)),
+    ];
+  }
+
   findByEmailForAuth(email: string) {
     return this.prisma.user.findUnique({
       where: { email },

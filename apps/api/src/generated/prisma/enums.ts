@@ -19,6 +19,14 @@ export const UserRole = {
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
+export const MembershipStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE'
+} as const
+
+export type MembershipStatus = (typeof MembershipStatus)[keyof typeof MembershipStatus]
+
+
 export const EquipmentStatus = {
   ACTIVE: 'ACTIVE',
   IN_MAINTENANCE: 'IN_MAINTENANCE',

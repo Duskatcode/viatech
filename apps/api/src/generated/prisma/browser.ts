@@ -62,3 +62,8 @@ export type Attachment = Prisma.AttachmentModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model CompanyMembership
+ * 
+ */
+export type CompanyMembership = Prisma.CompanyMembershipModel

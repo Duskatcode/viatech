@@ -42,12 +42,15 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const companyIds = await this.usersService.getActiveCompanyIds(user.id);
+
     const authUser: AuthUser = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: toSharedRole(user.role),
       companyId: user.companyId,
+      companyIds,
     };
 
     const tokens = await this.signTokens(authUser);
@@ -97,12 +100,15 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
+    const companyIds = await this.usersService.getActiveCompanyIds(user.id);
+
     const authUser: AuthUser = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: toSharedRole(user.role),
       companyId: user.companyId,
+      companyIds,
     };
 
     const tokens = await this.signTokens(authUser);
