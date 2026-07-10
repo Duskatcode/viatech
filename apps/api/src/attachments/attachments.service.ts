@@ -17,10 +17,7 @@ import {
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
-import {
-  AttachmentType,
-  MaintenanceStatus,
-} from '../generated/prisma/client';
+import { AttachmentType, MaintenanceStatus } from '../generated/prisma/client';
 import { UserRole } from '@vitatech/shared';
 import {
   ALLOWED_ATTACHMENT_MIME_TYPES,

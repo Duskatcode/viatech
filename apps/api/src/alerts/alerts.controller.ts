@@ -29,7 +29,10 @@ export class AlertsController {
   @ApiOkResponse({
     description: 'Operational alerts summary.',
   })
-  summary(@CurrentUser() user: AuthUser, @Query() query: QueryAlertsSummaryDto) {
+  summary(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryAlertsSummaryDto,
+  ) {
     return this.alertsService.summary(user, query);
   }
 }

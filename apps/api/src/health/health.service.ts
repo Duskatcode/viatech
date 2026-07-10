@@ -14,7 +14,9 @@ export class HealthService {
   check(): HealthResponse {
     return {
       status: 'ok',
-      service: this.configService.get<string>('app.name') ?? 'Vitatech Maintenance API',
+      service:
+        this.configService.get<string>('app.name') ??
+        'Vitatech Maintenance API',
       version: this.configService.get<string>('app.version') ?? '0.0.1',
       uptime: Number(process.uptime().toFixed(2)),
       timestamp: new Date().toISOString(),

@@ -20,6 +20,7 @@ import { ResponsiveTable } from '../ui/ResponsiveTable';
 import { EmptyState, ErrorState, LoadingState } from '../ui/StateMessage';
 import { StatusPill } from '../ui/StatusPill';
 import { useToast } from '../ui/useToast';
+import { CompanyMembershipsPanel } from '../organization/CompanyMembershipsPanel';
 import { UserFormModal, type UserFormValues } from '../users/UserFormModal';
 
 const roleLabels: Record<UserRole, string> = {
@@ -51,6 +52,14 @@ export function UsersPage() {
     queryFn: organizationService.companies,
     enabled: isSuperAdmin,
   });
+
+  const sitesQuery = useQuery({
+    queryKey: ['sites'],
+    queryFn: organizationService.sites,
+    enabled: canAccess,
+  });
+
+  const [membershipCompanyId, setMembershipCompanyId] = useState('');
 
   const saveMutation = useMutation({
     mutationFn: async ({
@@ -309,6 +318,41 @@ export function UsersPage() {
             })}
           </tbody>
         </ResponsiveTable>
+      ) : null}
+
+      {isSuperAdmin ? (
+        <label className="block max-w-sm">
+          <span className="text-sm font-semibold text-[var(--stitch-on-surface)]">
+            Ver vinculaciones de la empresa
+          </span>
+          <select
+            className="mt-2 w-full rounded-xl border border-[var(--stitch-outline-variant)] bg-[var(--stitch-surface-lowest)] px-4 py-2.5 text-sm text-[var(--stitch-on-surface)] outline-none focus:border-[var(--stitch-primary)]"
+            value={membershipCompanyId}
+            onChange={(event) => setMembershipCompanyId(event.target.value)}
+          >
+            <option value="">Selecciona una empresa...</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
+      {(isSuperAdmin ? membershipCompanyId : currentUser?.companyId) ? (
+        <CompanyMembershipsPanel
+          companyId={
+            (isSuperAdmin
+              ? membershipCompanyId
+              : currentUser?.companyId) as string
+          }
+          sites={(sitesQuery.data ?? []).filter(
+            (site) =>
+              site.companyId ===
+              (isSuperAdmin ? membershipCompanyId : currentUser?.companyId),
+          )}
+        />
       ) : null}
 
       {formUser !== undefined && currentUser ? (

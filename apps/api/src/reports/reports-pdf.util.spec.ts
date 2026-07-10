@@ -27,11 +27,27 @@ describe('buildMaintenanceOrderPdf', () => {
           site: { name: 'Sede Norte', city: 'Bogotá' },
           area: { name: 'UTI', floor: '2' },
         },
-        assignedTo: { name: 'Carlos Díaz', email: 'carlos@vitatech.local', role: 'TECHNICIAN' },
-        createdBy: { name: 'Ana Ríos', email: 'ana@vitatech.local', role: 'ADMIN' },
+        assignedTo: {
+          name: 'Carlos Díaz',
+          email: 'carlos@vitatech.local',
+          role: 'TECHNICIAN',
+        },
+        createdBy: {
+          name: 'Ana Ríos',
+          email: 'ana@vitatech.local',
+          role: 'ADMIN',
+        },
         tasks: [
-          { title: 'Verificar filtros', description: 'Confirmar estado', isCompleted: true },
-          { title: 'Limpiar superficie', description: 'Aplicar protocolo', isCompleted: false },
+          {
+            title: 'Verificar filtros',
+            description: 'Confirmar estado',
+            isCompleted: true,
+          },
+          {
+            title: 'Limpiar superficie',
+            description: 'Aplicar protocolo',
+            isCompleted: false,
+          },
         ],
       },
     });

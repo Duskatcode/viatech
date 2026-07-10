@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITIES,
+} from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
@@ -177,12 +180,14 @@ export class ReportsService {
     await this.auditCsvExport(user, 'equipment-csv', equipment.length, query);
 
     return csv;
-
   }
 
-
-
-  private async auditCsvExport(user: AuthUser, report: string, rows: number, filters: unknown) {
+  private async auditCsvExport(
+    user: AuthUser,
+    report: string,
+    rows: number,
+    filters: unknown,
+  ) {
     await this.auditLogsService.safeCreate({
       userId: user.id,
       action: AUDIT_ACTIONS.REPORT_CSV_EXPORTED,
@@ -361,7 +366,9 @@ export class ReportsService {
       ],
       orders.map((order) => {
         const totalTasks = order.tasks.length;
-        const completedTasks = order.tasks.filter((task) => task.isCompleted).length;
+        const completedTasks = order.tasks.filter(
+          (task) => task.isCompleted,
+        ).length;
 
         return [
           order.id,
@@ -400,11 +407,12 @@ export class ReportsService {
     );
 
     return csv;
-
   }
 
-
-  async maintenanceOrdersXlsx(user: AuthUser, query: QueryMaintenanceReportDto) {
+  async maintenanceOrdersXlsx(
+    user: AuthUser,
+    query: QueryMaintenanceReportDto,
+  ) {
     const orders = await this.findMaintenanceOrders(user, query);
 
     const workbook = await buildReportWorkbook({
@@ -431,7 +439,11 @@ export class ReportsService {
         { header: 'Diagnóstico', key: 'diagnosis', width: 36 },
         { header: 'Acciones', key: 'actionsPerformed', width: 42 },
         { header: 'Recomendaciones', key: 'recommendations', width: 42 },
-        { header: 'Estado final equipo', key: 'finalEquipmentStatus', width: 20 },
+        {
+          header: 'Estado final equipo',
+          key: 'finalEquipmentStatus',
+          width: 20,
+        },
         { header: 'Tareas totales', key: 'totalTasks', width: 16 },
         { header: 'Tareas completadas', key: 'completedTasks', width: 20 },
         { header: 'Creado', key: 'createdAt', width: 24 },
@@ -439,7 +451,9 @@ export class ReportsService {
       ],
       rows: orders.map((order) => {
         const totalTasks = order.tasks.length;
-        const completedTasks = order.tasks.filter((task) => task.isCompleted).length;
+        const completedTasks = order.tasks.filter(
+          (task) => task.isCompleted,
+        ).length;
 
         return {
           id: order.id,
@@ -469,8 +483,21 @@ export class ReportsService {
         };
       }),
     });
-  }
 
+    await this.auditLogsService.safeCreate({
+      userId: user.id,
+      action: AUDIT_ACTIONS.REPORT_XLSX_EXPORTED,
+      entity: AUDIT_ENTITIES.REPORT,
+      entityId: 'maintenance-xlsx',
+      newValue: {
+        report: 'maintenance-xlsx',
+        filters: query,
+        rows: orders.length,
+      },
+    });
+
+    return workbook;
+  }
 
   async maintenanceOrderPdf(user: AuthUser, orderId: string) {
     const order = await this.prisma.maintenanceOrder.findFirst({
@@ -543,8 +570,12 @@ export class ReportsService {
     return pdf;
   }
 
-
-  private async auditXlsxExport(user: AuthUser, report: string, rows: number, filters: unknown) {
+  private async auditXlsxExport(
+    user: AuthUser,
+    report: string,
+    rows: number,
+    filters: unknown,
+  ) {
     await this.auditLogsService.safeCreate({
       userId: user.id,
       action: AUDIT_ACTIONS.REPORT_XLSX_EXPORTED,
@@ -611,8 +642,12 @@ export class ReportsService {
 
     if (query.createdFrom || query.createdTo) {
       where.createdAt = {
-        gte: query.createdFrom ? new Date(`${query.createdFrom}T00:00:00`) : undefined,
-        lte: query.createdTo ? new Date(`${query.createdTo}T23:59:59`) : undefined,
+        gte: query.createdFrom
+          ? new Date(`${query.createdFrom}T00:00:00`)
+          : undefined,
+        lte: query.createdTo
+          ? new Date(`${query.createdTo}T23:59:59`)
+          : undefined,
       };
     }
 
@@ -677,8 +712,12 @@ export class ReportsService {
 
     if (query.createdFrom || query.createdTo) {
       where.createdAt = {
-        gte: query.createdFrom ? new Date(`${query.createdFrom}T00:00:00`) : undefined,
-        lte: query.createdTo ? new Date(`${query.createdTo}T23:59:59`) : undefined,
+        gte: query.createdFrom
+          ? new Date(`${query.createdFrom}T00:00:00`)
+          : undefined,
+        lte: query.createdTo
+          ? new Date(`${query.createdTo}T23:59:59`)
+          : undefined,
       };
     }
 

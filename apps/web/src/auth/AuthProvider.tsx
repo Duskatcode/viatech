@@ -56,14 +56,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => setForcedLogoutHandler(null);
   }, [queryClient]);
 
-  async function login(payload: LoginPayload) {
+  const login = useCallback(async (payload: LoginPayload) => {
     const response = await api.post<AuthResponse>('/auth/login', payload);
 
     setTokens(response.data.accessToken, response.data.refreshToken);
     setUser(response.data.user);
-  }
+  }, []);
 
-  async function logout() {
+  const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
     } catch {
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Limpiar toda la caché de React Query para evitar datos cruzados entre sesiones
       queryClient.clear();
     }
-  }
+  }, [queryClient]);
 
   const value = useMemo(
     () => ({
@@ -85,7 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout,
       reloadUser,
     }),
-    [user, isLoading, reloadUser],
+    [user, isLoading, login, logout, reloadUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

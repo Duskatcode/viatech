@@ -129,5 +129,5 @@ export async function buildReportWorkbook({
 
   const buffer = await workbook.xlsx.writeBuffer();
 
-  return Buffer.from(buffer as ArrayBuffer);
+  return Buffer.from(buffer);
 }

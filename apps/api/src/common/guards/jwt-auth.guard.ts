@@ -80,7 +80,11 @@ export class JwtAuthGuard implements CanActivate {
         role: toSharedRole(currentUser.role),
         companyId: currentUser.companyId,
         companyIds: [
-          ...new Set(memberships.map((membership: { companyId: string }) => membership.companyId)),
+          ...new Set(
+            memberships.map(
+              (membership: { companyId: string }) => membership.companyId,
+            ),
+          ),
         ],
       };
 

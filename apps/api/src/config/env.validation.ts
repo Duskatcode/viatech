@@ -26,8 +26,21 @@ function parseNumber(value: unknown, fallback: number): number {
   return parsed;
 }
 
+function safeString(value: unknown, fallback = ''): string {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return fallback;
+}
+
 function parseNodeEnv(value: unknown): NodeEnv {
-  const env = String(value ?? 'development');
+  const env = safeString(value, 'development');
 
   if (env === 'development' || env === 'test' || env === 'production') {
     return env;
@@ -37,7 +50,7 @@ function parseNodeEnv(value: unknown): NodeEnv {
 }
 
 function requiredString(config: Record<string, unknown>, key: string): string {
-  const value = String(config[key] ?? '');
+  const value = safeString(config[key]);
 
   if (!value.trim()) {
     throw new Error(`${key} is required`);
@@ -47,7 +60,7 @@ function requiredString(config: Record<string, unknown>, key: string): string {
 }
 
 function parseCorsOrigins(value: unknown): string {
-  const origins = String(value ?? 'http://localhost:5173')
+  const origins = safeString(value, 'http://localhost:5173')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
@@ -69,15 +82,16 @@ export function validateEnv(config: Record<string, unknown>): ValidatedEnv {
   const validatedConfig: ValidatedEnv = {
     NODE_ENV: parseNodeEnv(config.NODE_ENV),
     API_PORT: parseNumber(config.PORT ?? config.API_PORT, 3000),
-    API_PREFIX: String(config.API_PREFIX ?? 'api/v1'),
-    SWAGGER_PATH: String(config.SWAGGER_PATH ?? 'api/docs'),
+    API_PREFIX: safeString(config.API_PREFIX, 'api/v1'),
+    SWAGGER_PATH: safeString(config.SWAGGER_PATH, 'api/docs'),
     CORS_ORIGINS: parseCorsOrigins(
       config.CORS_ORIGINS ?? config.FRONTEND_ORIGIN,
     ),
-    APP_NAME: String(config.APP_NAME ?? 'Vitatech Maintenance API'),
-    APP_VERSION: String(config.APP_VERSION ?? '0.0.1'),
-    ATTACHMENTS_STORAGE_DIR: String(
-      config.ATTACHMENTS_STORAGE_DIR ?? 'storage/attachments',
+    APP_NAME: safeString(config.APP_NAME, 'Vitatech Maintenance API'),
+    APP_VERSION: safeString(config.APP_VERSION, '0.0.1'),
+    ATTACHMENTS_STORAGE_DIR: safeString(
+      config.ATTACHMENTS_STORAGE_DIR,
+      'storage/attachments',
     ),
     DATABASE_URL: requiredString(config, 'DATABASE_URL'),
     JWT_ACCESS_SECRET: requiredString(config, 'JWT_ACCESS_SECRET'),

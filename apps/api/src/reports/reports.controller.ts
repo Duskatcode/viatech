@@ -41,7 +41,10 @@ export class ReportsController {
   @ApiOkResponse({
     description: 'Equipment report as JSON.',
   })
-  equipment(@CurrentUser() user: AuthUser, @Query() query: QueryEquipmentReportDto) {
+  equipment(
+    @CurrentUser() user: AuthUser,
+    @Query() query: QueryEquipmentReportDto,
+  ) {
     return this.reportsService.findEquipment(user, query);
   }
 
@@ -83,7 +86,6 @@ export class ReportsController {
 
     response.send(workbook);
   }
-
 
   @Get('maintenance-orders/:id.pdf')
   @Roles(...REPORT_ROLES)
@@ -140,7 +142,10 @@ export class ReportsController {
     @Query() query: QueryMaintenanceReportDto,
     @Res() response: Response,
   ) {
-    const workbook = await this.reportsService.maintenanceOrdersXlsx(user, query);
+    const workbook = await this.reportsService.maintenanceOrdersXlsx(
+      user,
+      query,
+    );
 
     response.setHeader(
       'Content-Type',

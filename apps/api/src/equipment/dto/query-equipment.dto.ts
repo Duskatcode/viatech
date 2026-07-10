@@ -27,7 +27,8 @@ export class QueryEquipmentDto {
   status?: EquipmentStatus;
 
   @ApiPropertyOptional({
-    description: 'Search by internal code, name, brand, model or serial number.',
+    description:
+      'Search by internal code, name, brand, model or serial number.',
   })
   @IsOptional()
   @IsString()

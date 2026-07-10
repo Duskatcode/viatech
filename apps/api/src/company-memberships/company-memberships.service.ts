@@ -72,7 +72,10 @@ export class CompanyMembershipsService {
   }
 
   async findAll(currentUser: AuthUser, query: QueryMembershipsDto) {
-    const companyId = this.resolveCompanyIdForRead(currentUser, query.companyId);
+    const companyId = this.resolveCompanyIdForRead(
+      currentUser,
+      query.companyId,
+    );
 
     return this.prisma.companyMembership.findMany({
       where: { companyId },

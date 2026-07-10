@@ -6,14 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { AUDIT_ACTIONS, AUDIT_ENTITIES } from '../audit-logs/audit-log.constants';
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITIES,
+} from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
-import {
-  EquipmentStatus,
-  Prisma,
-} from '../generated/prisma/client';
+import { EquipmentStatus, Prisma } from '../generated/prisma/client';
 import { UserRole } from '@vitatech/shared';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
 import { QueryEquipmentDto } from './dto/query-equipment.dto';
@@ -196,7 +196,10 @@ export class EquipmentService {
   async update(user: AuthUser, id: string, dto: UpdateEquipmentDto) {
     const currentEquipment = await this.findOne(user, id);
 
-    const companyId = this.resolveCompanyId(user, dto.companyId ?? currentEquipment.companyId);
+    const companyId = this.resolveCompanyId(
+      user,
+      dto.companyId ?? currentEquipment.companyId,
+    );
     const siteId = dto.siteId ?? currentEquipment.siteId;
     const areaId = dto.areaId ?? currentEquipment.areaId;
 
@@ -258,7 +261,11 @@ export class EquipmentService {
     }
   }
 
-  async updateStatus(user: AuthUser, id: string, dto: UpdateEquipmentStatusDto) {
+  async updateStatus(
+    user: AuthUser,
+    id: string,
+    dto: UpdateEquipmentStatusDto,
+  ) {
     const equipment = await this.findOne(user, id);
 
     if (
@@ -334,7 +341,10 @@ export class EquipmentService {
     return retiredEquipment;
   }
 
-  private resolveCompanyId(user: AuthUser, requestedCompanyId?: string): string {
+  private resolveCompanyId(
+    user: AuthUser,
+    requestedCompanyId?: string,
+  ): string {
     if (user.role === UserRole.SUPER_ADMIN) {
       if (!requestedCompanyId) {
         throw new BadRequestException('companyId is required for SUPER_ADMIN');
@@ -493,7 +503,9 @@ export class EquipmentService {
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
     ) {
-      throw new ConflictException('Equipment internal code already exists for this company');
+      throw new ConflictException(
+        'Equipment internal code already exists for this company',
+      );
     }
 
     throw error;

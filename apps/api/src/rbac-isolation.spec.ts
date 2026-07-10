@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method, @typescript-eslint/no-floating-promises */
 import {
   ExecutionContext,
   ForbiddenException,

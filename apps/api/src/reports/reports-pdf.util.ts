@@ -1,4 +1,4 @@
-import PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 
 interface PdfTask {
   title: string;
@@ -80,7 +80,11 @@ function addSectionTitle(doc: PDFKit.PDFDocument, title: string) {
     .font('Helvetica-Bold')
     .text(title, { underline: false });
 
-  doc.moveTo(42, doc.y + 4).lineTo(555, doc.y + 4).strokeColor('#cbd5e1').stroke();
+  doc
+    .moveTo(42, doc.y + 4)
+    .lineTo(555, doc.y + 4)
+    .strokeColor('#cbd5e1')
+    .stroke();
   doc.moveDown(0.6);
 }
 
@@ -118,28 +122,24 @@ function addParagraph(
   label: string,
   value?: string | null,
 ) {
-  doc
-    .font('Helvetica-Bold')
-    .fontSize(9)
-    .fillColor('#334155')
-    .text(`${label}:`);
+  doc.font('Helvetica-Bold').fontSize(9).fillColor('#334155').text(`${label}:`);
 
   doc.moveDown(0.25);
 
-  doc
-    .font('Helvetica')
-    .fontSize(9)
-    .fillColor('#0f172a')
-    .text(safe(value), {
-      width: 500,
-      align: 'left',
-      lineGap: 2,
-    });
+  doc.font('Helvetica').fontSize(9).fillColor('#0f172a').text(safe(value), {
+    width: 500,
+    align: 'left',
+    lineGap: 2,
+  });
 
   doc.moveDown(0.8);
 }
 
-function addChecklistItem(doc: PDFKit.PDFDocument, index: number, task: PdfTask) {
+function addChecklistItem(
+  doc: PDFKit.PDFDocument,
+  index: number,
+  task: PdfTask,
+) {
   const mark = task.isCompleted ? '✓' : '○';
   const title = `${index}. ${mark} ${task.title}`;
 
@@ -185,16 +185,36 @@ export async function buildMaintenanceOrderPdf({
     doc.on('error', reject);
 
     doc.rect(0, 0, doc.page.width, 78).fill('#0f172a');
-    doc.fillColor('#ffffff').font('Helvetica-Bold').fontSize(18).text('Vitatech', 40, 24);
-    doc.font('Helvetica').fontSize(10).fillColor('#cbd5e1').text('Hoja institucional de orden de mantenimiento', 40, 49);
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#ffffff').text(order.code, 420, 27, {
-      width: 135,
-      align: 'right',
-    });
+    doc
+      .fillColor('#ffffff')
+      .font('Helvetica-Bold')
+      .fontSize(18)
+      .text('Vitatech', 40, 24);
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .fillColor('#cbd5e1')
+      .text('Hoja institucional de orden de mantenimiento', 40, 49);
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(12)
+      .fillColor('#ffffff')
+      .text(order.code, 420, 27, {
+        width: 135,
+        align: 'right',
+      });
 
     doc.y = 100;
-    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(11).text('Orden de mantenimiento biomédica', 42, 90);
-    doc.font('Helvetica').fontSize(9).fillColor('#475569').text(`Emitida el ${formatDate(order.createdAt)}`, 42, 107);
+    doc
+      .fillColor('#0f172a')
+      .font('Helvetica-Bold')
+      .fontSize(11)
+      .text('Orden de mantenimiento biomédica', 42, 90);
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor('#475569')
+      .text(`Emitida el ${formatDate(order.createdAt)}`, 42, 107);
 
     addSectionTitle(doc, '1. Datos generales');
     addKeyValue(doc, 'Código', order.code);
@@ -234,7 +254,11 @@ export async function buildMaintenanceOrderPdf({
 
     addSectionTitle(doc, '6. Checklist');
     if (order.tasks.length === 0) {
-      doc.font('Helvetica').fontSize(9).fillColor('#64748b').text('Esta orden no tiene tareas registradas.');
+      doc
+        .font('Helvetica')
+        .fontSize(9)
+        .fillColor('#64748b')
+        .text('Esta orden no tiene tareas registradas.');
     } else {
       order.tasks.forEach((task, index) => {
         addChecklistItem(doc, index + 1, task);
@@ -250,23 +274,39 @@ export async function buildMaintenanceOrderPdf({
     addSectionTitle(doc, '8. Firmas');
     doc.moveDown(0.8);
     doc.moveTo(48, doc.y).lineTo(250, doc.y).strokeColor('#0f172a').stroke();
-    doc.font('Helvetica').fontSize(9).fillColor('#334155').text('Firma técnico responsable', 48, doc.y + 7);
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor('#334155')
+      .text('Firma técnico responsable', 48, doc.y + 7);
 
-    doc.moveTo(320, doc.y - 7).lineTo(552, doc.y - 7).strokeColor('#0f172a').stroke();
-    doc.font('Helvetica').fontSize(9).fillColor('#334155').text('Firma recibido / responsable área', 320, doc.y + 7);
+    doc
+      .moveTo(320, doc.y - 7)
+      .lineTo(552, doc.y - 7)
+      .strokeColor('#0f172a')
+      .stroke();
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor('#334155')
+      .text('Firma recibido / responsable área', 320, doc.y + 7);
 
     const range = doc.bufferedPageRange();
     for (let i = range.start; i < range.start + range.count; i += 1) {
       doc.switchToPage(i);
-      doc.font('Helvetica').fontSize(8).fillColor('#64748b').text(
-        `Página ${i + 1} de ${range.count} - Generado por Vitatech`,
-        40,
-        doc.page.height - 32,
-        {
-          width: doc.page.width - 80,
-          align: 'center',
-        },
-      );
+      doc
+        .font('Helvetica')
+        .fontSize(8)
+        .fillColor('#64748b')
+        .text(
+          `Página ${i + 1} de ${range.count} - Generado por Vitatech`,
+          40,
+          doc.page.height - 32,
+          {
+            width: doc.page.width - 80,
+            align: 'center',
+          },
+        );
     }
 
     doc.end();

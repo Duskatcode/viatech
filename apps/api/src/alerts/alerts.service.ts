@@ -141,7 +141,9 @@ export class AlertsService {
     };
   }
 
-  private buildMaintenanceScope(user: AuthUser): Prisma.MaintenanceOrderWhereInput {
+  private buildMaintenanceScope(
+    user: AuthUser,
+  ): Prisma.MaintenanceOrderWhereInput {
     if (user.role === UserRole.SUPER_ADMIN) {
       return {};
     }

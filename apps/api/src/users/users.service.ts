@@ -17,7 +17,7 @@ import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 function toPrismaRole(role: UserRole): PrismaUserRole {
-  return role as unknown as PrismaUserRole;
+  return role;
 }
 
 /**
@@ -46,7 +46,11 @@ export class UsersService {
     });
 
     return [
-      ...new Set(memberships.map((membership: { companyId: string }) => membership.companyId)),
+      ...new Set(
+        memberships.map(
+          (membership: { companyId: string }) => membership.companyId,
+        ),
+      ),
     ];
   }
 

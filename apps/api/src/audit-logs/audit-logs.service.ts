@@ -43,7 +43,6 @@ export class AuditLogsService {
     });
   }
 
-
   async safeCreate(input: CreateAuditLogInput) {
     try {
       return await this.create(input);

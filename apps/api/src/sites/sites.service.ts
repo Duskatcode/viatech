@@ -112,7 +112,10 @@ export class SitesService {
     });
   }
 
-  private resolveCompanyId(user: AuthUser, requestedCompanyId?: string): string {
+  private resolveCompanyId(
+    user: AuthUser,
+    requestedCompanyId?: string,
+  ): string {
     if (user.role === UserRole.SUPER_ADMIN) {
       if (!requestedCompanyId) {
         throw new BadRequestException('companyId is required for SUPER_ADMIN');

@@ -90,6 +90,32 @@ export interface UpdateUserPayload {
   isActive?: boolean;
 }
 
+export interface AssignableUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  companyId: string | null;
+}
+
+export interface CompanyMembership {
+  id: string;
+  userId: string;
+  companyId: string;
+  siteId: string | null;
+  status: 'ACTIVE' | 'INACTIVE';
+  assignedAt: string;
+  revokedAt: string | null;
+  user: { id: string; name: string; email: string; role: UserRole };
+  site: { id: string; name: string } | null;
+}
+
+export interface CreateMembershipPayload {
+  userId: string;
+  companyId: string;
+  siteId?: string;
+}
+
 export interface UpdateUserRolePayload {
   role: UserRole;
 }

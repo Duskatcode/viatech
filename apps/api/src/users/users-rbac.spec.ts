@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
 jest.mock('../generated/prisma/client', () => {
   class PrismaClientKnownRequestError extends Error {
     code: string;

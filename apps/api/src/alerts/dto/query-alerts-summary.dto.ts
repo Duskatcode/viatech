@@ -5,7 +5,8 @@ import { IsInt, IsOptional, Max, Min } from 'class-validator';
 export class QueryAlertsSummaryDto {
   @ApiPropertyOptional({
     example: 30,
-    description: 'Window in days for upcoming maintenance and expiring warranties.',
+    description:
+      'Window in days for upcoming maintenance and expiring warranties.',
   })
   @IsOptional()
   @Type(() => Number)

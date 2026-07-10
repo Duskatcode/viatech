@@ -17,6 +17,8 @@ import { MaintenanceOrdersModule } from './maintenance-orders/maintenance-orders
 import { ReportsModule } from './reports/reports.module';
 import { SitesModule } from './sites/sites.module';
 import { UsersModule } from './users/users.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -41,5 +43,7 @@ import { UsersModule } from './users/users.module';
     AlertsModule,
     HealthModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

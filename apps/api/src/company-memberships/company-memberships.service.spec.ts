@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 jest.mock('../generated/prisma/client', () => ({
   PrismaClient: class PrismaClient {},
   UserRole: {
@@ -8,7 +9,11 @@ jest.mock('../generated/prisma/client', () => ({
   },
 }));
 
-import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
 import { PrismaService } from '../database/prisma.service';
@@ -117,7 +122,10 @@ describe('CompanyMembershipsService RBAC', () => {
   it('rejects a site that does not belong to the target company', async () => {
     const { prisma, service } = createService();
     prisma.user.findUnique.mockResolvedValue(technician);
-    prisma.site.findUnique.mockResolvedValue({ id: 'site-1', companyId: companyBId });
+    prisma.site.findUnique.mockResolvedValue({
+      id: 'site-1',
+      companyId: companyBId,
+    });
 
     await expect(
       service.create(currentUser('ADMIN' as never, companyAId), {
