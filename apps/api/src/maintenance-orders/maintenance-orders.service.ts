@@ -12,6 +12,10 @@ import {
 } from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
+import {
+  buildUserCompanyFilter,
+  userHasCompanyAccess,
+} from '../common/utils/company-scope.util';
 import { PrismaService } from '../database/prisma.service';
 import {
   EquipmentStatus,
@@ -95,7 +99,7 @@ export class MaintenanceOrdersService {
         companyId:
           user.role === UserRole.SUPER_ADMIN
             ? undefined
-            : (user.companyId ?? ''),
+            : buildUserCompanyFilter(user),
       },
     };
 
@@ -494,10 +498,17 @@ export class MaintenanceOrdersService {
       where: {
         id: userId,
         isActive: true,
-        companyId,
         role: {
           in: [PrismaUserRole.ADMIN, PrismaUserRole.TECHNICIAN],
         },
+        OR: [
+          { companyId },
+          {
+            memberships: {
+              some: { companyId, status: 'ACTIVE' },
+            },
+          },
+        ],
       },
       select: {
         id: true,
@@ -512,11 +523,7 @@ export class MaintenanceOrdersService {
   }
 
   private assertCompanyAccess(user: AuthUser, companyId: string) {
-    if (user.role === UserRole.SUPER_ADMIN) {
-      return;
-    }
-
-    if (!user.companyId || user.companyId !== companyId) {
+    if (!userHasCompanyAccess(user, companyId)) {
       throw new ForbiddenException(
         'You do not have access to this maintenance order',
       );

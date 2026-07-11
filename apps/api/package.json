@@ -23,6 +23,7 @@
     "prisma:migrate:init": "prisma migrate dev --name init",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
+    
     "prisma:studio": "prisma studio",
     "prisma:migrate:deploy": "prisma migrate deploy"
   },

@@ -64,6 +64,7 @@ function authUser(
   role: UserRole,
   companyId: string | null,
   id = 'user-a',
+  companyIds: string[] = companyId ? [companyId] : [],
 ): AuthUser {
   return {
     id,
@@ -71,7 +72,7 @@ function authUser(
     email: 'test@example.com',
     role,
     companyId,
-    companyIds: [],
+    companyIds,
   };
 }
 
@@ -210,6 +211,97 @@ describe('RBAC and tenant isolation', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
+  it('allows a technician linked to two companies (via CompanyMembership) to access equipment from either one', async () => {
+    const technicianWithTwoCompanies = authUser(
+      UserRole.TECHNICIAN,
+      null,
+      'technician-multi',
+      ['company-a', 'company-b'],
+    );
+
+    const serviceForCompanyA = new EquipmentService(
+      {
+        equipment: {
+          findFirst: jest.fn().mockResolvedValue({
+            id: 'equipment-a',
+            companyId: 'company-a',
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as never,
+    );
+
+    const serviceForCompanyB = new EquipmentService(
+      {
+        equipment: {
+          findFirst: jest.fn().mockResolvedValue({
+            id: 'equipment-b',
+            companyId: 'company-b',
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as never,
+    );
+
+    await expect(
+      serviceForCompanyA.findOne(technicianWithTwoCompanies, 'equipment-a'),
+    ).resolves.toMatchObject({ id: 'equipment-a' });
+
+    await expect(
+      serviceForCompanyB.findOne(technicianWithTwoCompanies, 'equipment-b'),
+    ).resolves.toMatchObject({ id: 'equipment-b' });
+  });
+
+  it('rejects a technician from a company they are not linked to, even with other active memberships', async () => {
+    const technicianWithOneCompany = authUser(
+      UserRole.TECHNICIAN,
+      null,
+      'technician-multi',
+      ['company-a'],
+    );
+
+    const service = new EquipmentService(
+      {
+        equipment: {
+          findFirst: jest.fn().mockResolvedValue({
+            id: 'equipment-c',
+            companyId: 'company-c',
+          }),
+        },
+      } as unknown as PrismaService,
+      {} as never,
+    );
+
+    await expect(
+      service.findOne(technicianWithOneCompany, 'equipment-c'),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('scopes a technician equipment listing to the union of all their linked companies', () => {
+    const findMany = jest.fn();
+    const service = new EquipmentService(
+      { equipment: { findMany } } as unknown as PrismaService,
+      {} as never,
+    );
+
+    const technicianWithTwoCompanies = authUser(
+      UserRole.TECHNICIAN,
+      null,
+      'technician-multi',
+      ['company-a', 'company-b'],
+    );
+
+    service.findAll(technicianWithTwoCompanies, {});
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          companyId: { in: ['company-a', 'company-b'] },
+        }),
+      }),
+    );
+  });
+
   it('rejects direct order access assigned to another technician', async () => {
     const service = new MaintenanceOrdersService(
       {
@@ -255,7 +347,7 @@ describe('RBAC and tenant isolation', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           equipment: {
-            companyId: 'company-a',
+            companyId: { in: ['company-a'] },
           },
           OR: [
             {
@@ -367,7 +459,7 @@ describe('RBAC and tenant isolation', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           user: {
-            companyId: 'company-a',
+            companyId: { in: ['company-a'] },
           },
           userId: 'user-b',
         }),

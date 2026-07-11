@@ -7,6 +7,7 @@ import {
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
+import { buildUserCompanyFilter } from '../common/utils/company-scope.util';
 import { PrismaService } from '../database/prisma.service';
 import {
   EquipmentStatus,
@@ -598,7 +599,7 @@ export class ReportsService {
     }
 
     return {
-      companyId: user.companyId ?? '',
+      companyId: buildUserCompanyFilter(user),
     };
   }
 
@@ -618,7 +619,7 @@ export class ReportsService {
 
     return {
       equipment: {
-        companyId: user.companyId ?? '',
+        companyId: buildUserCompanyFilter(user),
       },
     };
   }

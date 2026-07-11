@@ -5,6 +5,10 @@ import {
 } from '@nestjs/common';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
+import {
+  buildUserCompanyFilter,
+  userHasCompanyAccess,
+} from '../common/utils/company-scope.util';
 import { PrismaService } from '../database/prisma.service';
 import { UserRole } from '@vitatech/shared';
 import { CreateAreaDto } from './dto/create-area.dto';
@@ -34,7 +38,7 @@ export class AreasService {
           ? { isActive: true }
           : {
               site: {
-                companyId: user.companyId ?? '',
+                companyId: buildUserCompanyFilter(user),
               },
               isActive: true,
             },
@@ -133,11 +137,7 @@ export class AreasService {
   }
 
   private assertCompanyAccess(user: AuthUser, companyId: string) {
-    if (user.role === UserRole.SUPER_ADMIN) {
-      return;
-    }
-
-    if (!user.companyId || user.companyId !== companyId) {
+    if (!userHasCompanyAccess(user, companyId)) {
       throw new ForbiddenException('You do not have access to this area');
     }
   }

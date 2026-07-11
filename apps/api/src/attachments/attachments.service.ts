@@ -16,6 +16,7 @@ import {
 } from '../audit-logs/audit-log.constants';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import type { AuthUser } from '../auth/types/auth-user.type';
+import { userHasCompanyAccess } from '../common/utils/company-scope.util';
 import { PrismaService } from '../database/prisma.service';
 import { AttachmentType, MaintenanceStatus } from '../generated/prisma/client';
 import { UserRole } from '@vitatech/shared';
@@ -306,9 +307,8 @@ export class AttachmentsService {
     const orderCompanyId = attachment.order?.equipment.companyId;
 
     if (
-      user.companyId &&
-      (equipmentCompanyId === user.companyId ||
-        orderCompanyId === user.companyId)
+      (equipmentCompanyId && userHasCompanyAccess(user, equipmentCompanyId)) ||
+      (orderCompanyId && userHasCompanyAccess(user, orderCompanyId))
     ) {
       return attachment;
     }
@@ -335,7 +335,7 @@ export class AttachmentsService {
       return equipment;
     }
 
-    if (user.companyId === equipment.companyId) {
+    if (userHasCompanyAccess(user, equipment.companyId)) {
       return equipment;
     }
 
@@ -368,7 +368,7 @@ export class AttachmentsService {
       return order;
     }
 
-    if (user.companyId !== order.equipment.companyId) {
+    if (!userHasCompanyAccess(user, order.equipment.companyId)) {
       throw new ForbiddenException('You cannot access this maintenance order');
     }
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import type { AuthUser } from '../auth/types/auth-user.type';
+import { buildUserCompanyFilter } from '../common/utils/company-scope.util';
 import { PrismaService } from '../database/prisma.service';
 import { Prisma } from '../generated/prisma/client';
 import { UserRole } from '@vitatech/shared';
@@ -84,7 +85,7 @@ export class AuditLogsService {
 
     return {
       user: {
-        companyId: user.companyId ?? '',
+        companyId: buildUserCompanyFilter(user),
       },
     };
   }
