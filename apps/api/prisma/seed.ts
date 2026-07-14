@@ -17,6 +17,41 @@ import {
 config({ path: '../../.env' });
 config({ path: '.env' });
 
+/**
+ * Guarda de seguridad: este seed genera datos ficticios masivos (12
+ * empresas, ~1900 equipos, ~13000 ordenes, 100000 registros de auditoria) y
+ * NUNCA debe correr contra una base real. Se bloquea si detecta cualquier
+ * indicio de que DATABASE_URL apunta a produccion, sin importar como se
+ * invoque el comando (pnpm, docker exec, ts-node directo, etc).
+ *
+ * Para saltarse esto de forma deliberada (no recomendado, nunca contra
+ * datos reales) hay que setear explicitamente ALLOW_PROD_SEED=YES_I_AM_SURE.
+ */
+function assertNotProductionDatabase() {
+  const databaseUrl = process.env.DATABASE_URL ?? '';
+  const nodeEnv = process.env.NODE_ENV ?? '';
+  const override = process.env.ALLOW_PROD_SEED === 'YES_I_AM_SURE';
+
+  const looksLikeManagedCloudDb = /supabase\.co|pooler\.supabase\.com|rds\.amazonaws\.com|neon\.tech|render\.com/i.test(
+    databaseUrl,
+  );
+  const isProductionEnv = nodeEnv === 'production';
+
+  if ((looksLikeManagedCloudDb || isProductionEnv) && !override) {
+    console.error(
+      '\n\ud83d\uded1 SEED BLOQUEADO: DATABASE_URL parece apuntar a una base de datos',
+      'gestionada/de produccion (o NODE_ENV=production).\n' +
+        'Este seed borra y regenera datos masivos: nunca debe correr ahi.\n\n' +
+        'Si esto es un entorno de desarrollo legitimo con un proveedor',
+      'cloud, vuelve a correr el comando con:\n' +
+        '  ALLOW_PROD_SEED=YES_I_AM_SURE pnpm prisma:seed\n',
+    );
+    process.exit(1);
+  }
+}
+
+assertNotProductionDatabase();
+
 const adapter = new PrismaPg(
   { connectionString: process.env.DATABASE_URL! },
   { schema: 'public' },

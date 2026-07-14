@@ -27,15 +27,21 @@ services:
       db:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       API_PORT: 3000
-      DATABASE_URL: ${DATABASE_URL}
+      # Conexion FIJA al servicio 'db' de este mismo compose, por nombre de
+      # red interno de Docker. No lee DATABASE_URL del entorno externo a
+      # proposito: este compose es exclusivamente para desarrollo local y
+      # NUNCA debe poder apuntar a una base externa (ej. Supabase de
+      # produccion), sin importar que .env este cargado en la shell.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-biomed}:${POSTGRES_PASSWORD:-biomed_password}@db:5432/${POSTGRES_DB:-biomed}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
       JWT_ACCESS_EXPIRES_IN_SECONDS: ${JWT_ACCESS_EXPIRES_IN_SECONDS:-900}
       JWT_REFRESH_EXPIRES_IN_SECONDS: ${JWT_REFRESH_EXPIRES_IN_SECONDS:-604800}
       ATTACHMENTS_STORAGE_DIR: ${ATTACHMENTS_STORAGE_DIR:-/app/storage/attachments}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:8081}
+      ENABLE_SWAGGER: "true"
     ports:
       - "${HOST_API_PORT:-3001}:3000"
     volumes:
